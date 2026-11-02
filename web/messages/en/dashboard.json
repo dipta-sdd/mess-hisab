@@ -1,0 +1,58 @@
+{
+  "nav": "Dashboard",
+  "title": "Dashboard",
+  "loading": "Loading…",
+  "links": { "history": "Month history" },
+  "errors": {
+    "loadFailed": "Could not load the dashboard. Please try again.",
+    "notFound": "That month was not found."
+  },
+  "month": {
+    "label": "Month",
+    "open": "Open",
+    "closed": "Closed",
+    "status": "Status: {status}",
+    "fixedDeadline": "Fixed bills due {date}",
+    "depositDeadline": "Deposit due {date}"
+  },
+  "totals": {
+    "title": "Month totals",
+    "fixedBills": "Fixed bills",
+    "fixedExpenses": "Fixed expenses",
+    "mealsExpenses": "Meals expenses",
+    "foodCost": "Food cost",
+    "mealRate": "Meal rate",
+    "totalMeals": "Total meals",
+    "charged": "Charged",
+    "paid": "Paid in",
+    "roundingExtra": "Rounding extra",
+    "cashPool": "Cash pool",
+    "managerBalance": "Manager's own balance",
+    "managerBalanceNamed": "{name}'s own balance",
+    "zeroMealsUnresolved": "Food was bought but nobody has any meals this month. Close the month to decide how to split it.",
+    "unchargedFood": "{amount} of food cost is not charged to anyone yet."
+  },
+  "overdue": {
+    "fixed": "Bills {days} days overdue",
+    "deposit": "Deposit {days} days overdue"
+  },
+  "members": {
+    "title": "Members",
+    "viewLabel": "Show members",
+    "all": "All ({count})",
+    "overdue": "Overdue ({count})",
+    "empty": "No members to show for this month.",
+    "noneOverdue": "Nobody is overdue.",
+    "openStatement": "Open statement for {name}",
+    "archived": "(archived)",
+    "member": "Member",
+    "fixedBill": "Fixed bill",
+    "mealsBill": "Meals bill",
+    "fixedBalance": "Fixed balance",
+    "mealsBalance": "Meals balance",
+    "balance": "Balance",
+    "outstanding": "Bills to pay",
+    "depositOutstanding": "Deposit to pay",
+    "overdueCol": "Overdue"
+  }
+}
