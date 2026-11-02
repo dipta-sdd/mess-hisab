@@ -2,7 +2,8 @@
 # Builds and releases Mess Hisab on the VPS from this checkout. Run as `user` (deploy/cron.sh does).
 # The web app is built first, so a failed build changes nothing that is live.
 set -euo pipefail
-export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+# Builds use a private Node 22 (pnpm 11 needs it); the system Node 20 belongs to other apps.
+export PATH="/home/user/.local/mess-node/current/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 CI=1
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
