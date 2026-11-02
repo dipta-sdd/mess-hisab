@@ -114,3 +114,28 @@ describe("StatementExport", () => {
     await waitFor(() => expect(body).toEqual({ type: "statement", month_id: 11, member_id: 2 }));
   });
 });
+
+describe("Export (Bangla)", () => {
+  it("shows Bangla labels for the month export flow", async () => {
+    server.use(
+      csrf,
+      http.post(`${BASE}/exports`, () => HttpResponse.json({ data: pending }, { status: 202 })),
+      http.get(`${BASE}/exports/1`, () => HttpResponse.json({ data: done })),
+    );
+    const user = userEvent.setup();
+    const { container } = renderWithProviders(<ExportButton type="month" monthId={11} pollMs={10} />, { messId: 7, locale: "bn" });
+    await user.click(screen.getByRole("button", { name: "মাসের হিসাব এক্সপোর্ট (এক্সেল)" }));
+    const link = await screen.findByRole("link", { name: "এক্সেল ফাইল ডাউনলোড করুন" });
+    expect(link).toHaveAttribute("href", done.download_url);
+    expect(container.textContent ?? "").not.toMatch(/[A-Za-z]/);
+  });
+
+  it("labels the member picker in Bangla on the statement export", () => {
+    renderWithProviders(
+      <StatementExport monthId={11} pollMs={10} members={[{ id: 1, display_name: "Rahim" }]} />,
+      { messId: 7, locale: "bn" },
+    );
+    expect(screen.getByLabelText("কোন সদস্যের স্টেটমেন্ট")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "স্টেটমেন্ট এক্সপোর্ট (এক্সেল)" })).toBeDisabled();
+  });
+});

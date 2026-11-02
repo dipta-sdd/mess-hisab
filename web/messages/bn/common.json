@@ -1,7 +1,7 @@
 {
   "balance": {
     "due": "বাকি {amount}",
-    "credit": "জমা {amount}",
+    "credit": "পাওনা {amount}",
     "settled": "হিসাব মিটে গেছে"
   },
   "language": {

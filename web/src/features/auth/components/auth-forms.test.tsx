@@ -141,7 +141,7 @@ describe("LoginForm", () => {
 
   it("renders in Bangla", () => {
     renderWithProviders(<LoginForm />, { locale: "bn" });
-    expect(screen.getByRole("button", { name: "সাইন ইন" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "লগইন" })).toBeInTheDocument();
   });
 });
 

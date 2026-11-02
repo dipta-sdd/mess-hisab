@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import type { AppLocale } from "@/i18n/config";
+import { formatNumber } from "@/lib/format";
 import { useState } from "react";
 import type { Bill, Member } from "@/lib/api/contract";
 import { useAcceptBill, useSaveBill, useSpreadBill } from "./api";
@@ -28,6 +30,7 @@ export function BillCard({
   money: (paisa: number) => string;
 }) {
   const t = useTranslations("fixed");
+  const locale = useLocale() as AppLocale;
   const save = useSaveBill(messId, monthId);
   const spread = useSpreadBill(messId, monthId);
   const accept = useAcceptBill(messId, monthId);
@@ -107,7 +110,7 @@ export function BillCard({
             className={`${fieldClass} max-w-60`}
             inputMode="decimal"
             autoComplete="off"
-            placeholder="0"
+            placeholder={formatNumber(0, locale)}
             value={amount}
             aria-invalid={badCells.has("amount") || undefined}
             onChange={(e) => setAmount(e.target.value)}

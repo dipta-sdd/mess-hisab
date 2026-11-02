@@ -206,6 +206,6 @@ describe("FixedPage (read-only)", () => {
     mockApi();
     renderWithProviders(<FixedPage />, { messId: 7, locale: "bn" });
     expect(await screen.findByRole("heading", { name: "ফিক্সড বিল সেটআপ" })).toBeInTheDocument();
-    expect(await screen.findByRole("button", { name: "বিল সংরক্ষণ করুন: Rent" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "বিল সেভ করুন: Rent" })).toBeInTheDocument();
   });
 });

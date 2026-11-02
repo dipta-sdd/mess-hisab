@@ -114,9 +114,9 @@ describe("StatementPage", () => {
   it("renders in Bangla", async () => {
     mockApi();
     renderWithProviders(<StatementPage memberId={1} />, { messId: 7, locale: "bn" });
-    expect(await screen.findByText("গত মাসের বকেয়া")).toBeInTheDocument();
+    expect(await screen.findByText("গত মাসের বাকি")).toBeInTheDocument();
     expect(screen.getByTestId("stmt-total")).toHaveTextContent("১,৬০০");
-    expect(screen.getByText("মিলের চার্জ")).toBeInTheDocument();
+    expect(screen.getByText("মিলের বিল")).toBeInTheDocument();
   });
 });
 

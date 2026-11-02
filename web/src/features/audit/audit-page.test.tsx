@@ -195,7 +195,7 @@ describe("AuditPage", () => {
     mockApi(() => envelope([entry({ id: 1, event: "payout.final", member_id: 1, after: { amount_paisa: 150000 } })]));
     const user = userEvent.setup();
     render("bn");
-    expect(await screen.findByText("চূড়ান্ত নিষ্পত্তির টাকা দেওয়া হয়েছে")).toBeInTheDocument();
+    expect(await screen.findByText("ফাইনাল হিসাবের টাকা দেওয়া হয়েছে")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "অডিট লগ" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /পরিবর্তন দেখুন/ }));
     expect(screen.getByTestId("diff-amount_paisa")).toHaveTextContent("৳১,৫০০.০০");

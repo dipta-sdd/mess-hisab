@@ -2,7 +2,9 @@
   "nav": "ড্যাশবোর্ড",
   "title": "ড্যাশবোর্ড",
   "loading": "লোড হচ্ছে…",
-  "links": { "history": "মাসের ইতিহাস" },
+  "links": {
+    "history": "মাসের ইতিহাস"
+  },
   "errors": {
     "loadFailed": "ড্যাশবোর্ড লোড করা যায়নি। আবার চেষ্টা করুন।",
     "notFound": "এই মাসটি পাওয়া যায়নি।"
@@ -13,7 +15,7 @@
     "closed": "বন্ধ",
     "status": "অবস্থা: {status}",
     "fixedDeadline": "ফিক্সড বিল দেওয়ার শেষ তারিখ {date}",
-    "depositDeadline": "জামানত দেওয়ার শেষ তারিখ {date}"
+    "depositDeadline": "ডিপোজিট দেওয়ার শেষ তারিখ {date}"
   },
   "totals": {
     "title": "মাসের মোট হিসাব",
@@ -23,18 +25,18 @@
     "foodCost": "খাবারের খরচ",
     "mealRate": "মিল রেট",
     "totalMeals": "মোট মিল",
-    "charged": "মোট ধার্য",
-    "paid": "জমা পড়েছে",
-    "roundingExtra": "রাউন্ডিংয়ের অতিরিক্ত",
-    "cashPool": "ক্যাশ পুল",
+    "charged": "মোট বিল",
+    "paid": "পেমেন্ট এসেছে",
+    "roundingExtra": "রাউন্ডিংয়ের বাড়তি",
+    "cashPool": "মেসের ক্যাশ",
     "managerBalance": "ম্যানেজারের নিজের ব্যালেন্স",
     "managerBalanceNamed": "{name}-এর নিজের ব্যালেন্স",
-    "zeroMealsUnresolved": "খাবার কেনা হয়েছে কিন্তু এই মাসে কারও মিল নেই। কীভাবে ভাগ হবে তা ঠিক করতে মাস বন্ধ করুন।",
-    "unchargedFood": "খাবারের খরচের {amount} এখনও কারও ওপর ধার্য হয়নি।"
+    "zeroMealsUnresolved": "বাজার হয়েছে, কিন্তু এই মাসে কারও মিল নেই। কীভাবে ভাগ হবে ঠিক করতে মাস বন্ধ করুন।",
+    "unchargedFood": "খাবারের খরচের {amount} এখনও কারও ওপর ধরা হয়নি।"
   },
   "overdue": {
     "fixed": "বিল {days} দিন বকেয়া",
-    "deposit": "জামানত {days} দিন বকেয়া"
+    "deposit": "ডিপোজিট {days} দিন বকেয়া"
   },
   "members": {
     "title": "সদস্য",
@@ -43,7 +45,7 @@
     "overdue": "বকেয়া ({count})",
     "empty": "এই মাসে দেখানোর মতো কোনো সদস্য নেই।",
     "noneOverdue": "কারও বকেয়া নেই।",
-    "openStatement": "{name}-এর হিসাব খুলুন",
+    "openStatement": "{name}-এর স্টেটমেন্ট খুলুন",
     "archived": "(আর্কাইভ করা)",
     "member": "সদস্য",
     "fixedBill": "ফিক্সড বিল",
@@ -51,8 +53,8 @@
     "fixedBalance": "ফিক্সড ব্যালেন্স",
     "mealsBalance": "মিলের ব্যালেন্স",
     "balance": "ব্যালেন্স",
-    "outstanding": "দেয় বিল",
-    "depositOutstanding": "দেয় জামানত",
+    "outstanding": "বিল বাকি",
+    "depositOutstanding": "ডিপোজিট বাকি",
     "overdueCol": "বকেয়া"
   }
 }

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
 import type { Expense } from "@/lib/api/contract";
+import { formatNumber } from "@/lib/format";
 import { isApiError } from "@/lib/api-client";
 import { useApproveExpense, useRejectExpense } from "./api";
 
@@ -35,7 +36,7 @@ export function ApprovalQueue({
   return (
     <section aria-labelledby="queue-title" className="flex flex-col gap-2 rounded-2xl border border-warning bg-warning/5 p-4">
       <h2 id="queue-title" className="text-lg font-semibold">
-        {t("queue.title")} ({expenses.length})
+        {t("queue.title")} ({formatNumber(expenses.length, locale)})
       </h2>
       {notice ? (
         <div role={notice.tone === "error" ? "alert" : "status"} className={`rounded-lg border p-3 text-sm ${notice.tone === "error" ? "border-danger bg-danger/10 text-danger" : "border-warning bg-warning/10"}`}>

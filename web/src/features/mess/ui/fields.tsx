@@ -1,7 +1,9 @@
 "use client";
 
 import { Input } from "@heroui/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import type { AppLocale } from "@/i18n/config";
+import { formatNumber } from "@/lib/format";
 import { useId } from "react";
 import type { InputHTMLAttributes, ReactNode, Ref, SelectHTMLAttributes } from "react";
 
@@ -107,6 +109,7 @@ export function BalanceInput({
   error?: string;
 }) {
   const t = useTranslations("mess");
+  const locale = useLocale() as AppLocale;
   const name = useId();
   return (
     <fieldset className="flex flex-col gap-2">
@@ -115,7 +118,7 @@ export function BalanceInput({
         label={label}
         inputMode="decimal"
         autoComplete="off"
-        placeholder="0"
+        placeholder={formatNumber(0, locale)}
         error={error}
         description={t("balance.hint")}
         {...amount}

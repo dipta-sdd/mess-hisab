@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { AppLocale } from "@/i18n/config";
 import type { MealEntry, Member } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
-import { formatDate, formatMeals } from "@/lib/format";
+import { formatDate, formatMeals, formatNumber } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import {
   useBulkSaveMeals,
@@ -355,7 +355,7 @@ export function MealsPage() {
 
       {anyEditable && !showOff && !loading ? (
         <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-default-200 bg-background p-3 sm:static sm:border-0 sm:p-0">
-          <p className="text-sm text-muted">{dirty ? t("unsaved", { count: Object.keys(drafts).length }) : t("noChanges")}</p>
+          <p className="text-sm text-muted">{dirty ? t("unsaved", { count: formatNumber(Object.keys(drafts).length, locale) }) : t("noChanges")}</p>
           <div className="flex gap-2">
             {dirty ? (
               <Button variant="ghost" onPress={() => { setDrafts({}); setProblems([]); }} isDisabled={saving}>

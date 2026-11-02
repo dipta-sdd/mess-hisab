@@ -2,12 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { messHomePath, useCreateMess, type CreateMessPayload } from "../api";
-import { todayInDhaka } from "@/lib/format";
+import { formatNumber, todayInDhaka } from "@/lib/format";
+import type { AppLocale } from "@/i18n/config";
 import { parseTakaOrNull, signedPaisa } from "../money";
 import { balanceDirection, integerInRange, isoDate, optionalTaka, requiredName } from "../schemas";
 import { ErrorAlert, useFormError } from "../ui/errors";
@@ -41,6 +42,7 @@ function mapField(field: string): string | null {
 
 export function CreateMessForm({ defaultName = "" }: { defaultName?: string }) {
   const t = useTranslations("mess");
+  const locale = useLocale() as AppLocale;
   const router = useRouter();
   const create = useCreateMess();
   const {
@@ -136,18 +138,18 @@ export function CreateMessForm({ defaultName = "" }: { defaultName?: string }) {
         {fields.map((field, index) => (
           <div key={field.id} className="flex flex-col gap-3 rounded-xl border border-border p-3">
             <TextInputField
-              label={t("create.memberName", { n: index + 1 })}
+              label={t("create.memberName", { n: formatNumber(index + 1, locale) })}
               error={errors.members?.[index]?.display_name?.message}
               {...register(`members.${index}.display_name`)}
             />
             <BalanceInput
-              label={t("create.memberBalance", { n: index + 1 })}
+              label={t("create.memberBalance", { n: formatNumber(index + 1, locale) })}
               amount={register(`members.${index}.amount`)}
               direction={register(`members.${index}.direction`)}
               error={errors.members?.[index]?.amount?.message}
             />
             <Button type="button" variant="ghost" onPress={() => remove(index)}>
-              {t("create.removeMember", { n: index + 1 })}
+              {t("create.removeMember", { n: formatNumber(index + 1, locale) })}
             </Button>
           </div>
         ))}
