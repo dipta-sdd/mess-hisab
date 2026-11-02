@@ -35,8 +35,8 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | W7 Web: audit + member actions | 6 | merged (nav registered by lead) | worktree-agent-a6f8d868a38d3fc71 | |
 | C1 Web consolidation | 7 | merged (lead restored 6 dropped parser test cases) | worktree-agent-afaedae132b988710 | |
 | P1 Bangla pass | 7 | merged | worktree-agent-aa7030bbe3cdab1da | |
-| P1b API messages in user language | 7 | running | | api only |
-| P2 responsive pass | 7 | running | | |
+| P1b API messages in user language | 7 | merged | worktree-agent-a9e0c96123766d394 | api only |
+| P2 responsive pass | 7 | merged | worktree-agent-a497cacd337843617 | |
 | P3 PWA | 7 | done | main | lead: manifest + icons + viewport; no service worker on purpose (no stale balances offline) |
 
 ## Test commands
@@ -71,3 +71,13 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 - Web (W6): `/[mess]/months` (`monthsNav` 70): close-check blocks (keys verified against `CloseChecker`/`MonthReopener`), zero-meal choice re-runs close-check with `zero_meal_resolution`, reopen preview, doesn't-pay (debt from dashboard row; typed mode needs remaining = 0), recoverables + repayments, adjustments (charge → negative). `features/export` exports reusable `ExportButton` / `StatementExport` (poll 2 s, max 60). Local types to promote: `DoesntPayInput`, `RepaymentInput`, `AdjustmentInput`, `MessWithMe`. Polish: month writes invalidate `["balance"]` but not `["settlement", …, "dashboard"]` or payments' month list — unify query keys. `fixed-page.test.tsx` is the usual load flake. Wave 6 complete: web 390 passed (one flake, green on rerun), build OK.
 - Web (C1): shared types in `contract.ts` (`MessWithMe`, `Paginated<T>`, all request `*Input` bodies); `src/lib/format/money-input.ts` (`parseTakaToPaisa(input, {allowZero?, max?})`, `parseMealsToCenti`, `paisaToTakaInput`, …) and `lib/format/date.ts` (`todayInDhaka`, `formatMonthLabel`); `src/components/ui/field.ts` (`fieldClass`, `fieldClassInvalid` — only fixed uses the red-border variant; P2 may switch all forms to it); `src/lib/api/query-keys.ts` `invalidateMoney()` used by every money write. Parser now rejects stray commas (`1,`, `1,,0`) everywhere. Still duplicated on purpose: `linkClass` (2 variants), settlement `FIELD`. Web 358 passed (391 before; drop = merged duplicate parser tests).
 - Web (P1): bn glossary — বাকি (due), বকেয়া (overdue), পাওনা (credit), মেসের ক্যাশ, খাত (category), ফাইনাল হিসাব, ফেরত পাওনা (recoverable), দিচ্ছেন না (doesn't pay). `messages-parity.test.ts` enforces key/ICU parity and no English in bn; `src/test/bangla.ts` `expectBanglaOnly()` guards 14 bn render tests. Audit shows raw event codes and field names as secondary text (allow-listed). Server English messages → P1b. Web 458 passed.
+- API (P1b): `SetLocale` middleware decides the language in this order: user locale, then the `NEXT_LOCALE` cookie, then Accept-Language, then en. Every user-facing 4xx message is wrapped in `__()`, with bn in `lang/bn.json` and `lang/bn/validation.php` (field attributes included). 409 codes are unchanged. API 521 passed.
+- Web (P2):
+  - Bottom nav scrolls sideways and keeps the active tab in view, with safe-area padding.
+  - Buttons and inputs are at least 44px tall.
+  - The meals save bar sits above the bottom nav.
+  - The reopen preview scrolls inside its box with a sticky column.
+  - Every form uses `fieldClassInvalid`.
+  - Desktop got no max-width pass.
+  - The web fallback `Request failed (status)` (no server message) is still English.
+  - Needs a real-browser check. Web 459 passed.

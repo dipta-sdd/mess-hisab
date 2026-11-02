@@ -22,6 +22,14 @@
 
 ---
 
+- **API message language.** Each request picks the language for `message` and validation `errors`, using the first of these that is set:
+  1. The signed-in user's `users.locale` (`en`|`bn`).
+  2. The `NEXT_LOCALE` cookie.
+  3. `Accept-Language` (`bn*` → bn).
+  4. `en`.
+
+  The `code` on a 409 and the error field keys never change, so clients branch on `code`, never on `message`. `NEXT_LOCALE` is excluded from cookie encryption. Strings live in `api/lang/bn.json` (English text is the key) and `api/lang/bn/*.php`. Ledger labels and stored notes stay English data, and the web translates them by `type`.
+
 ## 1. Enums (`app/Enums`, mirrored in `web/src/lib/api/contract.ts`)
 
 | Enum | Values |
