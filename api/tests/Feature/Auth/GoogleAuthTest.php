@@ -22,6 +22,16 @@ function cGoogleProfile(array $attrs = []): SocialiteUser
     return (new SocialiteUser)->map(array_merge(['id' => 'g-123', 'name' => 'Gee Oh', 'email' => 'gee@example.com'], $attrs));
 }
 
+beforeEach(fn () => config(['auth.google_enabled' => true]));
+
+it('answers 404 on every Google route while disabled', function () {
+    config(['auth.google_enabled' => false]);
+
+    $this->get('/api/auth/google/redirect')->assertNotFound();
+    $this->get('/api/auth/google/callback')->assertNotFound();
+    $this->assertGuest('web');
+});
+
 it('redirects to Google', function () {
     $provider = Mockery::mock(Provider::class);
     $provider->shouldReceive('redirect')->once()->andReturn(redirect()->away('https://accounts.google.com/o/oauth2/auth?x=1'));
