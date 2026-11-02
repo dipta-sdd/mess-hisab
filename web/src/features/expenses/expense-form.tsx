@@ -222,15 +222,15 @@ export function ExpenseForm({
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-medium">{t("form.paidBy")}</legend>
           <label className="flex min-h-11 items-center gap-3">
-            <input type="radio" value="me" className="size-5" {...register("payer")} />
+            <input type="radio" value="me" className="size-5 accent-[var(--accent)]" {...register("payer")} />
             <span>{t("form.payerMe")}</span>
           </label>
           <label className="flex min-h-11 items-center gap-3">
-            <input type="radio" value="cash" className="size-5" {...register("payer")} />
+            <input type="radio" value="cash" className="size-5 accent-[var(--accent)]" {...register("payer")} />
             <span>{t("form.payerCash")}</span>
           </label>
           <label className="flex min-h-11 items-center gap-3">
-            <input type="radio" value="other" className="size-5" {...register("payer")} />
+            <input type="radio" value="other" className="size-5 accent-[var(--accent)]" {...register("payer")} />
             <span>{t("form.payerOther")}</span>
           </label>
           {payer === "other"
