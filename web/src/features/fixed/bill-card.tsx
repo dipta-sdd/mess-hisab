@@ -9,7 +9,7 @@ import type { Bill, Member } from "@/lib/api/contract";
 import { useAcceptBill, useSaveBill, useSpreadBill } from "./api";
 import { explainError } from "./errors";
 import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
-import { fieldClassInvalid as fieldClassInvalid } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 /** One category's bill for the month: amount, who pays what (shares from the API), hand-set overrides, unallocated. */
 export function BillCard({

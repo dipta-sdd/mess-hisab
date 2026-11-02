@@ -8,7 +8,7 @@ import { useMess } from "@/lib/mess/mess-context";
 import { useCategories, useCurrentMonth, useMembers, useMessInfo, useMonths, useSetup } from "./api";
 import { BillCard } from "./bill-card";
 import { MemberSettingRow, MonthSetupForm } from "./month-forms";
-import { fieldClassInvalid as fieldClassInvalid } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 import { formatMonthLabel } from "@/lib/format/date";
 
 export function FixedPage() {

@@ -10,7 +10,7 @@ import { useUpdateMemberSettings, useUpdateMonthSetup, type MemberMonthSettingRo
 
 import { explainError } from "./errors";
 import { centiToInput, paisaToTakaInput, parseMealsToCenti, parseTakaToPaisa } from "@/lib/format/money-input";
-import { fieldClassInvalid as fieldClassInvalid } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 /** Deadlines and the default deposit for the month. */
 export function MonthSetupForm({
