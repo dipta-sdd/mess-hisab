@@ -30,7 +30,10 @@ export interface ReportSummary {
   fixed_charged_paisa: number;
   meals_charged_paisa: number;
   charged_paisa: number;
+  /** Payments (deposits) only. */
   paid_paisa: number;
+  /** Approved expenses members paid from their own pocket. */
+  spent_paisa: number;
   /** Sum of everyone's negative balance, as a positive number. */
   total_due_paisa: number;
   /** Sum of everyone's positive balance. */
@@ -47,7 +50,10 @@ export interface ReportMember {
   meals_bill_paisa: number;
   /** fixed_bill + meals_bill: this month's share (no carry-in). */
   share_paisa: number;
+  /** Payments (deposits) only. */
   paid_paisa: number;
+  /** Approved expenses this member paid from their own pocket. */
+  spent_paisa: number;
   /** Balance after the month; positive = credit, negative = due. */
   balance_paisa: number;
 }

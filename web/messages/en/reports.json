@@ -30,9 +30,11 @@
   },
   "people": {
     "title": "Each person this month",
-    "subtitle": "What each member was charged and what they paid.",
+    "subtitle": "What each member was charged, and what they paid in or spent for the mess.",
     "share": "Charged",
-    "paid": "Paid",
+    "paid": "Paid or spent",
+    "deposited": "Paid in",
+    "spent": "Spent from own pocket",
     "empty": "No members were active this month."
   },
   "balances": {

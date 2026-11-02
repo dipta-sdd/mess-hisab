@@ -189,8 +189,8 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
           subtitle={t("people.subtitle")}
           empty={members.length === 0 ? t("people.empty") : undefined}
           table={{
-            headers: [t("balances.tableMember"), t("people.share"), t("people.paid")],
-            rows: members.map((m) => [m.display_name, money(m.share_paisa), money(m.paid_paisa)]),
+            headers: [t("balances.tableMember"), t("people.share"), t("people.deposited"), t("people.spent")],
+            rows: members.map((m) => [m.display_name, money(m.share_paisa), money(m.paid_paisa), money(m.spent_paisa)]),
           }}
         >
           <PairedBars
@@ -201,7 +201,8 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
               label: m.display_name,
               values: [
                 { value: m.share_paisa, valueLabel: money(m.share_paisa) },
-                { value: m.paid_paisa, valueLabel: money(m.paid_paisa) },
+                // Deposits and own-pocket shopping both count toward the share.
+                { value: m.paid_paisa + m.spent_paisa, valueLabel: money(m.paid_paisa + m.spent_paisa) },
               ],
             }))}
           />

@@ -24,12 +24,12 @@ const report: MonthlyReport = {
   mess,
   summary: {
     member_count: 2, expense_count: 2, expenses_paisa: 500000, fixed_expenses_paisa: 300000, meals_expenses_paisa: 200000,
-    fixed_bills_paisa: 300000, fixed_charged_paisa: 300000, meals_charged_paisa: 200000, charged_paisa: 500000, paid_paisa: 450000,
+    fixed_bills_paisa: 300000, fixed_charged_paisa: 300000, meals_charged_paisa: 200000, charged_paisa: 500000, paid_paisa: 400000, spent_paisa: 50000,
     total_due_paisa: 80000, total_credit_paisa: 30000, rounding_extra_paisa: 0,
   },
   members: [
-    { member_id: 1, display_name: "Rahim", carry_in_paisa: 0, fixed_bill_paisa: 150000, meals_bill_paisa: 100000, share_paisa: 250000, paid_paisa: 170000, balance_paisa: -80000 },
-    { member_id: 2, display_name: "Karim", carry_in_paisa: 0, fixed_bill_paisa: 150000, meals_bill_paisa: 100000, share_paisa: 250000, paid_paisa: 280000, balance_paisa: 30000 },
+    { member_id: 1, display_name: "Rahim", carry_in_paisa: 0, fixed_bill_paisa: 150000, meals_bill_paisa: 100000, share_paisa: 250000, paid_paisa: 120000, spent_paisa: 50000, balance_paisa: -80000 },
+    { member_id: 2, display_name: "Karim", carry_in_paisa: 0, fixed_bill_paisa: 150000, meals_bill_paisa: 100000, share_paisa: 250000, paid_paisa: 280000, spent_paisa: 0, balance_paisa: 30000 },
   ],
   expenses: [
     { id: 11, spent_on: "2026-10-03", category_id: 1, category: "Rent", group: "fixed", amount_paisa: 300000, paid_by: "cash", paid_by_member_id: null, payer_name: null, note: "November rent" },

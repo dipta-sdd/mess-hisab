@@ -42,7 +42,10 @@ it('builds the report with per-person next-month totals matching the Fixed page'
     foreach ($data['members'] as $m) {
         $balances[$m["member_id"]] = $m["balance_paisa"];
         expect($m['share_paisa'])->toBe($m['fixed_bill_paisa'] + $m['meals_bill_paisa']);
+        // The one bazar was paid from the payer's pocket: it counts as spent, not as a deposit.
+        expect($m['spent_paisa'])->toBe($m['member_id'] === $data['expenses'][0]['paid_by_member_id'] ? 90000 : 0);
     }
+    expect($data['summary']['spent_paisa'])->toBe(90000);
     expect($data['meals'])->not->toBeNull();
     expect($data['meals']['members'])->toHaveCount(3);
 

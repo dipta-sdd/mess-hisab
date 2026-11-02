@@ -53,6 +53,7 @@ class MonthlyReport
         $totals = $dash['totals'];
         $active = array_values(array_filter($dash['members'], fn (array $r) => $r['is_active']));
 
+        $spent = $snap->ownPocket->groupBy('paid_by_member_id')->map(fn ($es) => (int) $es->sum('amount_paisa'));
         $members = array_map(fn (array $r) => [
             'member_id' => $r['member_id'],
             'display_name' => $r['display_name'],
@@ -61,6 +62,7 @@ class MonthlyReport
             'meals_bill_paisa' => $r['meals_bill_paisa'],
             'share_paisa' => $r['fixed_bill_paisa'] + $r['meals_bill_paisa'],
             'paid_paisa' => $r['paid_paisa'],
+            'spent_paisa' => $spent[$r['member_id']] ?? 0,
             'balance_paisa' => $r['balance_paisa'],
         ], $active);
 
@@ -94,6 +96,7 @@ class MonthlyReport
                 'meals_charged_paisa' => $history['meals_charged_paisa'],
                 'charged_paisa' => $totals['charged_paisa'],
                 'paid_paisa' => $totals['paid_paisa'],
+                'spent_paisa' => (int) $snap->ownPocket->sum('amount_paisa'),
                 'total_due_paisa' => $history['total_due_paisa'],
                 'total_credit_paisa' => $history['total_credit_paisa'],
                 'rounding_extra_paisa' => $totals['rounding_extra_paisa'],
