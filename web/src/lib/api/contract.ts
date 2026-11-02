@@ -127,6 +127,13 @@ export interface HistoryRow {
   total_due_paisa: number; total_credit_paisa: number;
 }
 
+/** GET /messes/{mess}/statements/{member}/history → {data: MemberHistoryRow[]}, newest first; only months the member was in.
+ * charged = the member's fixed + meals bill for that month (not the carried-in amount); balance = that month's statement total_paisa. */
+export interface MemberHistoryRow {
+  month_id: number; starts_on: DateString; ends_on: DateString; status: MonthStatus;
+  charged_paisa: number; paid_paisa: number; balance_paisa: number;
+}
+
 // Task K — month lifecycle.
 export type CloseBlockCode =
   | "month_closed" | "previous_month_open" | "pending_expenses" | "zero_meals_unresolved"

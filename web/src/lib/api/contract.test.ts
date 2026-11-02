@@ -8,6 +8,7 @@ import DashboardFx from "../../../../docs/contract-fixtures/Dashboard.json";
 import ExpenseFx from "../../../../docs/contract-fixtures/Expense.json";
 import ExportFx from "../../../../docs/contract-fixtures/Export.json";
 import HistoryFx from "../../../../docs/contract-fixtures/History.json";
+import MemberHistoryFx from "../../../../docs/contract-fixtures/MemberHistory.json";
 import InviteFx from "../../../../docs/contract-fixtures/Invite.json";
 import MealEntryFx from "../../../../docs/contract-fixtures/MealEntry.json";
 import MemberFx from "../../../../docs/contract-fixtures/Member.json";
@@ -53,6 +54,7 @@ expectTypeOf<keyof typeof SettlementResultFx>().toEqualTypeOf<keyof C.Settlement
 expectTypeOf<keyof (typeof StatementFx.lines)[number]>().toEqualTypeOf<keyof C.StatementLine>();
 expectTypeOf<keyof typeof StatementFx.member>().toEqualTypeOf<keyof C.Statement["member"]>();
 expectTypeOf<keyof typeof HistoryFx>().toEqualTypeOf<keyof C.HistoryRow>();
+expectTypeOf<keyof typeof MemberHistoryFx>().toEqualTypeOf<keyof C.MemberHistoryRow>();
 
 describe("contract fixtures", () => {
   it("use only known enum values", () => {
