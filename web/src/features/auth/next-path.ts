@@ -1,10 +1,24 @@
 const STORAGE_KEY = "mh.next";
 
-/** Only same-site absolute paths ("/x", not "//host" or "/\\host") are allowed as post-login targets. */
+const BASE = "http://mh.invalid";
+
+/**
+ * Only same-site absolute paths are allowed as post-login targets. Browsers drop tabs/newlines and treat
+ * "\\" as "/" when parsing URLs, so "/\t/evil.com" would become "//evil.com": refuse control characters and
+ * backslashes outright, then make sure the path resolves to our own origin.
+ */
 export function safeNext(value: string | null | undefined): string | null {
   if (!value) return null;
-  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return null;
-  return value;
+  if (/[\u0000-\u001f\u007f\\]/.test(value)) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  let url: URL;
+  try {
+    url = new URL(value, BASE);
+  } catch {
+    return null;
+  }
+  if (url.origin !== BASE) return null;
+  return url.pathname + url.search + url.hash;
 }
 
 /** Google sign-in leaves the site and always returns to /auth/callback, so park the target. */
