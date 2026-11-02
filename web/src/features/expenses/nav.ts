@@ -5,5 +5,6 @@ export const expensesNav: NavItem = {
   href: (messId) => `/${messId}/expenses`,
   labelKey: "expenses.nav",
   icon: "expenses",
-  order: 20,
+  place: "bar",
+  order: 25,
 };

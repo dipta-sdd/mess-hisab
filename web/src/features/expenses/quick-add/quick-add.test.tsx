@@ -14,7 +14,7 @@ let path = "/7";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }), usePathname: () => path }));
 
 const BASE = `${API_BASE_URL}/api/messes/7`;
-const items: NavItem[] = [{ key: "dash", href: (id) => `/${id}`, labelKey: "common.language.label", icon: "dashboard", order: 10 }];
+const items: NavItem[] = [{ key: "dash", href: (id) => `/${id}`, labelKey: "common.language.label", icon: "dashboard", place: "bar", order: 10 }];
 const mess = { id: 7, name: "Green House", rounding_mode: "two_decimals", manager_member_id: 1, approval_required: false } as Mess;
 const me: Member = { id: 2, display_name: "Karim", user_id: 2, has_account: true, is_admin: false, is_manager: false, joined_on: "2026-01-01", left_on: null, archived_at: null };
 const month: Month = { id: 11, starts_on: "2026-11-01", ends_on: "2026-11-30", status: "open", fixed_deadline: null, deposit_deadline: null, deposit_paisa: 0, zero_meal_resolution: null, closed_at: null };

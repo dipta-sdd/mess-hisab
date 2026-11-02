@@ -40,5 +40,12 @@
     "logoutHint": "Sign out of Mess Hisab on this device.",
     "logout": "Log out",
     "logoutFailed": "Could not log out. Please try again."
+  },
+  "nav": {
+    "myStatement": "My statement"
+  },
+  "staffOnly": {
+    "message": "Only the manager can see this page",
+    "back": "Back to dashboard"
   }
 }

@@ -5,5 +5,7 @@ export const fixedNav: NavItem = {
   href: (messId) => `/${messId}/fixed`,
   labelKey: "fixed.nav",
   icon: "settings",
+  place: "admin",
+  roles: ["admin", "manager"],
   order: 30,
 };

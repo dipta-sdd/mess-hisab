@@ -6,5 +6,6 @@ export const reportsNav: NavItem = {
   labelKey: "reports.nav",
   icon: "reports",
   roles: ["admin", "manager"],
+  place: "admin",
   order: 65,
 };

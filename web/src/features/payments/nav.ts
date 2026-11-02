@@ -5,5 +5,6 @@ export const paymentsNav: NavItem = {
   href: (messId) => `/${messId}/payments`,
   labelKey: "payments.nav",
   icon: "payments",
+  place: "bar",
   order: 40,
 };

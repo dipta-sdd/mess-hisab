@@ -24,17 +24,16 @@ function isActive(pathname: string | null, href: string) {
   return !isMessRoot && pathname.startsWith(`${href}/`);
 }
 
-/** Pages kept in the phone bottom bar; every page (these included) is in the ☰ side menu. */
-const BOTTOM_TABS = ["dashboard", "meals", "expenses", "payments"];
-
 function NavLinks({
   items,
   messId,
+  memberId,
   variant,
   onNavigate,
 }: {
   items: NavItem[];
   messId: number;
+  memberId?: number;
   variant: "side" | "bottom";
   onNavigate?: () => void;
 }) {
@@ -44,7 +43,7 @@ function NavLinks({
   return (
     <ul className={variant === "side" ? "flex flex-col gap-1" : "flex h-full items-stretch"}>
       {items.map((item) => {
-        const href = item.href(messId);
+        const href = item.href(messId, memberId);
         const active = isActive(pathname, href);
         return (
           <li key={item.key} className={variant === "bottom" ? "min-w-0 flex-1" : undefined}>
@@ -74,9 +73,10 @@ function NavLinks({
 }
 
 /**
- * Responsive shell: sidebar from md up. On phones a ☰ button opens the same list as a side menu,
- * and a short bottom bar keeps the everyday pages one tap away. Items come from the nav registry,
- * filtered by the current member's roles. Works with zero items.
+ * Responsive shell. Everyone gets the same bottom bar (items with `place: "bar"`). Staff (admin or
+ * manager) also get the admin pages (`place: "admin"`): a left sidebar from md up, a ☰ side menu on
+ * phones. Ordinary members have neither, so their top header carries the mess name, quick-add,
+ * language, theme and account menu at every width. Items come from the nav registry, filtered by role.
  */
 export function AppShell({ children, items = navRegistry }: { children: React.ReactNode; items?: NavItem[] }) {
   const t = useTranslations("common");
@@ -85,7 +85,13 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
 
   const membership = me.data?.memberships.find((m) => m.mess_id === messId);
   const messName = membership?.mess_name;
-  const visible = useMemo(() => visibleNavItems(items, rolesOf(membership)), [items, membership]);
+  const roles = useMemo(() => rolesOf(membership), [membership]);
+  const isStaff = roles.has("admin") || roles.has("manager");
+  const visible = useMemo(() => visibleNavItems(items, roles), [items, roles]);
+  // "My statement" needs the member id, so it waits for the membership.
+  const barItems = visible.filter((item) => item.place === "bar" && (item.key !== "my-statement" || membership));
+  const adminItems = isStaff ? visible.filter((item) => item.place === "admin") : [];
+  const memberId = membership?.member_id;
 
   // Quick-add needs the nav (same gate as the bars), an active membership, and a page without its own
   // add flow: Expenses has an always-open form (and duplicate form ids would clash), Meals has a save bar.
@@ -96,7 +102,7 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   // The shell stays mounted between pages, so the side menu closes itself when a link is followed.
   const [menuOpen, setMenuOpen] = useState(false);
-  const bottomTabs = visible.filter((item) => BOTTOM_TABS.includes(item.key));
+  const hasSidebar = adminItems.length > 0;
 
   const header = (
     <div className="min-w-0">
@@ -114,27 +120,27 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
         {t("shell.skipToContent")}
       </a>
 
+      {hasSidebar ? (
       <aside className="hidden w-64 shrink-0 flex-col gap-4 border-e border-border p-4 md:flex">
         <header className="flex items-center gap-2">
           <div className="min-w-0 flex-1">{header}</div>
           <LanguageSwitcher compact />
           <ThemeToggle />
         </header>
-        {visible.length > 0 ? (
-          <nav aria-label={t("shell.sidebarNav")}>
-            <NavLinks items={visible} messId={messId} variant="side" />
-          </nav>
-        ) : null}
+        <nav aria-label={t("shell.sidebarNav")}>
+          <NavLinks items={adminItems} messId={messId} variant="side" />
+        </nav>
         {canQuickAdd ? <QuickAddButton variant="side" onPress={() => setQuickAddOpen(true)} /> : null}
         <div className="mt-auto">
           <SidebarAccount messId={messId} />
         </div>
       </aside>
+      ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 md:hidden">
+        <header className={`flex items-center justify-between gap-3 border-b border-border px-4 py-3 ${hasSidebar ? "md:hidden" : ""}`}>
           <div className="flex min-w-0 items-center gap-2">
-            {visible.length > 0 ? (
+            {hasSidebar ? (
               <Drawer isOpen={menuOpen} onOpenChange={setMenuOpen}>
                 <Button isIconOnly variant="ghost" aria-label={t("shell.openMenu")} className="size-11 shrink-0">
                   <NavIcon name="menu" />
@@ -144,7 +150,7 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
                     <Drawer.Dialog aria-label={t("shell.menu")} className="flex h-full flex-col gap-4 overflow-y-auto p-4">
                       {header}
                       <nav aria-label={t("shell.sidebarNav")}>
-                        <NavLinks items={visible} messId={messId} variant="side" onNavigate={() => setMenuOpen(false)} />
+                        <NavLinks items={adminItems} messId={messId} variant="side" onNavigate={() => setMenuOpen(false)} />
                       </nav>
                     </Drawer.Dialog>
                   </Drawer.Content>
@@ -155,25 +161,39 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {canQuickAdd ? (
-              <span className="md:hidden">
-                <QuickAddButton variant="top" onPress={() => setQuickAddOpen(true)} />
-              </span>
+              <>
+                <span className="md:hidden">
+                  <QuickAddButton variant="top" onPress={() => setQuickAddOpen(true)} />
+                </span>
+                {hasSidebar ? null : (
+                  <span className="hidden w-36 md:block">
+                    <QuickAddButton variant="side" onPress={() => setQuickAddOpen(true)} />
+                  </span>
+                )}
+              </>
             ) : null}
+            {hasSidebar ? null : (
+              <span className="hidden md:block">
+                <LanguageSwitcher compact />
+              </span>
+            )}
             <ThemeToggle />
             <AccountMenu messId={messId} />
           </div>
         </header>
-        <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${bottomTabs.length > 0 ? "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6" : ""}`}>
+        <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${barItems.length > 0 ? "pb-[calc(6rem+env(safe-area-inset-bottom))]" : ""}`}>
           {children}
         </main>
       </div>
 
-      {bottomTabs.length > 0 ? (
+      {barItems.length > 0 ? (
         <nav
           aria-label={t("shell.bottomNav")}
-          className="fixed inset-x-0 bottom-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] border-t border-border bg-background pb-[env(safe-area-inset-bottom)]"
         >
-          <NavLinks items={bottomTabs} messId={messId} variant="bottom" />
+          <div className="mx-auto h-full max-w-xl">
+            <NavLinks items={barItems} messId={messId} memberId={memberId} variant="bottom" />
+          </div>
         </nav>
       ) : null}
       {showFab ? <QuickAddFab onPress={() => setQuickAddOpen(true)} /> : null}

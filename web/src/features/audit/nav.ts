@@ -5,5 +5,7 @@ export const auditNav: NavItem = {
   href: (messId) => `/${messId}/audit`,
   labelKey: "audit.nav",
   icon: "audit",
+  place: "admin",
+  roles: ["admin", "manager"],
   order: 80,
 };
