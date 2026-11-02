@@ -237,3 +237,67 @@ it('splits a by_meals doesnt-pay by effective meals with largest remainder and r
     $credits = LedgerEntry::where('source_type', 'recoverable_repayment')->selectRaw('member_id, sum(amount_paisa) s')->groupBy('member_id')->pluck('s', 'member_id')->map(fn ($v) => (int) $v)->all();
     expect($credits)->toBe($shares);
 });
+
+it('blocks reopen after a member was archived once the month closed', function () {
+    [$mess, $month, $ids] = kOctober();
+    $base = "/api/messes/{$mess->id}";
+    $this->postJson("$base/months/{$month->id}/close")->assertOk();
+
+    jToday('2026-11-25');
+    \App\Models\MessMember::whereKey($ids[2])->update(['left_on' => '2026-11-25', 'archived_at' => now()]);
+
+    $prev = $this->getJson("$base/months/{$month->id}/reopen-preview")->assertOk()->json('data');
+    expect($prev['can_reopen'])->toBeFalse();
+    $block = collect($prev['blocks'])->firstWhere('code', 'archive_after_close');
+    expect($block['data'])->toBe(['member_ids' => [$ids[2]]]);
+    $this->postJson("$base/months/{$month->id}/reopen")->assertStatus(409)->assertJsonPath('code', 'archive_after_close');
+});
+
+it('keeps the cash identity across close, repayment, final settlement and adjustment', function () {
+    [$mess, $month, $ids] = kOctober();
+    [$s, $d, $n] = $ids;
+    $base = "/api/messes/{$mess->id}";
+    jPay($mess, $month, $s, 'meals', 300000, '2026-11-10');
+    $this->postJson("$base/months/{$month->id}/doesnt-pay", ['member_id' => $n, 'mode' => 'equal'])->assertCreated();
+    $this->postJson("$base/months/{$month->id}/close")->assertOk();
+
+    jToday('2026-12-05');
+    $rec = Recoverable::firstOrFail();
+    $this->postJson("$base/recoverables/{$rec->id}/repayments", ['amount_paisa' => 100000, 'paid_on' => '2026-12-02'])->assertCreated();
+    $res = $this->postJson("$base/members/{$d}/final-settlement", ['amount_paisa' => 246100, 'paid_on' => '2026-12-03'])
+        ->assertCreated()->json('data');
+    $this->postJson("$base/adjustments", ['member_id' => $s, 'group' => 'fixed', 'amount_paisa' => -500, 'note' => 'x'])->assertCreated();
+
+    // CONTRACT section 3: cash = payments + repayments - approved cash expenses - |final_payout|, by hand.
+    $cash = (int) \App\Models\Payment::where('mess_id', $mess->id)->sum('amount_paisa')
+        + (int) \App\Models\RecoverableRepayment::where('mess_id', $mess->id)->sum('amount_paisa')
+        - (int) \App\Models\Expense::where('mess_id', $mess->id)->where('paid_by', 'cash')->where('status', 'approved')->sum('amount_paisa')
+        - abs((int) LedgerEntry::where('mess_id', $mess->id)->where('type', 'final_payout')->sum('amount_paisa'));
+    expect($cash)->toBe(300000 + 100000 - 246100)->and($res['cash_pool_paisa'])->toBe($cash);
+
+    $dec = Month::where('mess_id', $mess->id)->where('starts_on', '>', '2026-11-30')->firstOrFail();
+    $check = $this->getJson("$base/months/{$dec->id}/close-check")->assertOk()->json('data');
+    expect(kBlocks($check))->not->toContain('cash_mismatch');
+    expect($check['can_close'])->toBeTrue();
+    $this->postJson("$base/months/{$dec->id}/close")->assertOk();
+});
+
+it('writes an audit row for every lifecycle event', function () {
+    [$mess, $month, $ids] = kOctober();
+    [$s, $d, $n] = $ids;
+    $base = "/api/messes/{$mess->id}";
+    jPay($mess, $month, $s, 'meals', 300000, '2026-11-10');
+
+    $first = $this->postJson("$base/months/{$month->id}/doesnt-pay", ['member_id' => $n, 'mode' => 'equal'])->assertCreated()->json('data');
+    $this->deleteJson("$base/months/{$month->id}/doesnt-pay/{$first['id']}")->assertNoContent();
+    $this->postJson("$base/months/{$month->id}/doesnt-pay", ['member_id' => $n, 'mode' => 'equal'])->assertCreated();
+    $this->postJson("$base/months/{$month->id}/close")->assertOk();
+    $this->postJson("$base/months/{$month->id}/reopen")->assertOk();
+    $this->postJson("$base/months/{$month->id}/close")->assertOk();
+    $this->postJson("$base/members/{$d}/final-settlement", ['amount_paisa' => 1000, 'paid_on' => '2026-11-21'])->assertCreated();
+
+    foreach (['month.closed' => 2, 'month.reopened' => 1, 'doesnt_pay.set' => 2, 'doesnt_pay.undone' => 1, 'payout.final' => 1] as $event => $count) {
+        $rows = $this->getJson("$base/audit?event={$event}")->assertOk()->json('data');
+        expect($rows)->toHaveCount($count, $event);
+    }
+});
