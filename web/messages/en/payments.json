@@ -1,0 +1,78 @@
+{
+  "nav": "Payments",
+  "title": "Payments",
+  "cash": {
+    "label": "Cash pool",
+    "hint": "Money the manager is holding for the mess"
+  },
+  "month": {
+    "label": "Month",
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "filter": {
+    "label": "Filter by member",
+    "all": "All members"
+  },
+  "groups": {
+    "fixed": "Fixed bills",
+    "meals": "Meals"
+  },
+  "totals": {
+    "title": "Totals",
+    "all": "All payments"
+  },
+  "list": {
+    "title": "Payments this month",
+    "empty": "No payments recorded for this month yet.",
+    "member": "Member",
+    "group": "Group",
+    "amount": "Amount",
+    "date": "Date",
+    "note": "Note",
+    "receivedBy": "Received by {name}",
+    "receivedByHeader": "Received by",
+    "unknownMember": "Unknown member",
+    "actions": "Actions"
+  },
+  "actions": {
+    "record": "Record payment",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this payment?",
+    "confirmYes": "Yes, delete",
+    "cancel": "Cancel",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "create": "Save payment"
+  },
+  "form": {
+    "createTitle": "Record a payment",
+    "editTitle": "Edit payment",
+    "member": "Member",
+    "memberPlaceholder": "Choose a member",
+    "group": "Pays for",
+    "amount": "Amount (taka)",
+    "amountHint": "For example 1,000 or 521.50",
+    "date": "Date received",
+    "note": "Note (optional)",
+    "errors": {
+      "memberRequired": "Choose a member.",
+      "groupRequired": "Choose fixed bills or meals.",
+      "amountRequired": "Enter an amount.",
+      "amountInvalid": "Enter taka like 1,000 or 521.50 (up to 2 decimals, no minus sign).",
+      "amountZero": "The amount must be more than zero.",
+      "amountTooLarge": "That amount is too large.",
+      "dateRequired": "Pick a date.",
+      "noteTooLong": "The note can be at most 500 characters."
+    }
+  },
+  "errors": {
+    "monthClosed": "That month is closed, so payments in it can't be added, changed or deleted.",
+    "forbidden": "Only the manager can record, change or delete payments.",
+    "generic": "Something went wrong. Please try again.",
+    "loadFailed": "Could not load payments.",
+    "noMonth": "No month is available yet."
+  },
+  "loading": "Loading…"
+}
