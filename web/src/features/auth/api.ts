@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Locale, User } from "@/lib/api/contract";
+import type { Locale, OtpSent, User } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client/client";
 import { isApiError } from "@/lib/api-client/errors";
 import { meQueryKey, type MeResponse } from "@/lib/api-client/auth";
@@ -35,7 +35,8 @@ export function useRefreshSession() {
 }
 
 export interface LoginPayload {
-  email: string;
+  /** A phone (any accepted form) or an email. */
+  login: string;
   password: string;
   remember?: boolean;
 }
@@ -50,7 +51,8 @@ export function useLogin() {
 
 export interface RegisterPayload {
   name: string;
-  email: string;
+  phone: string;
+  email?: string;
   password: string;
   password_confirmation: string;
   locale: Locale;
@@ -64,9 +66,47 @@ export function useRegister() {
   });
 }
 
-export function useForgotPassword() {
+/** (Re)sends the verify code to the signed-in user's unverified phone. */
+export function useSendPhoneCode() {
   return useMutation({
-    mutationFn: (payload: { email: string }) => apiClient.post("/api/auth/forgot-password", payload),
+    mutationFn: async () => unwrap<OtpSent>(await apiClient.post("/api/auth/phone/send", {})),
+  });
+}
+
+export function useVerifyPhone() {
+  const refresh = useRefreshSession();
+  return useMutation({
+    mutationFn: async (code: string) => unwrap<User>(await apiClient.post("/api/auth/phone/verify", { code })),
+    onSuccess: refresh,
+  });
+}
+
+/** Forgot password, step 1: sends a reset code (always 202, no account enumeration). */
+export function useSendResetCode() {
+  return useMutation({
+    mutationFn: (phone: string) => apiClient.post("/api/auth/password/phone", { phone }),
+  });
+}
+
+/** Step 2: trade the code for a single-use reset token. */
+export function useVerifyResetCode() {
+  return useMutation({
+    mutationFn: async (payload: { phone: string; code: string }) =>
+      unwrap<{ reset_token: string }>(await apiClient.post("/api/auth/password/phone/verify", payload)),
+  });
+}
+
+export interface PhoneResetPayload {
+  phone: string;
+  reset_token: string;
+  password: string;
+  password_confirmation: string;
+}
+
+/** Step 3: set the new password. */
+export function usePhoneReset() {
+  return useMutation({
+    mutationFn: (payload: PhoneResetPayload) => apiClient.post("/api/auth/password/phone/reset", payload),
   });
 }
 
@@ -77,6 +117,7 @@ export interface ResetPasswordPayload {
   password_confirmation: string;
 }
 
+/** Legacy email reset: the page stays reachable but is no longer linked. */
 export function useResetPassword() {
   return useMutation({
     mutationFn: (payload: ResetPasswordPayload) => apiClient.post("/api/auth/reset-password", payload),

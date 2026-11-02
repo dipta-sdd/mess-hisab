@@ -1,39 +1,27 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, buttonVariants } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { API_BASE_URL } from "@/lib/api-client/client";
 import { CheckboxField, TextInputField } from "@/features/mess/ui/fields";
 import { ErrorAlert, useFormError } from "@/features/mess/ui/errors";
 import { useLogin } from "../api";
+import { GOOGLE_SIGN_IN_ENABLED } from "../config";
 import { useSyncLocaleAfterLogin } from "../locale-sync";
-import { safeNext, stashNext } from "../next-path";
+import { safeNext } from "../next-path";
 import { AuthCard, linkClass } from "./auth-card";
+import { GoogleButton } from "./google-button";
 
 const schema = z.object({
-  email: z.string().trim().min(1, "v:required").email("v:email"),
+  login: z.string().trim().min(1, "v:required"),
   password: z.string().min(1, "v:required"),
   remember: z.boolean(),
 });
 type Values = z.infer<typeof schema>;
-
-export function GoogleButton({ next }: { next: string | null }) {
-  const t = useTranslations("auth");
-  return (
-    <a
-      href={`${API_BASE_URL}/api/auth/google/redirect`}
-      onClick={() => stashNext(next)}
-      className={buttonVariants({ variant: "outline", fullWidth: true })}
-    >
-      {t("google")}
-    </a>
-  );
-}
 
 export function LoginForm() {
   const t = useTranslations("auth");
@@ -47,18 +35,20 @@ export function LoginForm() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "", remember: false } });
+  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { login: "", password: "", remember: false } });
   const form = useFormError<Values>(setError);
 
   const nextQuery = next ? `?next=${encodeURIComponent(next)}` : "";
-  const googleError = params.get("error") === "google" ? t("login.googleError") : null;
+  const googleError = GOOGLE_SIGN_IN_ENABLED && params.get("error") === "google" ? t("login.googleError") : null;
 
   const onSubmit = handleSubmit(async (values) => {
     form.clear();
     try {
       const user = await login.mutateAsync(values);
       syncLocale(user);
-      router.replace(next ?? "/");
+      // A locked account (no verified phone yet) can only use the verify screen.
+      if (user.has_verified_contact === false) router.replace(`/verify-phone${nextQuery}`);
+      else router.replace(next ?? "/");
     } catch (error) {
       form.handle(error);
     }
@@ -69,26 +59,24 @@ export function LoginForm() {
       title={t("login.title")}
       subtitle={t("login.subtitle")}
       footer={
-        <>
-          <p>
-            {t("login.noAccount")}{" "}
-            <Link href={`/register${nextQuery}`} className={linkClass}>
-              {t("login.register")}
-            </Link>
-          </p>
-        </>
+        <p>
+          {t("login.noAccount")}{" "}
+          <Link href={`/register${nextQuery}`} className={linkClass}>
+            {t("login.register")}
+          </Link>
+        </p>
       }
     >
       <ErrorAlert message={googleError} />
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         <ErrorAlert message={form.message} />
         <TextInputField
-          label={t("fields.email")}
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-          error={errors.email?.message}
-          {...register("email")}
+          label={t("fields.login")}
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          error={errors.login?.message}
+          {...register("login")}
         />
         <TextInputField
           label={t("fields.password")}
@@ -99,7 +87,7 @@ export function LoginForm() {
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CheckboxField label={t("fields.remember")} {...register("remember")} />
-          <Link href="/forgot-password" className={`${linkClass} text-sm`}>
+          <Link href="/forgot-password" className={`${linkClass} inline-flex min-h-11 items-center text-sm`}>
             {t("login.forgot")}
           </Link>
         </div>
@@ -107,12 +95,7 @@ export function LoginForm() {
           {t("login.submit")}
         </Button>
       </form>
-      <div className="flex items-center gap-3 text-xs text-muted" aria-hidden="true">
-        <span className="h-px flex-1 bg-border" />
-        {t("or")}
-        <span className="h-px flex-1 bg-border" />
-      </div>
-      <GoogleButton next={next} />
+      {GOOGLE_SIGN_IN_ENABLED ? <GoogleButton next={next} /> : null}
     </AuthCard>
   );
 }

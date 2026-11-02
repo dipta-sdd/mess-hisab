@@ -12,14 +12,19 @@ import { writeLocaleCookie } from "@/lib/i18n/language-switcher";
 import { ErrorAlert, useFormError } from "@/features/mess/ui/errors";
 import { SelectField, TextInputField } from "@/features/mess/ui/fields";
 import { useRegister } from "../api";
+import { GOOGLE_SIGN_IN_ENABLED } from "../config";
 import { safeNext } from "../next-path";
+import { stashResendFromNow } from "../otp";
+import { PHONE_INVALID, isBdMobile, phoneForApi } from "../phone";
 import { AuthCard, linkClass } from "./auth-card";
-import { GoogleButton } from "./login-form";
+import { useAuthFieldMessage } from "./code-form";
+import { GoogleButton } from "./google-button";
 
 const schema = z
   .object({
     name: z.string().trim().min(1, "v:required").max(100, "v:tooLong"),
-    email: z.string().trim().min(1, "v:required").email("v:email"),
+    phone: z.string().trim().min(1, "v:required").refine(isBdMobile, PHONE_INVALID),
+    email: z.union([z.literal(""), z.string().trim().email("v:email")]),
     password: z.string().min(8, "v:passwordMin"),
     password_confirmation: z.string().min(1, "v:required"),
     locale: z.enum(locales),
@@ -38,6 +43,7 @@ export function RegisterForm() {
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
   const current = useLocale();
+  const fieldMessage = useAuthFieldMessage();
   const registerUser = useRegister();
   const {
     register,
@@ -48,6 +54,7 @@ export function RegisterForm() {
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
+      phone: "",
       email: "",
       password: "",
       password_confirmation: "",
@@ -60,12 +67,15 @@ export function RegisterForm() {
   const onSubmit = handleSubmit(async (values) => {
     form.clear();
     try {
-      await registerUser.mutateAsync(values);
+      const { email, phone, ...rest } = values;
+      await registerUser.mutateAsync({ ...rest, phone: phoneForApi(phone), ...(email.trim() ? { email: email.trim() } : {}) });
+      // Register already sent the first code; the API makes us wait before asking for another.
+      stashResendFromNow();
       if (values.locale !== current) {
         writeLocaleCookie(values.locale);
         router.refresh();
       }
-      router.replace(next ?? "/");
+      router.replace(`/verify-phone${nextQuery}`);
     } catch (error) {
       form.handle(error);
     }
@@ -88,7 +98,16 @@ export function RegisterForm() {
         <ErrorAlert message={form.message} />
         <TextInputField label={t("fields.name")} autoComplete="name" error={errors.name?.message} {...register("name")} />
         <TextInputField
-          label={t("fields.email")}
+          label={t("fields.phone")}
+          type="tel"
+          autoComplete="tel"
+          inputMode="tel"
+          description={t("fields.phoneHint")}
+          error={fieldMessage(errors.phone?.message)}
+          {...register("phone")}
+        />
+        <TextInputField
+          label={t("fields.emailOptional")}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -121,12 +140,7 @@ export function RegisterForm() {
           {t("register.submit")}
         </Button>
       </form>
-      <div className="flex items-center gap-3 text-xs text-muted" aria-hidden="true">
-        <span className="h-px flex-1 bg-border" />
-        {t("or")}
-        <span className="h-px flex-1 bg-border" />
-      </div>
-      <GoogleButton next={next} />
+      {GOOGLE_SIGN_IN_ENABLED ? <GoogleButton next={next} /> : null}
     </AuthCard>
   );
 }
