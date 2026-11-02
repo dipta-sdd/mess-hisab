@@ -90,7 +90,7 @@ describe("MemberRowActions final settlement", () => {
     await waitFor(() => expect(body).toEqual({ amount_paisa: 100050, paid_on: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) }));
     expect(await screen.findByText("Paid ৳1,000.50 to Karim.")).toBeInTheDocument();
     expect(screen.getByText("Credit left: ৳499.50")).toBeInTheDocument();
-    expect(screen.getByText("Cash pool now: ৳2,499.50")).toBeInTheDocument();
+    expect(screen.getByText("Cash in manager's hand now: ৳2,499.50")).toBeInTheDocument();
     expect(screen.getByText(/can now archive this member/)).toBeInTheDocument();
     expect(screen.getByLabelText("Archive Karim")).toBeInTheDocument();
   });

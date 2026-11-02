@@ -3,7 +3,7 @@
   "dialog": {
     "title": "Final settlement for {name}",
     "balance": "Credit owed to them",
-    "cash": "Cash pool",
+    "cash": "Cash in manager's hand",
     "amount": "Amount (taka)",
     "paidOn": "Paid on",
     "submit": "Pay out",
@@ -25,7 +25,7 @@
   "result": {
     "title": "Paid {amount} to {name}.",
     "creditAfter": "Credit left: {amount}",
-    "cashAfter": "Cash pool now: {amount}",
+    "cashAfter": "Cash in manager's hand now: {amount}",
     "archiveHint": "You can now archive this member if they have left."
   }
 }
