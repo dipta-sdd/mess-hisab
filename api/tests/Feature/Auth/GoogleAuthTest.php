@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
@@ -43,8 +44,8 @@ it('creates a Google-only user on first sign-in and logs them in', function () {
     $this->assertAuthenticatedAs($user, 'web');
 });
 
-it('links Google to an existing account with the same email', function () {
-    $existing = user(['email' => 'gee@example.com', 'name' => 'Original', 'email_verified_at' => null]);
+it('links Google to an existing verified account and keeps its password', function () {
+    $existing = user(['email' => 'gee@example.com', 'name' => 'Original', 'email_verified_at' => now()]);
     cMockGoogle(cGoogleProfile(['email' => 'Gee@Example.com']));
 
     $this->get('/api/auth/google/callback')->assertRedirect('http://localhost:3000/auth/callback?status=ok');
@@ -80,5 +81,30 @@ it('redirects with status=error when Google gives no email', function () {
     $this->get('/api/auth/google/callback')->assertRedirect('http://localhost:3000/auth/callback?status=error');
 
     expect(User::count())->toBe(0);
+    $this->assertGuest('web');
+});
+
+it('takes over an unverified same-email account, dropping its password and sessions', function () {
+    $squatter = user(['email' => 'gee@example.com', 'email_verified_at' => null]);
+    $squatter->createToken('t');
+    DB::table('sessions')->insert(['id' => 'sq', 'user_id' => $squatter->id, 'payload' => '', 'last_activity' => time()]);
+    cMockGoogle(cGoogleProfile());
+
+    $this->get('/api/auth/google/callback')->assertRedirect('http://localhost:3000/auth/callback?status=ok');
+
+    $squatter->refresh();
+    expect($squatter->password)->toBeNull()
+        ->and($squatter->email_verified_at)->not->toBeNull()
+        ->and($squatter->tokens()->count())->toBe(0)
+        ->and(DB::table('sessions')->where('id', 'sq')->exists())->toBeFalse();
+});
+
+it('refuses a Google profile whose email is not verified', function () {
+    $existing = user(['email' => 'gee@example.com']);
+    cMockGoogle(cGoogleProfile()->setRaw(['email_verified' => false]));
+
+    $this->get('/api/auth/google/callback')->assertRedirect('http://localhost:3000/auth/callback?status=error');
+
+    expect($existing->refresh()->google_id)->toBeNull();
     $this->assertGuest('web');
 });

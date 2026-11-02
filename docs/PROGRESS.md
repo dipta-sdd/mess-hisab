@@ -15,7 +15,7 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 |---|---|---|---|---|
 | A1 Engine: split, meals, rounding, charges | 1 | merged | worktree-agent-ae9d05337245e4b3b | gate: LR + Charge tests |
 | A2 Engine: balances, doesn't-pay, close check | 1 | merged (private LR replaced by A1's) | worktree-agent-a901bbf0747fdcdb8 | gate: Balance + Close tests |
-| C Auth & accounts API | 1 | running (commit ab6dcc6 base) | | |
+| C Auth & accounts | 1 | merged (Google link hardened by lead) | worktree-agent-a518c2b2036905045 | |
 | D Web foundation | 1 | merged (formatMoney never rounds paisa away) | worktree-agent-a0a89bd43a2bb0d1e | |
 | M Months & categories API | 2 | blocked by C | | |
 | G Payments & cash API | 2 | blocked by C | | |
@@ -44,3 +44,5 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 - For K: validate manual doesn't-pay shares at the HTTP layer (only other active members, ≥ 0); the engine applies them as typed. `Redistributor::splitFor(debtorId, …)` is an extra public helper used by `BalanceCalculator`.
 - "Payments oldest deadline first" has nothing to act on inside one month (one fixed + one deposit deadline); revisit in J/K if multi-month dues appear.
 - Web (D): `apiClient` paths are absolute (`/api/...`) and return the full JSON body; `useMe()` lives in `src/lib/api-client/auth.ts`. Nav icons known to the shell: dashboard, expenses, meals, payments, members, settings, months, audit, reports. `formatBalance(paisa, locale, mode, t)` with `t = useTranslations("common")`.
+- API (C): `/api/auth/me` returns `{data: {user, memberships}}`. Links to the web app go through `App\Services\Auth\FrontendUrl` (`config('app.frontend_url')`). Lead change after merge: Google sign-in refuses `email_verified=false`, and when it links to an *unverified* local account it drops that account's password, tokens and sessions (stops pre-account hijacking).
+- Open (C): adding a member with an opening balance needs an open month (422 otherwise); archiving a member doesn't check their balance yet (K's final settlement should gate it).
