@@ -1,0 +1,93 @@
+{
+  "nav": "Members",
+  "title": "Members",
+  "loading": "Loading members...",
+  "loadFailed": "Could not load members. Please try again.",
+  "readOnly": "Only the admin or manager can change members.",
+  "empty": "No members to show.",
+  "cancel": "Cancel",
+  "joined": "Joined {date}",
+  "left": "Left {date}",
+  "badge": {
+    "admin": "Admin",
+    "manager": "Manager",
+    "archived": "Archived",
+    "noAccount": "No account yet"
+  },
+  "filter": {
+    "label": "Show",
+    "active": "Active members",
+    "archived": "Archived members",
+    "all": "Everyone"
+  },
+  "fields": {
+    "displayName": "Display name",
+    "joinedOn": "Joined on",
+    "leftOn": "Left on (optional)",
+    "openingBalance": "Opening balance"
+  },
+  "add": {
+    "button": "Add member",
+    "title": "Add a member",
+    "submit": "Add member"
+  },
+  "edit": {
+    "button": "Edit",
+    "aria": "Edit {name}",
+    "title": "Edit {name}",
+    "save": "Save changes"
+  },
+  "archive": {
+    "button": "Archive",
+    "aria": "Archive {name}",
+    "confirm": "Archive {name}? They become read-only.",
+    "confirmGroup": "Confirm archive",
+    "yes": "Yes, archive"
+  },
+  "invites": {
+    "title": "Invites",
+    "hint": "Share an invite link so someone can join with their own account.",
+    "create": "Create invite",
+    "member": "For member",
+    "anyone": "Anyone with the link",
+    "expiresInDays": "Expires in days (optional)",
+    "maxUses": "Maximum uses (optional)",
+    "loadFailed": "Could not load invites.",
+    "empty": "No invites yet.",
+    "forMember": "For {name}",
+    "forAnyone": "For anyone with the link",
+    "uses": "Used {uses} of {max}",
+    "unlimited": "unlimited",
+    "expires": "expires {date}",
+    "status": {
+      "active": "Active",
+      "revoked": "Revoked",
+      "expired": "Expired",
+      "usedUp": "Used up"
+    },
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "copyFailed": "Could not copy the link. Copy it by hand instead.",
+    "revoke": "Revoke"
+  },
+  "roles": {
+    "title": "Roles",
+    "hint": "Only people who have an account can become admin or manager.",
+    "none": "nobody",
+    "choose": "Choose a member",
+    "noCandidates": "No other member with an account is available.",
+    "yes": "Yes, do it",
+    "managerCurrent": "Manager: {name}",
+    "managerPick": "New manager",
+    "managerSubmit": "Make manager",
+    "managerDone": "The manager was updated.",
+    "managerConfirm": "Make {name} the manager?",
+    "managerConfirmGroup": "Confirm manager change",
+    "adminCurrent": "Admin: {name}",
+    "adminPick": "New admin",
+    "adminSubmit": "Transfer admin role",
+    "adminDone": "The admin role was transferred.",
+    "adminConfirm": "Transfer the admin role to {name}? You will no longer be admin.",
+    "adminConfirmGroup": "Confirm admin transfer"
+  }
+}

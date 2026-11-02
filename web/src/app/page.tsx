@@ -1,11 +1,5 @@
-import { useTranslations } from "next-intl";
+import { Landing } from "@/features/auth";
 
 export default function Home() {
-  const t = useTranslations("app");
-
-  return (
-    <main className="mx-auto max-w-md p-6">
-      <h1 className="text-2xl font-semibold">{t("name")}</h1>
-    </main>
-  );
+  return <Landing />;
 }

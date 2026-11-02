@@ -1,0 +1,60 @@
+{
+  "loading": "Loading...",
+  "apiCodes": {
+    "is_admin_or_manager": "The admin or manager cannot be archived. Hand over the role to someone else first.",
+    "invite_invalid": "This invite is no longer valid.",
+    "already_member": "You are already a member of this mess.",
+    "invalid_credentials": "The email or password is not correct.",
+    "member_not_eligible": "That person cannot take this role. They need an account and must not be archived.",
+    "archived_member": "Archived members are read-only."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "tooLong": "That is too long.",
+    "email": "Enter a valid email address.",
+    "passwordMin": "Use at least 8 characters.",
+    "passwordMismatch": "The passwords do not match.",
+    "invalidAmount": "Enter an amount in taka, with at most 2 decimals.",
+    "invalidMeals": "Enter a number of meals, with at most 2 decimals.",
+    "invalidDate": "Choose a valid date.",
+    "invalidNumber": "Enter a whole number.",
+    "currency": "Use a 3 letter currency code.",
+    "range_1_28": "Enter a day from 1 to 28.",
+    "range_1_31": "Enter a day from 1 to 31.",
+    "range_1_365": "Enter a number from 1 to 365.",
+    "range_1_1000": "Enter a number from 1 to 1000."
+  },
+  "balance": {
+    "hint": "Amount in taka. Leave empty for zero.",
+    "owes": "They owe the mess",
+    "credit": "The mess owes them"
+  },
+  "roles": {
+    "admin": "Admin",
+    "manager": "Manager",
+    "archived": "Archived"
+  },
+  "pick": {
+    "title": "Your messes",
+    "empty": "You are not in any mess yet. Create one below, or open an invite link from your admin."
+  },
+  "create": {
+    "title": "Create a mess",
+    "subtitle": "Set up your shared house accounts in a minute.",
+    "name": "Mess name",
+    "monthStartDay": "Month starts on day",
+    "monthStartDayHint": "A day from 1 to 28. Each accounting month begins on this day.",
+    "firstMonthStartsOn": "First month starts on",
+    "you": "You",
+    "yourName": "Your name in this mess",
+    "yourNameHint": "Other members will see this name.",
+    "yourBalance": "Your opening balance",
+    "others": "Other members",
+    "othersHint": "Optional. You can add or invite people later.",
+    "memberName": "Member {n} name",
+    "memberBalance": "Member {n} opening balance",
+    "removeMember": "Remove member {n}",
+    "addMember": "Add a member",
+    "submit": "Create mess"
+  }
+}
