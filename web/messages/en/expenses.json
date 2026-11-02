@@ -1,0 +1,113 @@
+{
+  "nav": "Expenses",
+  "title": "Expenses",
+  "loading": "Loading…",
+  "groups": {
+    "fixed": "Fixed bills",
+    "meals": "Meals"
+  },
+  "status": {
+    "pending": "Pending approval",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "badges": {
+    "late": "Late entry",
+    "selfRecorded": "Recorded by manager",
+    "shortCash": "Short cash"
+  },
+  "month": {
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "filters": {
+    "month": "Month",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "member": "Recorded or paid by",
+    "allMembers": "All members",
+    "category": "Filter by category",
+    "allCategories": "All categories"
+  },
+  "totals": {
+    "title": "Totals",
+    "hint": "Totals count approved expenses in the list above only."
+  },
+  "list": {
+    "title": "Expenses",
+    "empty": "No expenses found.",
+    "paidByLabel": "Paid by {name}",
+    "messCash": "mess cash",
+    "unknownMember": "Unknown member",
+    "unknownCategory": "Unknown category"
+  },
+  "form": {
+    "createTitle": "Add an expense",
+    "editTitle": "Edit expense",
+    "amount": "Amount (taka)",
+    "amountHint": "For example 1,000 or 521.50",
+    "category": "Category",
+    "categoryPlaceholder": "Choose a category",
+    "paidBy": "Who paid?",
+    "payerMe": "Me (from my own pocket)",
+    "payerMeOnly": "You, from your own pocket",
+    "payerCash": "Mess cash",
+    "payerOther": "Another member's pocket",
+    "payerMember": "Member who paid",
+    "payerMemberPlaceholder": "Choose a member",
+    "cashHint": "If the mess does not have enough cash, this is recorded as the manager's own money.",
+    "date": "Date",
+    "note": "Note (optional)",
+    "errors": {
+      "categoryRequired": "Choose a category.",
+      "amountRequired": "Enter an amount.",
+      "amountInvalid": "Enter taka like 1,000 or 521.50 (up to 2 decimals, no minus sign).",
+      "amountZero": "The amount must be more than zero.",
+      "amountTooLarge": "That amount is too large.",
+      "dateRequired": "Pick a date.",
+      "noteTooLong": "The note can be at most 500 characters.",
+      "payerRequired": "Choose who paid."
+    }
+  },
+  "actions": {
+    "create": "Save expense",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this expense?",
+    "confirmYes": "Yes, delete",
+    "dismiss": "Dismiss"
+  },
+  "saved": {
+    "title": "Expense saved",
+    "created": "Saved",
+    "updated": "Updated",
+    "lateHint": "That month was already closed, so this was added to the current month as a late entry.",
+    "pendingHint": "The manager needs to approve this before it counts."
+  },
+  "warnings": {
+    "short_cash_converted": "Not enough cash in the mess; recorded as the manager's own money."
+  },
+  "queue": {
+    "title": "Waiting for approval",
+    "empty": "Nothing is waiting for approval.",
+    "recordedBy": "Recorded by {name}",
+    "approve": "Approve",
+    "reject": "Reject",
+    "reasonLabel": "Reason for rejecting",
+    "reasonRequired": "Write a reason for rejecting.",
+    "confirmReject": "Reject expense"
+  },
+  "errors": {
+    "monthClosed": "That month is closed, so this expense can't be added, changed or deleted.",
+    "alreadyApproved": "This expense is already approved, so only the manager can change it.",
+    "expenseRejected": "A rejected expense can't be edited. You can delete it.",
+    "notPending": "This expense is no longer waiting for approval. Refresh the list.",
+    "forbidden": "You don't have permission to change this expense.",
+    "generic": "Something went wrong. Please try again.",
+    "loadFailed": "Could not load expenses.",
+    "noMonth": "No month is available yet."
+  }
+}
