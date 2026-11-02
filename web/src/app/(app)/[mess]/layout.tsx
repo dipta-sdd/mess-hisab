@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { PhoneGate } from "@/components/auth/phone-gate";
 import { AppShell } from "@/components/shell/app-shell";
 import { MessProvider } from "@/lib/mess/mess-context";
 
@@ -14,7 +15,9 @@ export default async function MessLayout({
 
   return (
     <MessProvider messId={messId}>
-      <AppShell>{children}</AppShell>
+      <PhoneGate>
+        <AppShell>{children}</AppShell>
+      </PhoneGate>
     </MessProvider>
   );
 }

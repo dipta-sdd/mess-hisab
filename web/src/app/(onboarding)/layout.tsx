@@ -1,3 +1,4 @@
+import { PhoneGate } from "@/components/auth/phone-gate";
 import { LanguageSwitcher } from "@/lib/i18n";
 import { ThemeToggle } from "@/lib/theme";
 
@@ -11,7 +12,9 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
             <ThemeToggle />
           </div>
         </div>
-        <main>{children}</main>
+        <main>
+          <PhoneGate>{children}</PhoneGate>
+        </main>
       </div>
     </div>
   );
