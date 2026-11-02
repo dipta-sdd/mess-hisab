@@ -80,7 +80,7 @@ class MonthReopener
             'rows_to_delete' => $rows,
             'next_month' => $next === null ? null : [
                 'id' => $next->id,
-                'will_be_deleted' => $blocks === [] && $this->isLastMonth($mess, $next),
+                'will_be_deleted' => $blocks === [] && $this->isLastMonth($mess, $next) && ! $this->hasData($mess, $next),
             ],
         ];
     }
@@ -144,11 +144,6 @@ class MonthReopener
             $blocks[] = ['code' => 'recoverable_repaid', 'data' => ['recoverable_ids' => array_map('intval', $repaid)]];
         }
 
-        $next = $this->nextMonth($mess, $month);
-        if ($next !== null && $this->hasData($mess, $next)) {
-            $blocks[] = ['code' => 'next_month_has_data', 'data' => ['month_id' => $next->id]];
-        }
-
         return $blocks;
     }
 
@@ -159,7 +154,6 @@ class MonthReopener
             'not_latest_closed' => 'Only the latest closed month can be reopened.',
             'payout_after_close' => 'A final payout was made after this month closed.',
             'recoverable_repaid' => 'A repayment was already recorded against this month\'s unpaid share.',
-            'next_month_has_data' => 'The next month already has records.',
             default => 'This month cannot be reopened.',
         };
     }
@@ -192,7 +186,7 @@ class MonthReopener
         ])->save();
 
         if ($next !== null) {
-            if ($this->isLastMonth($mess, $next)) {
+            if ($this->isLastMonth($mess, $next) && ! $this->hasData($mess, $next)) {
                 $next->delete();
             } elseif ((int) $next->food_carry_in_paisa !== 0) {
                 $next->forceFill(['food_carry_in_paisa' => 0])->save();

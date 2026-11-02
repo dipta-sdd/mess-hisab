@@ -110,7 +110,7 @@ it('refuses reopening an older month while a later one is closed', function () {
     $this->postJson("$base/{$oct->id}/reopen")->assertStatus(409)->assertJsonPath('code', 'not_latest_closed');
 });
 
-it('refuses reopening when the next month already has data or a payout followed the close', function () {
+it('allows reopening with data in the next month but refuses after a later payout', function () {
     [$mess, $month, $ids] = kOctober();
     $base = "/api/messes/{$mess->id}";
     $this->postJson("$base/months/{$month->id}/close")->assertOk();
@@ -118,7 +118,8 @@ it('refuses reopening when the next month already has data or a payout followed 
 
     jPay($mess, $next, $ids[2], 'meals', 300000, '2026-12-02');
     $prev = $this->getJson("$base/months/{$month->id}/reopen-preview")->assertOk()->json('data');
-    expect(kBlocks($prev))->toContain('next_month_has_data');
+    expect($prev['can_reopen'])->toBeTrue()->and(kBlocks($prev))->toBe([]);
+    expect($prev['next_month'])->toBe(['id' => $next->id, 'will_be_deleted' => false]);
     expect(array_keys($prev))->toEqualCanonicalizing(array_keys(jFixture('ReopenPreview')));
     expect(array_keys($prev['members'][0]))->toEqualCanonicalizing(array_keys(jFixture('ReopenPreview')['members'][0]));
 
@@ -178,4 +179,61 @@ it('blocks close on cash and doesnt-pay mismatches', function () {
     ]);
     $fresh = $this->getJson("$base/months/{$month->id}/close-check")->assertOk()->json('data');
     expect(kBlocks($fresh))->toContain('doesnt_pay_mismatch');
+});
+
+it('reopens a month while the next one keeps its data, chains carry-in live, and closes in order', function () {
+    [$mess, $month, $ids] = kOctober();
+    $base = "/api/messes/{$mess->id}";
+    $this->postJson("$base/months/{$month->id}/close")->assertOk();
+    $next = Month::where('mess_id', $mess->id)->where('starts_on', '>', '2026-11-30')->firstOrFail();
+
+    jPay($mess, $next, $ids[0], 'meals', 50000, '2026-12-02');
+    jMeals($mess, $next, $ids[1], 500, 0, '2026-12-03');
+    $dec = fn () => $this->getJson("$base/dashboard?month_id={$next->id}")->assertOk()->json('data');
+    $closedCarry = collect($dec()['members'])->pluck('carry_in_paisa', 'member_id')->all();
+
+    $this->postJson("$base/months/{$month->id}/reopen")->assertOk()->assertJsonPath('data.status', 'open');
+    expect(Month::findOrFail($next->id)->status->value)->toBe('open');
+    expect(\App\Models\Payment::where('month_id', $next->id)->count())->toBe(1);
+    expect(\App\Models\MealEntry::where('month_id', $next->id)->count())->toBe(1);
+    // Live carry-in from the reopened month equals what the closed month carried: nothing moved.
+    expect(collect($dec()['members'])->pluck('carry_in_paisa', 'member_id')->all())->toBe($closedCarry);
+
+    $this->postJson("$base/months/{$next->id}/close")->assertStatus(409)->assertJsonPath('code', 'close_blocked');
+    expect(kBlocks($this->getJson("$base/months/{$next->id}/close-check")->json('data')))->toContain('previous_month_open');
+
+    $this->postJson("$base/months/{$month->id}/close")->assertOk();
+    expect(kBlocks($this->getJson("$base/months/{$next->id}/close-check")->json('data')))->not->toContain('previous_month_open');
+    $this->postJson("$base/months/{$next->id}/close")->assertOk();
+});
+
+it('splits a by_meals doesnt-pay by effective meals with largest remainder and repays by those shares', function () {
+    [$mess, , $month, $ids] = jSetup('manager', 4);
+    jToday('2026-11-20');
+    $mess->update(['rounding_mode' => 'two_decimals']);
+    [$a, $b, $c, $n] = $ids;
+    $bazar = jCategory($mess, ['name' => 'Bazar', 'group' => 'meals', 'split_type' => 'by_meal']);
+    jExpense($mess, $month, $bazar, 100000, $a);
+    foreach ([$a => 1000, $b => 2000, $c => 2000, $n => 1000] as $id => $centi) {
+        jMeals($mess, $month, $id, $centi);
+    }
+    $base = "/api/messes/{$mess->id}";
+
+    $rec = $this->postJson("$base/months/{$month->id}/doesnt-pay", ['member_id' => $n, 'mode' => 'by_meals'])
+        ->assertCreated()->assertJsonPath('data.mode', 'by_meals')->json('data');
+    $before = kBalances($mess->id);
+    $this->postJson("$base/months/{$month->id}/close")->assertOk();
+    expect(kBalances($mess->id))->toBe($before);
+
+    $list = $this->getJson("$base/recoverables")->json('data');
+    $amount = $list[0]['amount_paisa'];
+    // N owes 1/6 of 100000 = 16667 (LR: S gets the extra paisa); shares follow the others' meals 1:2:2.
+    expect($amount)->toBe(16667);
+    $shares = collect($list[0]['shares'])->pluck('amount_paisa', 'member_id')->all();
+    expect(array_sum($shares))->toBe($amount);
+    expect($shares)->toBe([$a => 3333, $b => 6667, $c => 6667]); // floors 3333/6666/6666, the two largest fractions get the 2 spare paisa
+
+    $this->postJson("$base/recoverables/{$rec['id']}/repayments", ['amount_paisa' => $amount, 'paid_on' => '2026-11-22'])->assertCreated();
+    $credits = LedgerEntry::where('source_type', 'recoverable_repayment')->selectRaw('member_id, sum(amount_paisa) s')->groupBy('member_id')->pluck('s', 'member_id')->map(fn ($v) => (int) $v)->all();
+    expect($credits)->toBe($shares);
 });
