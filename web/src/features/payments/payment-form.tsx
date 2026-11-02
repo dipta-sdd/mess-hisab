@@ -11,7 +11,7 @@ import { useCreatePayment, useUpdatePayment } from "./api";
 import { todayInDhaka } from "@/lib/format/date";
 import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
 import { paymentFormSchema, type PaymentFormValues } from "./schema";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 /** Maps API field names to form field names. */
 const SERVER_FIELDS: Record<string, keyof PaymentFormValues> = {
@@ -135,7 +135,7 @@ export function PaymentForm({
         {field(
           "member_id",
           t("form.member"),
-          <select id="pf-member_id" className={fieldClass} aria-invalid={Boolean(errors.member_id)} aria-describedby={describedBy("member_id")} {...register("member_id")}>
+          <select id="pf-member_id" className={fieldClassInvalid} aria-invalid={Boolean(errors.member_id)} aria-describedby={describedBy("member_id")} {...register("member_id")}>
             <option value="">{t("form.memberPlaceholder")}</option>
             {choices.map((m) => (
               <option key={m.id} value={m.id}>
@@ -147,7 +147,7 @@ export function PaymentForm({
         {field(
           "group",
           t("form.group"),
-          <select id="pf-group" className={fieldClass} aria-invalid={Boolean(errors.group)} aria-describedby={describedBy("group")} {...register("group")}>
+          <select id="pf-group" className={fieldClassInvalid} aria-invalid={Boolean(errors.group)} aria-describedby={describedBy("group")} {...register("group")}>
             <option value="fixed">{t("groups.fixed")}</option>
             <option value="meals">{t("groups.meals")}</option>
           </select>,
@@ -155,26 +155,26 @@ export function PaymentForm({
         {field(
           "amount",
           t("form.amount"),
-          <input id="pf-amount" type="text" inputMode="decimal" autoComplete="off" className={fieldClass} aria-invalid={Boolean(errors.amount)} aria-describedby={describedBy("amount", true)} {...register("amount")} />,
+          <input id="pf-amount" type="text" inputMode="decimal" autoComplete="off" className={fieldClassInvalid} aria-invalid={Boolean(errors.amount)} aria-describedby={describedBy("amount", true)} {...register("amount")} />,
           t("form.amountHint"),
         )}
         {field(
           "paid_on",
           t("form.date"),
-          <input id="pf-paid_on" type="date" className={fieldClass} aria-invalid={Boolean(errors.paid_on)} aria-describedby={describedBy("paid_on")} {...register("paid_on")} />,
+          <input id="pf-paid_on" type="date" className={fieldClassInvalid} aria-invalid={Boolean(errors.paid_on)} aria-describedby={describedBy("paid_on")} {...register("paid_on")} />,
         )}
       </div>
       {field(
         "note",
         t("form.note"),
-        <textarea id="pf-note" rows={2} maxLength={600} className={fieldClass} aria-invalid={Boolean(errors.note)} aria-describedby={describedBy("note")} {...register("note")} />,
+        <textarea id="pf-note" rows={2} maxLength={600} className={fieldClassInvalid} aria-invalid={Boolean(errors.note)} aria-describedby={describedBy("note")} {...register("note")} />,
       )}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button type="button" variant="ghost" onPress={onCancel}>
+        <Button type="button" variant="ghost" onPress={onCancel} className="w-full sm:w-auto">
           {t("actions.cancel")}
         </Button>
-        <Button type="submit" variant="primary" isDisabled={isSubmitting}>
+        <Button type="submit" variant="primary" className="w-full sm:w-auto" isDisabled={isSubmitting}>
           {isSubmitting ? t("actions.saving") : editing ? t("actions.save") : t("actions.create")}
         </Button>
       </div>

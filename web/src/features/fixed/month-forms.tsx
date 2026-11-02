@@ -10,7 +10,7 @@ import { useUpdateMemberSettings, useUpdateMonthSetup, type MemberMonthSettingRo
 
 import { explainError } from "./errors";
 import { centiToInput, paisaToTakaInput, parseMealsToCenti, parseTakaToPaisa } from "@/lib/format/money-input";
-import { fieldClassInvalid as fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid as fieldClassInvalid } from "@/components/ui/field";
 
 /** Deadlines and the default deposit for the month. */
 export function MonthSetupForm({
@@ -79,17 +79,17 @@ export function MonthSetupForm({
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="flex flex-col gap-1">
           <label htmlFor="fx-fixed-deadline" className="text-sm font-medium">{t("month.fixedDeadline")}</label>
-          <input id="fx-fixed-deadline" type="date" className={fieldClass} value={fixedDeadline} onChange={(e) => setFixedDeadline(e.target.value)} />
+          <input id="fx-fixed-deadline" type="date" className={fieldClassInvalid} value={fixedDeadline} onChange={(e) => setFixedDeadline(e.target.value)} />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="fx-deposit-deadline" className="text-sm font-medium">{t("month.depositDeadline")}</label>
-          <input id="fx-deposit-deadline" type="date" className={fieldClass} value={depositDeadline} onChange={(e) => setDepositDeadline(e.target.value)} />
+          <input id="fx-deposit-deadline" type="date" className={fieldClassInvalid} value={depositDeadline} onChange={(e) => setDepositDeadline(e.target.value)} />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="fx-deposit" className="text-sm font-medium">{t("month.deposit")}</label>
           <input
             id="fx-deposit"
-            className={fieldClass}
+            className={fieldClassInvalid}
             inputMode="decimal"
             autoComplete="off"
             value={deposit}
@@ -102,7 +102,7 @@ export function MonthSetupForm({
       {notice ? <p role="alert" className="rounded-lg border border-danger bg-danger/10 p-2 text-sm text-danger">{notice}</p> : null}
       {ok && !dirty ? <p role="status" className="text-sm text-success">{t("saved")}</p> : null}
       <div>
-        <Button type="submit" variant="primary" isDisabled={!dirty || update.isPending}>
+        <Button type="submit" variant="primary" className="w-full sm:w-auto" isDisabled={!dirty || update.isPending}>
           {update.isPending ? t("actions.saving") : t("actions.saveMonth")}
         </Button>
       </div>
@@ -160,7 +160,7 @@ export function MemberSettingRow({
   if (!canEdit) {
     return (
       <li className="flex flex-wrap items-center justify-between gap-2 py-2">
-        <span className="font-medium">{member.display_name}</span>
+        <span className="break-words font-medium">{member.display_name}</span>
         <span className="text-sm text-muted">
           {t("members.deposit")}: {money(setting?.deposit_paisa ?? month.deposit_paisa)} · {t("members.minMeals")}:{" "}
           {setting?.min_meals_centi == null ? t("members.defaultValue") : formatMeals(setting.min_meals_centi, locale)}
@@ -171,13 +171,13 @@ export function MemberSettingRow({
 
   return (
     <li className="flex flex-col gap-2 py-3">
-      <span className="font-medium">{member.display_name}</span>
+      <span className="break-words font-medium">{member.display_name}</span>
       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <div className="flex flex-col gap-1">
           <label htmlFor={`ms-d-${member.id}`} className="text-sm">{`${t("members.deposit")}: ${member.display_name}`}</label>
           <input
             id={`ms-d-${member.id}`}
-            className={fieldClass}
+            className={fieldClassInvalid}
             inputMode="decimal"
             autoComplete="off"
             placeholder={t("members.depositDefault", { amount: money(month.deposit_paisa) })}
@@ -190,7 +190,7 @@ export function MemberSettingRow({
           <label htmlFor={`ms-m-${member.id}`} className="text-sm">{`${t("members.minMeals")}: ${member.display_name}`}</label>
           <input
             id={`ms-m-${member.id}`}
-            className={fieldClass}
+            className={fieldClassInvalid}
             inputMode="decimal"
             autoComplete="off"
             placeholder={t("members.minMealsDefault")}

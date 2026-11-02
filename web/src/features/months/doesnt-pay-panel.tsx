@@ -7,7 +7,7 @@ import type { DoesntPayMode, Month } from "@/lib/api/contract";
 import { useCreateDoesntPay, useDashboard, useRecoverables, useUndoDoesntPay } from "./api";
 import { parseTakaToPaisa } from "@/lib/format/money-input";
 import { Banner, useErrorText } from "./ui";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 const MODES: DoesntPayMode[] = ["equal", "by_meals", "manual"];
 
@@ -106,12 +106,12 @@ export function DoesntPayPanel({
           {list.map((r) => (
             <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-default-200 p-3">
               <div className="min-w-0">
-                <p className="font-medium">{t("pendingItem", { name: nameOf(r.debtor_member_id) })}</p>
+                <p className="break-words font-medium">{t("pendingItem", { name: nameOf(r.debtor_member_id) })}</p>
                 <p className="text-sm text-muted">{t(`modes.${r.mode}.label`)}</p>
                 {r.mode === "manual" ? (
                   <ul className="mt-1 text-sm">
                     {r.shares.map((s) => (
-                      <li key={s.member_id}>{nameOf(s.member_id)}: {money(s.manual_amount_paisa ?? 0)}</li>
+                      <li key={s.member_id} className="break-words tabular-nums">{nameOf(s.member_id)}: {money(s.manual_amount_paisa ?? 0)}</li>
                     ))}
                   </ul>
                 ) : null}
@@ -134,7 +134,7 @@ export function DoesntPayPanel({
             <label htmlFor="dp-member" className="text-sm font-medium">{t("member")}</label>
             <select
               id="dp-member"
-              className={fieldClass}
+              className={fieldClassInvalid}
               value={debtorId ?? ""}
               onChange={(e) => { setDebtorId(e.target.value === "" ? null : Number(e.target.value)); setTyped({}); }}
               disabled={dashboard.isPending}
@@ -175,7 +175,7 @@ export function DoesntPayPanel({
                     type="text"
                     inputMode="decimal"
                     autoComplete="off"
-                    className={fieldClass}
+                    className={fieldClassInvalid}
                     value={typed[r.member_id] ?? ""}
                     aria-invalid={invalidIds.has(r.member_id)}
                     onChange={(e) => setTyped((prev) => ({ ...prev, [r.member_id]: e.target.value }))}
@@ -194,7 +194,7 @@ export function DoesntPayPanel({
           ) : null}
 
           <div className="flex justify-end">
-            <Button type="submit" variant="primary" isDisabled={!canSubmit}>
+            <Button type="submit" variant="primary" className="w-full sm:w-auto" isDisabled={!canSubmit}>
               {create.isPending ? t("saving") : t("submit")}
             </Button>
           </div>

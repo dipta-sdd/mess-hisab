@@ -111,8 +111,8 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
           <p className="font-medium">{t("confirmTitle")}</p>
           <p className="text-sm">{t("confirmBody")}</p>
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button variant="ghost" onPress={() => setConfirming(false)}>{t("cancel")}</Button>
-            <Button variant="danger" onPress={doClose} isDisabled={close.isPending}>
+            <Button variant="ghost" className="w-full sm:w-auto" onPress={() => setConfirming(false)}>{t("cancel")}</Button>
+            <Button variant="danger" className="w-full sm:w-auto" onPress={doClose} isDisabled={close.isPending}>
               {close.isPending ? t("closing") : t("confirmYes")}
             </Button>
           </div>

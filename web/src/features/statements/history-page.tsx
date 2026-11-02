@@ -41,7 +41,7 @@ export function HistoryPage() {
                     <span className="font-semibold">{formatMonthLabel(r.starts_on, locale)}</span>
                     <span className="text-xs text-muted">{r.status === "open" ? t("history.open") : t("history.closed")}</span>
                   </div>
-                  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm tabular-nums">
                     <dt className="text-muted">{t("history.fixedCharged")}</dt><dd className="text-end">{money(r.fixed_charged_paisa)}</dd>
                     <dt className="text-muted">{t("history.mealsCharged")}</dt><dd className="text-end">{money(r.meals_charged_paisa)}</dd>
                     <dt className="text-muted">{t("history.expenses")}</dt><dd className="text-end">{money(r.expenses_paisa)}</dd>
@@ -56,7 +56,7 @@ export function HistoryPage() {
           </ul>
 
           <div className="hidden overflow-x-auto md:block">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm tabular-nums">
               <thead>
                 <tr className="border-b border-default-200 text-muted">
                   <th scope="col" className="p-2 text-start">{t("history.month")}</th>

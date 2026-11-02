@@ -9,7 +9,7 @@ import { useRecoverables, useRepay } from "./api";
 import { todayInDhaka } from "@/lib/format/date";
 import { parseTakaToPaisa } from "@/lib/format/money-input";
 import { Banner, useErrorText } from "./ui";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 /** All "doesn't pay" requests and unpaid shares of the mess; the manager records repayments. */
 export function RecoverablesPanel({
@@ -74,13 +74,13 @@ function RecoverableRow({
     <li className="rounded-xl border border-default-200 p-3" data-testid={`recoverable-${r.id}`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-medium">{debtor}</p>
+          <p className="break-words font-medium">{debtor}</p>
           <p className="text-sm text-muted">{t(`modes.${r.mode}`)}</p>
         </div>
-        <span className="rounded-full bg-default-100 px-3 py-1 text-xs font-medium">{t(`status.${r.status}`)}</span>
+        <span className="shrink-0 rounded-full bg-default-100 px-3 py-1 text-xs font-medium">{t(`status.${r.status}`)}</span>
       </div>
 
-      <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
+      <dl className="mt-2 grid grid-cols-2 gap-2 text-sm tabular-nums">
         <div>
           <dt className="text-muted">{t("amount")}</dt>
           <dd className="font-semibold">{r.amount_paisa === null ? t("amountAtClose") : money(r.amount_paisa)}</dd>
@@ -97,7 +97,7 @@ function RecoverableRow({
           <ul className="text-sm">
             {r.shares.map((s) => (
               <li key={s.member_id} className="flex flex-wrap items-center gap-x-2">
-                <span>{nameOf(s.member_id)}</span>
+                <span className="break-words">{nameOf(s.member_id)}</span>
                 <span>{s.amount_paisa !== null ? money(s.amount_paisa) : s.manual_amount_paisa !== null ? money(s.manual_amount_paisa) : "—"}</span>
                 {isArchived(s.member_id) ? (
                   <span className="rounded-full bg-warning/20 px-2 py-0.5 text-xs">{t("payableToExMember")}</span>
@@ -187,7 +187,7 @@ function RepayForm({
             type="text"
             inputMode="decimal"
             autoComplete="off"
-            className={fieldClass}
+            className={fieldClassInvalid}
             value={amount}
             aria-invalid={Boolean(amountError)}
             onChange={(e) => setAmount(e.target.value)}
@@ -199,7 +199,7 @@ function RepayForm({
           <input
             id={`rp-date-${recoverableId}`}
             type="date"
-            className={fieldClass}
+            className={fieldClassInvalid}
             value={paidOn}
             aria-invalid={Boolean(dateError)}
             onChange={(e) => setPaidOn(e.target.value)}
@@ -208,8 +208,8 @@ function RepayForm({
         </div>
       </div>
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button type="button" variant="ghost" onPress={onCancel}>{t("form.cancel")}</Button>
-        <Button type="submit" variant="primary" isDisabled={repay.isPending}>{repay.isPending ? t("form.saving") : t("form.save")}</Button>
+        <Button type="button" variant="ghost" onPress={onCancel} className="w-full sm:w-auto">{t("form.cancel")}</Button>
+        <Button type="submit" variant="primary" className="w-full sm:w-auto" isDisabled={repay.isPending}>{repay.isPending ? t("form.saving") : t("form.save")}</Button>
       </div>
     </form>
   );

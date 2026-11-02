@@ -8,7 +8,7 @@ import { useMess } from "@/lib/mess/mess-context";
 import { useCategories, useCurrentMonth, useMembers, useMessInfo, useMonths, useSetup } from "./api";
 import { BillCard } from "./bill-card";
 import { MemberSettingRow, MonthSetupForm } from "./month-forms";
-import { fieldClassInvalid as fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid as fieldClassInvalid } from "@/components/ui/field";
 import { formatMonthLabel } from "@/lib/format/date";
 
 export function FixedPage() {
@@ -54,7 +54,7 @@ export function FixedPage() {
         <label htmlFor="fixed-month" className="text-sm font-medium">{t("monthPicker.label")}</label>
         <select
           id="fixed-month"
-          className={fieldClass}
+          className={fieldClassInvalid}
           value={monthId ?? ""}
           disabled={months.length === 0}
           onChange={(e) => setPickedMonth(Number(e.target.value))}

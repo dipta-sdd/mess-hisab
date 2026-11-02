@@ -5,7 +5,7 @@ import type { AppLocale } from "@/i18n/config";
 import type { HistoryRow, MonthInfo, RoundingMode } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
 import { formatBalance, formatMonthLabel, formatNumber } from "@/lib/format";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 export function is404(error: unknown): boolean {
   return isApiError(error) && error.status === 404;
@@ -17,7 +17,7 @@ export function Balance({ paisa, mode, testId }: { paisa: number; mode: Rounding
   const tc = useTranslations("common");
   const tone = paisa < 0 ? "text-danger" : paisa > 0 ? "text-success" : "text-muted";
   return (
-    <span className={`font-semibold ${tone}`} data-testid={testId}>
+    <span className={`font-semibold tabular-nums ${tone}`} data-testid={testId}>
       {formatBalance(paisa, locale, mode, tc)}
     </span>
   );
@@ -63,7 +63,7 @@ export function MonthPicker({
       <label htmlFor={id} className="text-sm font-medium">{t("month.label")}</label>
       <select
         id={id}
-        className={fieldClass}
+        className={fieldClassInvalid}
         value={selected ?? ""}
         disabled={options.length === 0}
         onChange={(e) => onChange(Number(e.target.value))}

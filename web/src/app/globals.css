@@ -4,3 +4,19 @@
 body {
   min-height: 100dvh;
 }
+
+/* Touch targets: HeroUI buttons are 36-40px tall; keep them at least 44px, and let long (Bangla)
+   labels wrap instead of overflowing a narrow phone screen. */
+.button {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
+  padding-block: 0.375rem;
+}
+
+/* HeroUI text inputs: same 44px touch target as buttons. */
+.input {
+  min-height: 2.75rem;
+}

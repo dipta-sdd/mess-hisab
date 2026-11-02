@@ -21,7 +21,7 @@ import { dayLabel, daysBetween, memberInMess } from "./dates";
 import { formatMonthLabel, todayInDhaka } from "@/lib/format/date";
 import { buildPayload, cellKey, parseKey, type CellDraft, type Drafts } from "./draft";
 import { MealCell } from "./meal-cell";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 type View = "grid" | "day";
 
@@ -157,7 +157,7 @@ export function MealsPage() {
       <label htmlFor="meals-month" className="text-sm font-medium">{t("month.label")}</label>
       <select
         id="meals-month"
-        className={fieldClass}
+        className={fieldClassInvalid}
         value={monthId ?? ""}
         disabled={months.length === 0}
         onChange={(e) => {
@@ -192,7 +192,7 @@ export function MealsPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 pb-24">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 pb-24 md:pb-4">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -249,8 +249,8 @@ export function MealsPage() {
             return (
               <li key={m.id} className="rounded-xl border border-default-200 bg-surface p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium">{m.display_name}</p>
-                  <p className="text-sm text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
+                  <p className="min-w-0 break-words font-medium">{m.display_name}</p>
+                  <p className="shrink-0 text-sm text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
                 </div>
                 <div className="mt-2 max-w-40">
                   <MealCell
@@ -272,9 +272,9 @@ export function MealsPage() {
             <Button variant="secondary" isDisabled={days.indexOf(day) <= 0} onPress={() => setPickedDay(days[days.indexOf(day) - 1])} aria-label={t("day.prev")}>
               ‹
             </Button>
-            <div className="flex flex-col items-center">
+            <div className="flex min-w-0 flex-1 flex-col items-center">
               <label htmlFor="meals-day" className="sr-only">{t("day.pick")}</label>
-              <select id="meals-day" className={`${fieldClass} text-center`} value={day} onChange={(e) => setPickedDay(e.target.value)}>
+              <select id="meals-day" className={`${fieldClassInvalid} text-center`} value={day} onChange={(e) => setPickedDay(e.target.value)}>
                 {days.map((d) => <option key={d} value={d}>{formatDate(d, locale)}</option>)}
               </select>
             </div>
@@ -289,8 +289,8 @@ export function MealsPage() {
               return (
                 <li key={m.id} className="rounded-xl border border-default-200 bg-surface p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">{m.display_name}</p>
-                    <p className="text-xs text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
+                    <p className="min-w-0 break-words font-medium">{m.display_name}</p>
+                    <p className="shrink-0 text-xs text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
                   </div>
                   <div className="mt-2 max-w-48">
                     <MealCell
@@ -313,17 +313,17 @@ export function MealsPage() {
             <caption className="sr-only">{t("title")}</caption>
             <thead>
               <tr>
-                <th scope="col" className="sticky start-0 z-10 bg-surface p-2 text-start">{t("member")}</th>
+                <th scope="col" className="sticky start-0 z-10 min-w-24 max-w-32 border-e border-default-200 bg-surface p-2 text-start">{t("member")}</th>
                 {days.map((d) => (
                   <th key={d} scope="col" className="min-w-24 p-2 text-center font-medium">{dayLabel(d, locale)}</th>
                 ))}
-                <th scope="col" className="sticky end-0 z-10 bg-surface p-2 text-center">{t("totalLabel")}</th>
+                <th scope="col" className="sticky end-0 z-10 border-s border-default-200 bg-surface p-2 text-center">{t("totalLabel")}</th>
               </tr>
             </thead>
             <tbody>
               {members.map((m) => (
                 <tr key={m.id} className="border-t border-default-200">
-                  <th scope="row" className="sticky start-0 z-10 bg-surface p-2 text-start font-medium">{m.display_name}</th>
+                  <th scope="row" className="sticky start-0 z-10 min-w-24 max-w-32 break-words border-e border-default-200 bg-surface p-2 text-start font-medium">{m.display_name}</th>
                   {days.map((d) => {
                     const key = cellKey(m.id, d);
                     const ok = editableCell(m, d);
@@ -345,7 +345,7 @@ export function MealsPage() {
                       </td>
                     );
                   })}
-                  <td className="sticky end-0 z-10 bg-surface p-2 text-center font-semibold">{rowTotal(m)}</td>
+                  <td className="sticky end-0 z-10 border-s border-default-200 bg-surface p-2 text-center font-semibold tabular-nums">{rowTotal(m)}</td>
                 </tr>
               ))}
             </tbody>
@@ -354,9 +354,9 @@ export function MealsPage() {
       )}
 
       {anyEditable && !showOff && !loading ? (
-        <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-default-200 bg-background p-3 sm:static sm:border-0 sm:p-0">
-          <p className="text-sm text-muted">{dirty ? t("unsaved", { count: formatNumber(Object.keys(drafts).length, locale) }) : t("noChanges")}</p>
-          <div className="flex gap-2">
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center justify-between gap-3 border-t border-default-200 bg-background p-3 md:static md:z-auto md:border-0 md:p-0">
+          <p className="min-w-0 text-sm text-muted">{dirty ? t("unsaved", { count: formatNumber(Object.keys(drafts).length, locale) }) : t("noChanges")}</p>
+          <div className="flex shrink-0 gap-2">
             {dirty ? (
               <Button variant="ghost" onPress={() => { setDrafts({}); setProblems([]); }} isDisabled={saving}>
                 {t("actions.discard")}

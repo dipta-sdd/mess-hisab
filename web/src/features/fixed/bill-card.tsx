@@ -9,7 +9,7 @@ import type { Bill, Member } from "@/lib/api/contract";
 import { useAcceptBill, useSaveBill, useSpreadBill } from "./api";
 import { explainError } from "./errors";
 import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
-import { fieldClassInvalid as fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid as fieldClassInvalid } from "@/components/ui/field";
 
 /** One category's bill for the month: amount, who pays what (shares from the API), hand-set overrides, unallocated. */
 export function BillCard({
@@ -92,13 +92,13 @@ export function BillCard({
     <li className="rounded-2xl border border-default-200 bg-surface p-4" aria-label={name}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-lg font-semibold">{name}</h3>
+          <h3 className="min-w-0 break-words text-lg font-semibold">{name}</h3>
           <p className="text-xs text-muted">
             {t(`groups.${bill.group}`)} · {t(`split.${bill.split_type}`)}
           </p>
         </div>
         {!isFixedGroup || !canEdit ? (
-          <p className="text-lg font-semibold" data-testid={`amount-${bill.category_id}`}>{money(bill.amount_paisa)}</p>
+          <p className="text-lg font-semibold tabular-nums" data-testid={`amount-${bill.category_id}`}>{money(bill.amount_paisa)}</p>
         ) : null}
       </div>
 
@@ -107,7 +107,7 @@ export function BillCard({
           <label htmlFor={`${idBase}-amount`} className="text-sm font-medium">{t("bill.amount")}</label>
           <input
             id={`${idBase}-amount`}
-            className={`${fieldClass} max-w-60`}
+            className={`${fieldClassInvalid} max-w-60`}
             inputMode="decimal"
             autoComplete="off"
             placeholder={formatNumber(0, locale)}
@@ -125,14 +125,14 @@ export function BillCard({
           const hasOverride = bill.overrides.some((o) => o.member_id === m.id);
           return (
             <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-              <span className="min-w-0 font-medium">{m.display_name}</span>
+              <span className="min-w-0 break-words font-medium">{m.display_name}</span>
               <span className="flex items-center gap-3">
                 {canEdit ? (
                   <span className="flex items-center gap-2">
                     <label htmlFor={`${idBase}-m${m.id}`} className="sr-only">{`${overrideLabel}: ${m.display_name}`}</label>
                     <input
                       id={`${idBase}-m${m.id}`}
-                      className={`${fieldClass} w-28 text-end`}
+                      className={`${fieldClassInvalid} w-28 text-end`}
                       inputMode="decimal"
                       autoComplete="off"
                       placeholder={t("bill.auto")}
@@ -144,7 +144,7 @@ export function BillCard({
                 ) : hasOverride ? (
                   <span className="text-xs text-muted">{t("bill.setByHand")}</span>
                 ) : null}
-                <span className="w-24 text-end font-semibold" data-testid={`share-${bill.category_id}-${m.id}`}>{money(share)}</span>
+                <span className="min-w-24 text-end font-semibold tabular-nums" data-testid={`share-${bill.category_id}-${m.id}`}>{money(share)}</span>
               </span>
             </li>
           );
@@ -181,7 +181,7 @@ export function BillCard({
 
       {canEdit ? (
         <div className="mt-3">
-          <Button variant="primary" isDisabled={!dirty || busy} onPress={onSave} aria-label={`${t("actions.saveBill")}: ${name}`}>
+          <Button variant="primary" className="w-full sm:w-auto" isDisabled={!dirty || busy} onPress={onSave} aria-label={`${t("actions.saveBill")}: ${name}`}>
             {save.isPending ? t("actions.saving") : t("actions.saveBill")}
           </Button>
         </div>

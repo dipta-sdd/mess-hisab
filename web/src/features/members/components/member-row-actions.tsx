@@ -65,7 +65,7 @@ function EditMemberForm({ member, onDone }: { member: Member; onDone: () => void
         <TextInputField label={t("fields.leftOn")} type="date" error={errors.left_on?.message} {...register("left_on")} />
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" variant="primary" isPending={update.isPending}>
+        <Button type="submit" variant="primary" className="w-full sm:w-auto" isPending={update.isPending}>
           {t("edit.save")}
         </Button>
         <Button type="button" variant="ghost" onPress={onDone}>

@@ -9,7 +9,7 @@ import type { AppLocale } from "@/i18n/config";
 import type { StatementLine, StatementLineKind } from "@/lib/api/contract";
 import { formatDate, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 /** Kinds whose server `label` is a meaningful name (bill category) and is shown as the main text. */
 const NAMED_KINDS: StatementLineKind[] = ["fixed_bill"];
@@ -44,7 +44,7 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
         <label htmlFor="stmt-member" className="text-sm font-medium">{t("member.label")}</label>
         <select
           id="stmt-member"
-          className={fieldClass}
+          className={fieldClassInvalid}
           value={effectiveMember ?? ""}
           disabled={members.length === 0}
           onChange={(e) => setPickedMember(Number(e.target.value))}
@@ -98,11 +98,11 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
   const lineRow = (l: StatementLine, i: number) => (
     <li key={`${l.kind}-${i}`} className="flex items-start justify-between gap-3 py-2" data-testid={`line-${l.kind}`}>
       <div className="min-w-0">
-        <p className="font-medium">{kindLabel(l)}</p>
-        {kindNote(l) ? <p className="text-xs text-muted">{kindNote(l)}</p> : null}
+        <p className="break-words font-medium">{kindLabel(l)}</p>
+        {kindNote(l) ? <p className="break-words text-xs text-muted">{kindNote(l)}</p> : null}
         {l.date ? <p className="text-xs text-muted">{formatDate(l.date, locale)}</p> : null}
       </div>
-      <span className={l.amount_paisa < 0 ? "text-danger" : "text-success"}>{money(l.amount_paisa)}</span>
+      <span className={`shrink-0 tabular-nums ${l.amount_paisa < 0 ? "text-danger" : "text-success"}`}>{money(l.amount_paisa)}</span>
     </li>
   );
 
@@ -116,7 +116,7 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
       <section aria-labelledby="stmt-summary" className="rounded-2xl border border-default-200 bg-surface p-4">
         <h2 id="stmt-summary" className="sr-only">{t("summary.title")}</h2>
         <p className="text-sm text-muted">{t("summary.total")}</p>
-        <p className="text-3xl" data-testid="stmt-total"><Balance paisa={s.total_paisa} mode={mode} /></p>
+        <p className="break-words text-3xl" data-testid="stmt-total"><Balance paisa={s.total_paisa} mode={mode} /></p>
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
           <dt className="text-muted">{t("summary.fixedBalance")}</dt>
           <dd className="text-end" data-testid="stmt-fixed-balance"><Balance paisa={s.fixed_balance_paisa} mode={mode} /></dd>
@@ -142,7 +142,7 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
         <ul className="divide-y divide-default-200">
           <li className="flex items-start justify-between gap-3 py-2" data-testid="line-carry_in">
             <p className="font-medium">{t("kinds.carry_in")}</p>
-            <span className={carryIn < 0 ? "text-danger" : carryIn > 0 ? "text-success" : "text-muted"}>{money(carryIn)}</span>
+            <span className={`shrink-0 tabular-nums ${carryIn < 0 ? "text-danger" : carryIn > 0 ? "text-success" : "text-muted"}`}>{money(carryIn)}</span>
           </li>
         </ul>
         {rest.length === 0 ? <p className="mt-2 text-muted">{t("lines.empty")}</p> : null}

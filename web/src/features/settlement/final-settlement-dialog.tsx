@@ -12,8 +12,8 @@ import { useMess } from "@/lib/mess/mess-context";
 import { rowFor, useFinalSettlement, useSettlementDashboard } from "./api";
 import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
 import { todayInDhaka } from "@/lib/format/date";
+import { fieldClassInvalid } from "@/components/ui/field";
 
-const FIELD = "min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-base text-foreground";
 
 function numberFrom(body: unknown, key: string): number | null {
   if (body && typeof body === "object") {
@@ -156,18 +156,18 @@ function SettlementForm({
       {banner ? <p role="alert" className="rounded-lg bg-danger/10 p-2 text-sm text-danger">{banner}</p> : null}
       <label className="flex flex-col gap-1 text-sm font-medium">
         {t("dialog.amount")}
-        <input className={FIELD} inputMode="decimal" value={amount} aria-invalid={!!fieldError} onChange={(e) => setAmount(e.target.value)} />
+        <input className={fieldClassInvalid} inputMode="decimal" value={amount} aria-invalid={!!fieldError} onChange={(e) => setAmount(e.target.value)} />
       </label>
       {fieldError ? <p role="alert" className="text-sm text-danger">{fieldError}</p> : null}
       <label className="flex flex-col gap-1 text-sm font-medium">
         {t("dialog.paidOn")}
-        <input className={FIELD} type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} />
+        <input className={fieldClassInvalid} type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} />
       </label>
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" variant="primary" isPending={settle.isPending}>
+        <Button type="submit" variant="primary" className="w-full sm:w-auto" isPending={settle.isPending}>
           {t("dialog.submit")}
         </Button>
-        <Button type="button" variant="ghost" onPress={onCancel}>
+        <Button type="button" variant="ghost" className="w-full sm:w-auto" onPress={onCancel}>
           {t("dialog.cancel")}
         </Button>
       </div>

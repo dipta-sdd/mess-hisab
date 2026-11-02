@@ -277,7 +277,7 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
         <p className="text-sm text-muted">{t("readOnly")}</p>
       ) : (
         <div>
-          <Button type="submit" variant="primary" isPending={update.isPending}>
+          <Button type="submit" variant="primary" className="w-full sm:w-auto" isPending={update.isPending}>
             {t("save")}
           </Button>
         </div>

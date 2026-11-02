@@ -11,7 +11,7 @@ import { useMess } from "@/lib/mess/mess-context";
 import { useCash, useCurrentMonth, useDeletePayment, useMembers, useMessInfo, useMonths, usePayments } from "./api";
 import { formatMonthLabel } from "@/lib/format/date";
 import { PaymentForm } from "./payment-form";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 type FormState = { mode: "closed" } | { mode: "create" } | { mode: "edit"; payment: Payment };
 
@@ -85,7 +85,7 @@ export function PaymentsPage() {
           <label htmlFor="month-picker" className="text-sm font-medium">{t("month.label")}</label>
           <select
             id="month-picker"
-            className={fieldClass}
+            className={fieldClassInvalid}
             value={monthId ?? ""}
             onChange={(e) => setPickedMonth(Number(e.target.value))}
             disabled={months.length === 0}
@@ -101,7 +101,7 @@ export function PaymentsPage() {
           <label htmlFor="member-filter" className="text-sm font-medium">{t("filter.label")}</label>
           <select
             id="member-filter"
-            className={fieldClass}
+            className={fieldClassInvalid}
             value={memberFilter ?? ""}
             onChange={(e) => setMemberFilter(e.target.value === "" ? null : Number(e.target.value))}
           >
