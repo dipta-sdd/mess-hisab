@@ -111,6 +111,31 @@ final class BalanceViews
         ];
     }
 
+    /**
+     * One month of a member's history: charged = that month's fixed + meals bill (no carry-in),
+     * paid = the member's payments in the month, balance = the statement's total_paisa.
+     * Null when the member was not part of the month.
+     *
+     * @return array<string,mixed>|null
+     */
+    public static function memberHistoryRow(MonthSnapshot $s, int $memberId): ?array
+    {
+        if (! in_array($memberId, $s->activeMemberIds, true) || ! isset($s->balances->members[$memberId])) {
+            return null;
+        }
+        $b = $s->balances->members[$memberId];
+
+        return [
+            'month_id' => $s->month->id,
+            'starts_on' => $s->month->starts_on->toDateString(),
+            'ends_on' => $s->month->ends_on->toDateString(),
+            'status' => $s->month->status->value,
+            'charged_paisa' => $b->fixed->chargesPaisa + $b->meals->chargesPaisa,
+            'paid_paisa' => $b->fixed->paymentsPaisa + $b->meals->paymentsPaisa,
+            'balance_paisa' => $b->totalPaisa,
+        ];
+    }
+
     // ------------------------------------------------------------------ pieces
 
     /** @return array<string,mixed> */
