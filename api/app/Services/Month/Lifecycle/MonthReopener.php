@@ -138,6 +138,14 @@ class MonthReopener
             $blocks[] = ['code' => 'payout_after_close', 'data' => ['ledger_entry_ids' => array_map('intval', $ids)]];
         }
 
+        if ($month->closed_at !== null) {
+            $archived = MessMember::query()->forMess($mess->id)->whereNotNull('archived_at')
+                ->where('archived_at', '>', $month->closed_at)->orderBy('id')->pluck('id')->all();
+            if ($archived !== []) {
+                $blocks[] = ['code' => 'archive_after_close', 'data' => ['member_ids' => array_map('intval', $archived)]];
+            }
+        }
+
         $repaid = Recoverable::query()->forMess($mess->id)->where('month_id', $month->id)
             ->whereIn('id', RecoverableRepayment::query()->forMess($mess->id)->select('recoverable_id'))->pluck('id')->all();
         if ($repaid !== []) {
@@ -153,6 +161,7 @@ class MonthReopener
             'month_not_closed' => 'This month is not closed.',
             'not_latest_closed' => 'Only the latest closed month can be reopened.',
             'payout_after_close' => 'A final payout was made after this month closed.',
+            'archive_after_close' => 'A member was archived after this month closed.',
             'recoverable_repaid' => 'A repayment was already recorded against this month\'s unpaid share.',
             default => 'This month cannot be reopened.',
         };
