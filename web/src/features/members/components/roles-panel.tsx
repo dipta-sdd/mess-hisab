@@ -102,9 +102,7 @@ export function RolesPanel({ members }: { members: Member[] }) {
   return (
     <Card.Root>
       <Card.Header>
-        <Card.Title>
-          <h2 className="text-lg font-semibold">{t("roles.title")}</h2>
-        </Card.Title>
+        <Card.Title className="text-lg font-semibold">{t("roles.title")}</Card.Title>
         <Card.Description>{t("roles.hint")}</Card.Description>
       </Card.Header>
       <Card.Content className="grid gap-6 md:grid-cols-2">

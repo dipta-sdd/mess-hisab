@@ -15,9 +15,7 @@ export function AuthCard({
   return (
     <Card.Root className="w-full">
       <Card.Header className="flex flex-col gap-1">
-        <Card.Title>
-          <h1 className="text-xl font-semibold">{title}</h1>
-        </Card.Title>
+        <Card.Title className="text-xl font-semibold">{title}</Card.Title>
         {subtitle ? <Card.Description>{subtitle}</Card.Description> : null}
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">{children}</Card.Content>

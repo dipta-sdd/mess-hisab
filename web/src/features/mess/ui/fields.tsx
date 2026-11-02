@@ -1,6 +1,6 @@
 "use client";
 
-import { FieldError, Input, Label, TextField } from "@heroui/react";
+import { Input } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 import type { InputHTMLAttributes, ReactNode, Ref, SelectHTMLAttributes } from "react";
@@ -20,6 +20,10 @@ export function useFieldMessage() {
 
 type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "className"> & { ref?: Ref<HTMLInputElement> };
 
+/**
+ * Deliberately not wrapped in HeroUI's TextField: that wrapper makes the input controlled by
+ * react-aria state, which wipes the default values react-hook-form writes into the DOM.
+ */
 export function TextInputField({
   label,
   error,
@@ -27,13 +31,20 @@ export function TextInputField({
   ...input
 }: { label: string; error?: string; description?: string } & InputProps) {
   const message = useFieldMessage()(error);
+  const id = useId();
   return (
-    <TextField fullWidth isInvalid={!!message} isRequired={false}>
-      <Label>{label}</Label>
-      <Input {...input} />
+    <div className="flex w-full flex-col gap-1">
+      <label htmlFor={id} className="text-sm font-medium">
+        {label}
+      </label>
+      <Input id={id} fullWidth aria-invalid={!!message} {...input} />
       {description ? <p className="text-xs text-muted">{description}</p> : null}
-      <FieldError>{message}</FieldError>
-    </TextField>
+      {message ? (
+        <p role="alert" className="text-sm text-danger">
+          {message}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

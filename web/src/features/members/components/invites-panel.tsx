@@ -128,9 +128,7 @@ export function InvitesPanel({ members }: { members: Member[] }) {
   return (
     <Card.Root>
       <Card.Header>
-        <Card.Title>
-          <h2 className="text-lg font-semibold">{t("invites.title")}</h2>
-        </Card.Title>
+        <Card.Title className="text-lg font-semibold">{t("invites.title")}</Card.Title>
         <Card.Description>{t("invites.hint")}</Card.Description>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">

@@ -70,9 +70,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
   return (
     <Card.Root>
       <Card.Header>
-        <Card.Title>
-          <h2 className="text-lg font-semibold">{title}</h2>
-        </Card.Title>
+        <Card.Title className="text-lg font-semibold">{title}</Card.Title>
         {hint ? <Card.Description>{hint}</Card.Description> : null}
       </Card.Header>
       <Card.Content className="flex flex-col gap-3">{children}</Card.Content>

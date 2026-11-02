@@ -16,7 +16,7 @@ function asciiDigits(input: string): string {
  */
 function parseScaled(input: string): number | null {
   const text = asciiDigits(input.trim());
-  if (!/^\d[\d,]*(\.\d{1,2})?$/.test(text)) return null;
+  if (!/^\d(?:,?\d)*(\.\d{1,2})?$/.test(text)) return null;
   const [whole = "", frac = ""] = text.replace(/,/g, "").split(".");
   const wholeDigits = whole.replace(/^0+(?=\d)/, "");
   if (wholeDigits.length > 13) return null;

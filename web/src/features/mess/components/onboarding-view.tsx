@@ -75,9 +75,7 @@ export function OnboardingView() {
 
       <Card.Root>
         <Card.Header>
-          <Card.Title>
-            <h2 className="text-lg font-semibold">{t("create.title")}</h2>
-          </Card.Title>
+          <Card.Title className="text-lg font-semibold">{t("create.title")}</Card.Title>
           <Card.Description>{t("create.subtitle")}</Card.Description>
         </Card.Header>
         <Card.Content>
