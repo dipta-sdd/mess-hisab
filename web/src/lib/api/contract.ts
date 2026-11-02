@@ -83,7 +83,51 @@ export interface AuditLog {
 }
 export interface Export { id: number; type: string; status: ExportStatus; created_at: DateTimeString; download_url: string | null }
 
-// Dashboard, Statement and close-check shapes are added here by the lead when tasks J and K merge.
+// Task J (live balances). Money integer paisa, meals integer centi; positive = credit, negative = due.
+export interface MonthInfo {
+  id: number; starts_on: DateString; ends_on: DateString; status: MonthStatus;
+  fixed_deadline: DateString | null; deposit_deadline: DateString | null;
+}
+export interface DashboardRow {
+  member_id: number; display_name: string; is_archived: boolean; is_active: boolean;
+  meals_centi: number; effective_meals_centi: number; carry_in_paisa: number;
+  fixed_bill_paisa: number; meals_bill_paisa: number; paid_paisa: number;
+  fixed_balance_paisa: number; meals_balance_paisa: number; balance_paisa: number;
+  fixed_outstanding_paisa: number; deposit_required_paisa: number; deposit_outstanding_paisa: number;
+  fixed_overdue_days: number; deposit_overdue_days: number;
+}
+export interface DashboardTotals {
+  fixed_bills_paisa: number; fixed_expenses_paisa: number; meals_expenses_paisa: number; food_cost_paisa: number;
+  total_meals_centi: number; meal_rate_paisa: number; rounding_extra_paisa: number; uncharged_food_paisa: number;
+  zero_meals_unresolved: boolean; charged_paisa: number; paid_paisa: number;
+}
+/** GET /messes/{mess}/dashboard. cash_pool_paisa is the mess's current pool, whatever month is viewed. */
+export interface Dashboard {
+  month: MonthInfo; today: DateString; totals: DashboardTotals;
+  cash_pool_paisa: number; manager_member_id: number | null; manager_balance_paisa: number;
+  members: DashboardRow[];
+}
+export type StatementLineKind =
+  | "carry_in" | "fixed_bill" | "meal_charge" | "rounding" | "charge" | "payment" | "own_pocket_expense"
+  | "adjustment" | "doesnt_pay_out" | "doesnt_pay_in" | "recoverable_repay" | "final_payout" | "opening";
+export interface StatementLine { kind: StatementLineKind; group: Group | null; label: string; date: DateString | null; amount_paisa: number }
+/** GET /messes/{mess}/statements/{member}. Lines sum to total_paisa. */
+export interface Statement {
+  member: { id: number; display_name: string; is_archived: boolean; is_active: boolean };
+  month: MonthInfo; today: DateString; carry_in_paisa: number; lines: StatementLine[];
+  fixed_balance_paisa: number; meals_balance_paisa: number; total_paisa: number;
+  fixed_outstanding_paisa: number; deposit_required_paisa: number; deposit_outstanding_paisa: number;
+  fixed_overdue_days: number; deposit_overdue_days: number;
+}
+/** GET /messes/{mess}/history → {data: HistoryRow[]}, newest first. */
+export interface HistoryRow {
+  month_id: number; starts_on: DateString; ends_on: DateString; status: MonthStatus; closed_at: DateTimeString | null;
+  fixed_charged_paisa: number; meals_charged_paisa: number; expenses_paisa: number; paid_paisa: number;
+  total_meals_centi: number; meal_rate_paisa: number; rounding_extra_paisa: number;
+  total_due_paisa: number; total_credit_paisa: number;
+}
+
+// Close-check shapes are added here by the lead when task K merges.
 
 export interface ListResponse<T> { data: T[]; meta?: Record<string, unknown> }
 export interface ItemResponse<T> { data: T }
