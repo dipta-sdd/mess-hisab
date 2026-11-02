@@ -137,7 +137,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
               type="button"
               aria-pressed={view === "overdue"}
               onClick={() => setView("overdue")}
-              className={`min-h-11 rounded-lg border px-3 text-sm ${view === "overdue" ? "border-danger bg-danger text-white" : "border-default-300"}`}
+              className={`min-h-11 rounded-lg border px-3 text-sm ${view === "overdue" ? "border-danger bg-danger text-danger-foreground" : "border-default-300"}`}
             >
               {t("members.overdue", { count: formatNumber(overdueCount, locale) })}
             </button>

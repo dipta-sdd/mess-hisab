@@ -19,5 +19,10 @@
     "network": "Could not reach the server. Check your connection.",
     "forbidden": "You do not have permission to do this.",
     "notFound": "We could not find that."
+  },
+  "theme": {
+    "dark": "Dark mode",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
   }
 }

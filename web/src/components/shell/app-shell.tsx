@@ -8,6 +8,7 @@ import { navRegistry } from "@/features/nav-registry";
 import type { NavItem } from "@/features/types";
 import { useMe } from "@/lib/api-client/auth";
 import { LanguageSwitcher } from "@/lib/i18n/language-switcher";
+import { ThemeToggle } from "@/lib/theme";
 import { useMess } from "@/lib/mess/mess-context";
 import { NavIcon } from "./nav-icon";
 import { rolesOf, visibleNavItems } from "./nav-items";
@@ -104,15 +105,19 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
             <NavLinks items={visible} messId={messId} variant="side" />
           </nav>
         ) : null}
-        <div className="mt-auto">
+        <div className="mt-auto flex items-center gap-2">
           <LanguageSwitcher />
+          <ThemeToggle />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 md:hidden">
           {header}
-          <LanguageSwitcher />
+          <div className="flex shrink-0 items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </header>
         <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${visible.length > 0 ? "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6" : ""}`}>
           {children}
