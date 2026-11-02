@@ -127,7 +127,33 @@ export interface HistoryRow {
   total_due_paisa: number; total_credit_paisa: number;
 }
 
-// Close-check shapes are added here by the lead when task K merges.
+// Task K — month lifecycle.
+export type CloseBlockCode =
+  | "month_closed" | "previous_month_open" | "pending_expenses" | "zero_meals_unresolved"
+  | "unallocated" | "doesnt_pay_mismatch" | "cash_mismatch";
+/** `data` per code: previous_month_open {month_ids}; pending_expenses {count, expense_ids};
+ * zero_meals_unresolved {food_cost_paisa}; unallocated {bills:[{category_id, name, unallocated_paisa}]};
+ * doesnt_pay_mismatch {doesnt_pay:[{debtor_member_id, amount_paisa, shares_paisa, mismatch_paisa}]};
+ * cash_mismatch {actual_paisa, expected_paisa, difference_paisa}. */
+export interface CloseBlock { code: CloseBlockCode; data: Record<string, unknown> }
+/** GET /months/{month}/close-check → {data: CloseCheck}. POST close → 409 `close_blocked` with `blocks`. */
+export interface CloseCheck { can_close: boolean; blocks: CloseBlock[] }
+export type ReopenBlockCode = "month_not_closed" | "not_latest_closed" | "payout_after_close" | "recoverable_repaid";
+export interface ReopenPreview {
+  month_id: number; can_reopen: boolean;
+  blocks: { code: ReopenBlockCode; data: Record<string, unknown> }[];
+  members: { member_id: number; display_name: string; before_paisa: number; after_paisa: number; change_paisa: number }[];
+  rows_to_delete: number;
+  next_month: { id: number; will_be_deleted: boolean } | null;
+}
+export interface Adjustment {
+  id: number; month_id: number; member_id: number; group: Group; amount_paisa: number;
+  note: string; created_by_member_id: number; created_at: DateTimeString;
+}
+export interface SettlementResult {
+  id: number; member_id: number; month_id: number; amount_paisa: number; paid_on: DateString;
+  credit_after_paisa: number; cash_pool_paisa: number;
+}
 
 export interface ListResponse<T> { data: T[]; meta?: Record<string, unknown> }
 export interface ItemResponse<T> { data: T }
