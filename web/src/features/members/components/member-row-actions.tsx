@@ -11,6 +11,7 @@ import { useMessRoles } from "@/features/mess/api";
 import { isoDate, requiredName } from "@/features/mess/schemas";
 import { ErrorAlert, useApiErrorText, useFormError } from "@/features/mess/ui/errors";
 import { TextInputField } from "@/features/mess/ui/fields";
+import { FinalSettlementAction } from "@/features/settlement";
 import { useMess } from "@/lib/mess/mess-context";
 import { useArchiveMember, useUpdateMember } from "../api";
 
@@ -141,6 +142,7 @@ export function MemberRowActions({ member }: { member: Member }) {
           >
             {t("archive.button")}
           </Button>
+          <FinalSettlementAction member={member} />
         </div>
       )}
     </div>

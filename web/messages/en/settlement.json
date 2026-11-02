@@ -1,0 +1,31 @@
+{
+  "open": { "button": "Final settlement", "aria": "Final settlement for {name}" },
+  "dialog": {
+    "title": "Final settlement for {name}",
+    "balance": "Credit owed to them",
+    "cash": "Cash pool",
+    "amount": "Amount (taka)",
+    "paidOn": "Paid on",
+    "submit": "Pay out",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "empty": "Enter an amount.",
+    "invalid": "Enter taka like 1,000 or 521.50 (at most 2 decimals).",
+    "zero": "The amount must be more than zero.",
+    "tooLarge": "That amount is too large.",
+    "date": "Choose a valid date.",
+    "exceedsCredit": "That is more than they are owed. The most you can pay is {amount}.",
+    "exceedsCreditPlain": "That is more than they are owed.",
+    "exceedsCash": "The cash pool does not have that much. The most available is {amount}.",
+    "exceedsCashPlain": "The cash pool does not have that much.",
+    "forbidden": "Only the admin or manager can do this.",
+    "generic": "Could not record the payout. Please try again."
+  },
+  "result": {
+    "title": "Paid {amount} to {name}.",
+    "creditAfter": "Credit left: {amount}",
+    "cashAfter": "Cash pool now: {amount}",
+    "archiveHint": "You can now archive this member if they have left."
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "nav": "Audit log",
+  "title": "Audit log",
+  "loading": "Loading the audit log...",
+  "loadFailed": "Could not load the audit log. Please try again.",
+  "empty": "No activity matches these filters.",
+  "system": "System",
+  "unknownMember": "Unknown member",
+  "filters": {
+    "title": "Filter the audit log",
+    "event": "What happened",
+    "allEvents": "Everything",
+    "member": "Who did it",
+    "allMembers": "Anyone",
+    "from": "From date",
+    "to": "To date",
+    "rangeInvalid": "The end date cannot be before the start date."
+  },
+  "columns": { "when": "When", "what": "What happened", "who": "Who" },
+  "pagination": {
+    "label": "Pages",
+    "previous": "Newer",
+    "next": "Older",
+    "status": "Page {page} of {pages} ({total} entries)"
+  },
+  "diff": {
+    "show": "Show changes ({count})",
+    "hide": "Hide changes",
+    "to": "changed to",
+    "empty": "(none)",
+    "yes": "yes",
+    "no": "no"
+  },
+  "generic": {
+    "created": "{model} added",
+    "updated": "{model} changed",
+    "deleted": "{model} removed"
+  },
+  "groups": {
+    "expense": "Expenses",
+    "payment": "Payments",
+    "meal_entry": "Meal entries",
+    "month": "Months",
+    "month_bill": "Monthly bills",
+    "charge_override": "Bill overrides",
+    "member_month_setting": "Member month settings",
+    "mess_member": "Member records",
+    "member": "Member actions",
+    "ledger_entry": "Ledger entries",
+    "payout": "Payouts",
+    "doesnt_pay": "Doesn't pay",
+    "recoverable": "Recoverables",
+    "recoverable_repayment": "Repayments",
+    "category": "Categories",
+    "invite": "Invites",
+    "mess": "Mess details",
+    "settings": "Settings",
+    "role": "Roles"
+  },
+  "models": {
+    "expense": "Expense",
+    "payment": "Payment",
+    "meal_entry": "Meal entry",
+    "month": "Month",
+    "month_bill": "Monthly bill",
+    "charge_override": "Bill override",
+    "member_month_setting": "Member month setting",
+    "mess_member": "Member",
+    "ledger_entry": "Ledger entry",
+    "recoverable": "Recoverable",
+    "recoverable_share": "Recoverable share",
+    "recoverable_repayment": "Repayment",
+    "category": "Category",
+    "invite": "Invite",
+    "mess": "Mess"
+  },
+  "events": {
+    "month": {
+      "closed": "Month closed",
+      "reopened": "Month reopened"
+    },
+    "doesnt_pay": {
+      "set": "Marked a member as not paying",
+      "undone": "Undid a not-paying mark"
+    },
+    "settings": { "updated": "Settings updated" },
+    "role": {
+      "admin_transferred": "Admin role handed over",
+      "manager_assigned": "Manager assigned"
+    },
+    "member": { "archived": "Member archived" },
+    "payout": { "final": "Final settlement paid out" },
+    "invite": { "accepted": "Invite accepted" },
+    "expense": {
+      "approved": "Expense approved",
+      "rejected": "Expense rejected"
+    }
+  }
+}
