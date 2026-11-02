@@ -1,0 +1,63 @@
+{
+  "nav": "Settings",
+  "title": "Settings",
+  "loading": "Loading settings...",
+  "loadFailed": "Could not load settings. Please try again.",
+  "save": "Save settings",
+  "saved": "Settings saved.",
+  "readOnly": "Only the admin can change these settings.",
+  "general": {
+    "title": "General",
+    "name": "Mess name",
+    "currency": "Currency code",
+    "monthStartDay": "Month starts on day",
+    "monthStartDayHint": "A day from 1 to 28.",
+    "approvalRequired": "Expenses need approval",
+    "approvalRequiredHint": "Expenses entered by members wait for the manager to approve them."
+  },
+  "meals": {
+    "title": "Meals",
+    "tracking": "How meals are tracked",
+    "entryBy": "Who enters meals",
+    "trackingOptions": {
+      "off": "Not tracked",
+      "daily_number": "A number of meals per day",
+      "bld_ticks": "Breakfast, lunch and dinner ticks",
+      "month_total": "One total per month"
+    },
+    "entryByOptions": {
+      "manager": "The manager",
+      "self": "Each member for themselves"
+    },
+    "breakfastWeight": "Breakfast counts as (meals)",
+    "lunchWeight": "Lunch counts as (meals)",
+    "dinnerWeight": "Dinner counts as (meals)",
+    "weightsHint": "For example 0.5 means a breakfast counts as half a meal."
+  },
+  "rounding": {
+    "title": "Rounding",
+    "hint": "How each person's share is rounded.",
+    "mode": "Rounding mode",
+    "options": {
+      "whole_taka": "Whole taka",
+      "round_up": "Round up",
+      "two_decimals": "Two decimals (paisa)"
+    }
+  },
+  "minimums": {
+    "title": "Minimums",
+    "hint": "Charge at least this much, even if someone ate less.",
+    "minMealsEnabled": "Minimum meals per month",
+    "minMeals": "Minimum meals",
+    "minPayableEnabled": "Minimum payable amount",
+    "minPayable": "Minimum payable (taka)"
+  },
+  "deposit": {
+    "title": "Deposit and deadlines",
+    "amount": "Deposit per member (taka)",
+    "amountHint": "Taka, with at most 2 decimals.",
+    "fixedDueOffset": "Fixed costs due after (days)",
+    "depositDueOffset": "Deposit due after (days)",
+    "offsetHint": "Days counted from the start of the month, from 1 to 31."
+  }
+}
