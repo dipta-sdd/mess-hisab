@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { QuickAddButton, QuickAddExpense, QuickAddFab } from "@/features/expenses/quick-add";
 import { navRegistry } from "@/features/nav-registry";
 import type { NavItem } from "@/features/types";
 import { useMe } from "@/lib/api-client/auth";
@@ -82,6 +83,14 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
   const messName = membership?.mess_name;
   const visible = useMemo(() => visibleNavItems(items, rolesOf(membership)), [items, membership]);
 
+  // Quick-add needs the nav (same gate as the bars), an active membership, and a page without its own
+  // add flow: Expenses has an always-open form (and duplicate form ids would clash), Meals has a save bar.
+  const pathname = usePathname() ?? "";
+  const underPage = (page: string) => pathname === `/${messId}/${page}` || pathname.startsWith(`/${messId}/${page}/`);
+  const canQuickAdd = visible.length > 0 && Boolean(membership) && !membership?.archived && !underPage("expenses");
+  const showFab = canQuickAdd && !underPage("meals");
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+
   const header = (
     <div className="min-w-0">
       <p className="truncate text-base font-semibold">{messName ?? t("shell.messFallback")}</p>
@@ -105,6 +114,7 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
             <NavLinks items={visible} messId={messId} variant="side" />
           </nav>
         ) : null}
+        {canQuickAdd ? <QuickAddButton variant="side" onPress={() => setQuickAddOpen(true)} /> : null}
         <div className="mt-auto flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
@@ -115,6 +125,11 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
         <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 md:hidden">
           {header}
           <div className="flex shrink-0 items-center gap-2">
+            {canQuickAdd ? (
+              <span className="md:hidden">
+                <QuickAddButton variant="top" onPress={() => setQuickAddOpen(true)} />
+              </span>
+            ) : null}
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
@@ -132,6 +147,8 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
           <NavLinks items={visible} messId={messId} variant="bottom" />
         </nav>
       ) : null}
+      {showFab ? <QuickAddFab onPress={() => setQuickAddOpen(true)} /> : null}
+      {canQuickAdd ? <QuickAddExpense messId={messId} isOpen={quickAddOpen} onOpenChange={setQuickAddOpen} /> : null}
     </div>
   );
 }
