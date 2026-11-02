@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Invite, Member } from "@/lib/api/contract";
 import { API_BASE_URL, resetApiClientState } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { MembersPage } from "./members-page";
 
@@ -83,6 +84,7 @@ describe("MembersPage list and filter", () => {
     serve(rina);
     renderWithProviders(<MembersPage />, { messId: 3, locale: "bn" });
     expect(await screen.findByRole("heading", { name: "সদস্য" })).toBeInTheDocument();
+    expectBanglaOnly([]);
   });
 });
 

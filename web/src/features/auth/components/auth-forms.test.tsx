@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_BASE_URL, resetApiClientState } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { ForgotPasswordForm } from "./forgot-password-form";
 import { GoogleCallback } from "./google-callback";
@@ -142,6 +143,7 @@ describe("LoginForm", () => {
   it("renders in Bangla", () => {
     renderWithProviders(<LoginForm />, { locale: "bn" });
     expect(screen.getByRole("button", { name: "লগইন" })).toBeInTheDocument();
+    expectBanglaOnly([]);
   });
 });
 

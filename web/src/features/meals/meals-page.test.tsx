@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { MealEntry, Member, Mess, Month } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { MealsPage } from "./meals-page";
 
@@ -292,5 +293,6 @@ describe("MealsPage", () => {
     expect(await screen.findByRole("heading", { name: "মিল" })).toBeInTheDocument();
     await waitFor(() => expect(screen.getByTestId("total-1")).toHaveTextContent("২.৫"));
     expect(screen.getByRole("button", { name: "একদিন" })).toBeInTheDocument();
+    expectBanglaOnly([]);
   });
 });

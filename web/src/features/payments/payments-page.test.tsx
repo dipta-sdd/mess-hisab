@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Member, Mess, Month, Payment } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { PaymentsPage } from "./payments-page";
 
@@ -188,5 +189,6 @@ describe("PaymentsPage", () => {
     renderWithProviders(<PaymentsPage />, { messId: 7, locale: "bn" });
     expect(await screen.findByText("এই মাসের পেমেন্ট", { exact: false })).toBeInTheDocument();
     await waitFor(() => expect(screen.getByTestId("cash-pool")).toHaveTextContent("৳১২,৩৪৫.০০"));
+    expectBanglaOnly([]);
   });
 });

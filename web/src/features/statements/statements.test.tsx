@@ -7,6 +7,7 @@ import StatementFx from "../../../../docs/contract-fixtures/Statement.json";
 import type { HistoryRow, Member, Mess, Statement } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { HistoryPage } from "./history-page";
 import { StatementPage } from "./statement-page";
@@ -117,6 +118,7 @@ describe("StatementPage", () => {
     expect(await screen.findByText("গত মাসের বাকি")).toBeInTheDocument();
     expect(screen.getByTestId("stmt-total")).toHaveTextContent("১,৬০০");
     expect(screen.getByText("মিলের বিল")).toBeInTheDocument();
+    expectBanglaOnly(["Paid from pocket: rice", "X"]);
   });
 });
 

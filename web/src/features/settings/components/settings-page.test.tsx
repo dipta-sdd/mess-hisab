@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Member } from "@/lib/api/contract";
 import { API_BASE_URL, resetApiClientState } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { SettingsPage } from "./settings-page";
 
@@ -176,6 +177,7 @@ describe("SettingsPage as admin", () => {
     serve(admin);
     render("bn");
     expect(await screen.findByRole("heading", { name: "সেটিংস" })).toBeInTheDocument();
+    expectBanglaOnly([]);
   });
 });
 

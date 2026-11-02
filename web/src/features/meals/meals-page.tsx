@@ -187,7 +187,7 @@ export function MealsPage() {
         {row.guest_meals_centi > 0 ? <span className="text-xs text-muted"> {t("cell.guestsShort", { count: formatMeals(row.guest_meals_centi, locale) })}</span> : null}
       </span>
     ) : (
-      <span data-testid={`total-${m.id}`}>0</span>
+      <span data-testid={`total-${m.id}`}>{formatNumber(0, locale)}</span>
     );
   };
 

@@ -11,6 +11,7 @@ import type {
 } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { MonthsPage } from "./months-page";
 
@@ -512,5 +513,6 @@ describe("MonthsPage: non-manager and locale", () => {
     expect(await screen.findByRole("button", { name: "মাস বন্ধ করা যাবে কি না দেখুন" })).toBeInTheDocument();
     expect(screen.getByText("একজন সদস্য দিচ্ছেন না")).toBeInTheDocument();
     expect(screen.getByText("সমন্বয়")).toBeInTheDocument();
+    expectBanglaOnly(["Salam", "Jamal"]);
   });
 });
