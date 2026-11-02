@@ -7,14 +7,13 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type { Category, Expense, Member } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
-import { useCreateExpense, useUpdateExpense, type CreateResult, type ExpensePatch } from "./api";
-import { todayInDhaka } from "./dates";
-import { paisaToTakaInput, parseTakaToPaisa } from "./money-input";
+import type { ExpensePatch } from "@/lib/api/contract";
+import { useCreateExpense, useUpdateExpense, type CreateResult } from "./api";
+import { todayInDhaka } from "@/lib/format/date";
+import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
 import { errorKey } from "./rules";
 import { expenseFormSchema, type ExpenseFormValues } from "./schema";
-
-export const fieldClass =
-  "w-full min-h-11 rounded-lg border border-default-300 bg-background px-3 py-2 text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent";
+import { fieldClass } from "@/components/ui/field";
 
 /** Maps API field names to form field names. */
 const SERVER_FIELDS: Record<string, keyof ExpenseFormValues> = {

@@ -1,21 +1,21 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Category, Expense, ExpenseStatus, ItemResponse, ListResponse, Member, Mess, Month, PaidBy } from "@/lib/api/contract";
+import type {
+  Category,
+  Expense,
+  ExpenseInput,
+  ExpensePatch,
+  ExpenseStatus,
+  ItemResponse,
+  ListResponse,
+  Member,
+  MessWithMe,
+  Month,
+} from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
+import { invalidateMoney } from "@/lib/api/query-keys";
 
-export interface MessWithMe { mess: Mess; me: Member }
-
-/** Body of POST /expenses. `paid_by_member_id` is left out for mess cash. */
-export interface ExpenseInput {
-  category_id: number;
-  amount_paisa: number;
-  spent_on: string;
-  note: string | null;
-  paid_by: PaidBy;
-  paid_by_member_id?: number | null;
-}
-export type ExpensePatch = Partial<ExpenseInput>;
 export interface CreateResult { expense: Expense; warnings: string[] }
 export interface ExpenseFilters { monthId: number | null; status: ExpenseStatus | null; memberId: number | null; categoryId: number | null }
 
@@ -89,9 +89,10 @@ export function usePendingExpenses(messId: number, enabled: boolean) {
   });
 }
 
+/** Expenses (and approvals) move balances and the cash pool: refresh every money cache. */
 function useRefreshAfterWrite(messId: number) {
   const client = useQueryClient();
-  return () => client.invalidateQueries({ queryKey: expensesKeys.all(messId) });
+  return () => invalidateMoney(client, messId);
 }
 
 export function useCreateExpense(messId: number) {

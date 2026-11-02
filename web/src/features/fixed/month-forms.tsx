@@ -7,9 +7,10 @@ import type { AppLocale } from "@/i18n/config";
 import type { Member, Month } from "@/lib/api/contract";
 import { formatDate, formatMeals } from "@/lib/format";
 import { useUpdateMemberSettings, useUpdateMonthSetup, type MemberMonthSettingRow } from "./api";
-import { fieldClass } from "./bill-card";
+
 import { explainError } from "./errors";
-import { centiToInput, paisaToTakaInput, parseMealsToCenti, parseTakaToPaisa } from "./money-input";
+import { centiToInput, paisaToTakaInput, parseMealsToCenti, parseTakaToPaisa } from "@/lib/format/money-input";
+import { fieldClassInvalid as fieldClass } from "@/components/ui/field";
 
 /** Deadlines and the default deposit for the month. */
 export function MonthSetupForm({
@@ -47,7 +48,7 @@ export function MonthSetupForm({
     if (fixedDeadline !== (month.fixed_deadline ?? "")) input.fixed_deadline = fixedDeadline === "" ? null : fixedDeadline;
     if (depositDeadline !== (month.deposit_deadline ?? "")) input.deposit_deadline = depositDeadline === "" ? null : depositDeadline;
     if (deposit !== paisaToTakaInput(month.deposit_paisa)) {
-      const parsed = parseTakaToPaisa(deposit);
+      const parsed = parseTakaToPaisa(deposit, { allowZero: true });
       if (!parsed.ok) {
         setDepositBad(true);
         return setNotice(t("errors.badAmount"));
@@ -140,7 +141,7 @@ export function MemberSettingRow({
 
   async function onSave() {
     setNotice(null);
-    const d = deposit.trim() === "" ? null : parseTakaToPaisa(deposit);
+    const d = deposit.trim() === "" ? null : parseTakaToPaisa(deposit, { allowZero: true });
     const m = minMeals.trim() === "" ? null : parseMealsToCenti(minMeals);
     const badDeposit = d !== null && !d.ok;
     const badMin = m !== null && !m.ok;

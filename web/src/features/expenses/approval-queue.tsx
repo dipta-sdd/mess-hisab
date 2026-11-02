@@ -7,9 +7,10 @@ import type { AppLocale } from "@/i18n/config";
 import type { Expense } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
 import { useApproveExpense, useRejectExpense } from "./api";
-import { fieldClass } from "./expense-form";
+
 import { ExpenseRow } from "./expense-row";
 import { errorKey } from "./rules";
+import { fieldClass } from "@/components/ui/field";
 
 export function ApprovalQueue({
   messId,

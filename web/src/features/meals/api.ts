@@ -1,27 +1,16 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ItemResponse, ListResponse, MealEntry, MealTracking, Member, Mess, Month } from "@/lib/api/contract";
+import type { ItemResponse, ListResponse, MealEntry, MealInput, MealTracking, Member, MessWithMe, Month } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
+import { invalidateMoney } from "@/lib/api/query-keys";
 
-/** Local until promoted to contract.ts. */
-export interface MessWithMe { mess: Mess; me: Member }
 export interface MealTotals { meals_centi: number; guest_meals_centi: number }
 export interface MealsResponse {
   month_id: number;
   style: MealTracking;
   entries: MealEntry[];
   totals: Record<string, MealTotals>;
-}
-/** Body of PUT /meals and one item of PUT /meals/bulk. Only the keys that apply to the style are sent. */
-export interface MealInput {
-  member_id: number;
-  entry_date: string;
-  meals_centi?: number;
-  breakfast?: boolean;
-  lunch?: boolean;
-  dinner?: boolean;
-  guest_meals_centi?: number;
 }
 
 export const mealsKeys = {
@@ -77,7 +66,7 @@ export function useSaveMeal(messId: number) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: async (input: MealInput) => (await apiClient.put<ItemResponse<MealEntry>>(`${base(messId)}/meals`, input)).data,
-    onSuccess: () => client.invalidateQueries({ queryKey: mealsKeys.all(messId) }),
+    onSuccess: () => invalidateMoney(client, messId),
   });
 }
 
@@ -87,6 +76,6 @@ export function useBulkSaveMeals(messId: number) {
   return useMutation({
     mutationFn: async (entries: MealInput[]) =>
       (await apiClient.put<ListResponse<MealEntry>>(`${base(messId)}/meals/bulk`, { entries })).data,
-    onSuccess: () => client.invalidateQueries({ queryKey: mealsKeys.all(messId) }),
+    onSuccess: () => invalidateMoney(client, messId),
   });
 }

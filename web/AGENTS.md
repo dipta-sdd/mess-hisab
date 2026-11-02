@@ -7,3 +7,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Shared helpers: don't copy them
+
+- API shapes and request bodies (`MessWithMe`, `Paginated<T>`, `PaymentInput`, `*Input`): `src/lib/api/contract.ts`.
+- Taka/meals parsing and editable strings (`parseTakaToPaisa`, `paisaToTakaInput`, `parseMealsToCenti`): `src/lib/format/money-input.ts`. Zero is refused unless `{ allowZero: true }`.
+- Dates (`todayInDhaka`, `formatMonthLabel`, `formatDate`): `src/lib/format/date.ts`.
+- Input/select/textarea class names (`fieldClass`): `src/components/ui/field.ts`.
+- Query keys start with `[feature, messId, ...]`. After any money write call `invalidateMoney(client, messId)` from `src/lib/api/query-keys.ts`; add a new feature prefix to `MONEY_QUERY_PREFIXES` if its data shows balances or month status.

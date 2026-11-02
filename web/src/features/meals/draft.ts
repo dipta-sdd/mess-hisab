@@ -1,5 +1,5 @@
 import type { MealEntry, MealTracking } from "@/lib/api/contract";
-import type { MealInput } from "./api";
+import type { MealInput } from "@/lib/api/contract";
 import { MAX_DAY_CENTI, MAX_MONTH_CENTI, parseMealsToCenti } from "./centi";
 
 export interface Ticks { breakfast: boolean; lunch: boolean; dinner: boolean }

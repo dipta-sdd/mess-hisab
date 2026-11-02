@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { parseMealsToCenti, parseTakaToPaisa, scaledToInput, signedPaisa, splitSigned } from "./money";
+import { parseMealsOrNull, parseTakaOrNull, scaledToInput, signedPaisa, splitSigned } from "./money";
 
-describe("parseTakaToPaisa", () => {
+describe("parseTakaOrNull", () => {
   it.each([
     ["521.5", 52150],
     ["0.05", 5],
@@ -16,29 +16,29 @@ describe("parseTakaToPaisa", () => {
     ["19.99", 1999],
     ["0.1", 10],
   ])("%s -> %d", (input, expected) => {
-    expect(parseTakaToPaisa(input)).toBe(expected);
+    expect(parseTakaOrNull(input)).toBe(expected);
   });
 
   it.each(["", "  ", "abc", "-5", "1.234", "1.2.3", "1,", ",1", ".5", "5.", "1e3", "৳500", "12 34", "99999999999999"])(
     "rejects %j",
     (input) => {
-      expect(parseTakaToPaisa(input)).toBeNull();
+      expect(parseTakaOrNull(input)).toBeNull();
     },
   );
 
   it("is exact where floats are not", () => {
-    expect(parseTakaToPaisa("1.15")).toBe(115);
-    expect(parseTakaToPaisa("0.29")).toBe(29);
-    expect(parseTakaToPaisa("4.35")).toBe(435);
+    expect(parseTakaOrNull("1.15")).toBe(115);
+    expect(parseTakaOrNull("0.29")).toBe(29);
+    expect(parseTakaOrNull("4.35")).toBe(435);
   });
 });
 
-describe("parseMealsToCenti", () => {
+describe("parseMealsOrNull", () => {
   it("converts meals to centi-meals", () => {
-    expect(parseMealsToCenti("2.5")).toBe(250);
-    expect(parseMealsToCenti("0.5")).toBe(50);
-    expect(parseMealsToCenti("20")).toBe(2000);
-    expect(parseMealsToCenti("0.255")).toBeNull();
+    expect(parseMealsOrNull("2.5")).toBe(250);
+    expect(parseMealsOrNull("0.5")).toBe(50);
+    expect(parseMealsOrNull("20")).toBe(2000);
+    expect(parseMealsOrNull("0.255")).toBeNull();
   });
 });
 

@@ -159,3 +159,42 @@ export interface ListResponse<T> { data: T[]; meta?: Record<string, unknown> }
 export interface ItemResponse<T> { data: T }
 export interface ValidationError { message: string; errors: Record<string, string[]> }
 export interface DomainError { message: string; code: string }
+
+/** `GET /messes/{id}` payload. */
+export interface MessWithMe { mess: Mess; me: Member }
+/** Laravel length-aware paginator envelope (only the fields we use). */
+export interface Paginated<T> {
+  data: T[];
+  links: { first: string | null; last: string | null; prev: string | null; next: string | null };
+  meta: { current_page: number; last_page: number; per_page: number; total: number; from: number | null; to: number | null };
+}
+
+// Request bodies (mirror CONTRACT.md endpoints).
+export interface PaymentInput { member_id: number; group: Group; amount_paisa: number; paid_on: DateString; note: string | null }
+/** Body of POST /expenses. `paid_by_member_id` is left out for mess cash. */
+export interface ExpenseInput {
+  category_id: number;
+  amount_paisa: number;
+  spent_on: DateString;
+  note: string | null;
+  paid_by: PaidBy;
+  paid_by_member_id?: number | null;
+}
+export type ExpensePatch = Partial<ExpenseInput>;
+/** Body of PUT /meals and one item of PUT /meals/bulk. Only the keys that apply to the style are sent. */
+export interface MealInput {
+  member_id: number;
+  entry_date: DateString;
+  meals_centi?: number;
+  breakfast?: boolean;
+  lunch?: boolean;
+  dinner?: boolean;
+  guest_meals_centi?: number;
+}
+export interface BillInput { amount_paisa?: number; overrides: { member_id: number; amount_paisa: number }[] }
+export interface MonthSetupInput { fixed_deadline?: string | null; deposit_deadline?: string | null; deposit_paisa?: number }
+export interface MemberSettingInput { deposit_paisa: number | null; min_meals_centi: number | null }
+export interface DoesntPayInput { member_id: number; mode: DoesntPayMode; manual?: { member_id: number; amount_paisa: number }[] }
+export interface RepaymentInput { amount_paisa: number; paid_on: DateString }
+export interface AdjustmentInput { member_id: number; group: Group; amount_paisa: number; note: string }
+export interface FinalSettlementInput { amount_paisa: number; paid_on: DateString }

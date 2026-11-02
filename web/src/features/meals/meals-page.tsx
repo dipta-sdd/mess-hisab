@@ -17,18 +17,13 @@ import {
   useMonths,
   useSaveMeal,
 } from "./api";
-import { dayLabel, daysBetween, formatMonthLabel, memberInMess } from "./dates";
+import { dayLabel, daysBetween, memberInMess } from "./dates";
+import { formatMonthLabel, todayInDhaka } from "@/lib/format/date";
 import { buildPayload, cellKey, parseKey, type CellDraft, type Drafts } from "./draft";
 import { MealCell } from "./meal-cell";
-
-const fieldClass =
-  "w-full min-h-11 rounded-lg border border-default-300 bg-background px-3 py-2 text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent";
+import { fieldClass } from "@/components/ui/field";
 
 type View = "grid" | "day";
-
-function todayInDhaka(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-}
 
 /** True on a phone-sized screen; false where matchMedia is missing (tests, SSR). */
 function useNarrow(): boolean {

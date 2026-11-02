@@ -6,10 +6,8 @@ import { useState } from "react";
 import type { Bill, Member } from "@/lib/api/contract";
 import { useAcceptBill, useSaveBill, useSpreadBill } from "./api";
 import { explainError } from "./errors";
-import { paisaToTakaInput, parseTakaToPaisa } from "./money-input";
-
-export const fieldClass =
-  "w-full min-h-11 rounded-lg border border-default-300 bg-background px-3 py-2 text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent aria-[invalid=true]:border-danger";
+import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
+import { fieldClassInvalid as fieldClass } from "@/components/ui/field";
 
 /** One category's bill for the month: amount, who pays what (shares from the API), hand-set overrides, unallocated. */
 export function BillCard({
@@ -57,14 +55,14 @@ export function BillCard({
     const input: { amount_paisa?: number; overrides: { member_id: number; amount_paisa: number }[] } = { overrides: [] };
 
     if (isFixedGroup && amount.trim() !== "") {
-      const parsed = parseTakaToPaisa(amount);
+      const parsed = parseTakaToPaisa(amount, { allowZero: true });
       if (parsed.ok) input.amount_paisa = parsed.paisa;
       else bad.add("amount");
     }
     for (const m of members) {
       const text = overrides[m.id] ?? "";
       if (text.trim() === "") continue;
-      const parsed = parseTakaToPaisa(text);
+      const parsed = parseTakaToPaisa(text, { allowZero: true });
       if (parsed.ok) input.overrides.push({ member_id: m.id, amount_paisa: parsed.paisa });
       else bad.add(`m${m.id}`);
     }

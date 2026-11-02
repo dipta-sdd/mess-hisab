@@ -8,8 +8,9 @@ import type { Group, Member } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
 import { formatDate } from "@/lib/format";
 import { useAdjustments, useCreateAdjustment } from "./api";
-import { parseTakaToPaisa } from "./money-input";
-import { Banner, fieldClass, useErrorText } from "./ui";
+import { parseTakaToPaisa } from "@/lib/format/money-input";
+import { Banner, useErrorText } from "./ui";
+import { fieldClass } from "@/components/ui/field";
 
 type Direction = "charge" | "credit";
 

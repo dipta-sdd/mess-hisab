@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { parseTakaToPaisa } from "./money-input";
+import { parseTakaToPaisa } from "@/lib/format/money-input";
 
 /** Messages are i18n keys under `expenses.form.errors.*`. */
 export const expenseFormSchema = z

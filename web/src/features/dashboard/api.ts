@@ -1,11 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { Dashboard, HistoryRow, ItemResponse, ListResponse, Member, Mess, Statement } from "@/lib/api/contract";
+import type { Dashboard, HistoryRow, ItemResponse, ListResponse, Member, MessWithMe, Statement } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
-
-/** Local copy of the `GET /messes/{id}` payload (promote to contract.ts). */
-export interface MessWithMe { mess: Mess; me: Member }
 
 export const balanceKeys = {
   all: (messId: number) => ["balance", messId] as const,

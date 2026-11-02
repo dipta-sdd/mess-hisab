@@ -5,7 +5,8 @@ import { Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { parseTakaToPaisa, signedPaisa, todayInDhaka } from "@/features/mess/money";
+import { todayInDhaka } from "@/lib/format";
+import { parseTakaOrNull, signedPaisa } from "@/features/mess/money";
 import { balanceDirection, isoDate, optionalTaka, requiredName } from "@/features/mess/schemas";
 import { ErrorAlert, useFormError } from "@/features/mess/ui/errors";
 import { BalanceInput, TextInputField } from "@/features/mess/ui/fields";
@@ -37,7 +38,7 @@ export function AddMemberForm({ onDone }: { onDone: () => void }) {
 
   const onSubmit = handleSubmit(async (values) => {
     form.clear();
-    const paisa = values.amount.trim() === "" ? 0 : (parseTakaToPaisa(values.amount) ?? 0);
+    const paisa = values.amount.trim() === "" ? 0 : (parseTakaOrNull(values.amount) ?? 0);
     const payload: AddMemberPayload = { display_name: values.display_name.trim(), joined_on: values.joined_on };
     if (paisa !== 0) payload.opening_balance_paisa = signedPaisa(paisa, values.direction);
     try {

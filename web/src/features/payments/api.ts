@@ -1,12 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Group, ItemResponse, ListResponse, Member, Mess, Month, Payment } from "@/lib/api/contract";
+import type { ItemResponse, ListResponse, Member, MessWithMe, Month, Payment, PaymentInput } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
+import { invalidateMoney } from "@/lib/api/query-keys";
 
-export interface MessWithMe { mess: Mess; me: Member }
 export interface CashPool { pool_balance_paisa: number; manager_member_id: number | null }
-export interface PaymentInput { member_id: number; group: Group; amount_paisa: number; paid_on: string; note: string | null }
 
 export const paymentsKeys = {
   all: (messId: number) => ["payments", messId] as const,
@@ -68,10 +67,10 @@ export function usePayments(messId: number, monthId: number | null, memberId: nu
   });
 }
 
-/** A payment changes the cash pool and may move between months, so refresh the whole feature. */
+/** A payment changes the cash pool and balances and may move between months: refresh every money cache. */
 function useRefreshAfterWrite(messId: number) {
   const client = useQueryClient();
-  return () => client.invalidateQueries({ queryKey: paymentsKeys.all(messId) });
+  return () => invalidateMoney(client, messId);
 }
 
 export function useCreatePayment(messId: number) {

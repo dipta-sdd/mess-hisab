@@ -6,9 +6,10 @@ import { useState } from "react";
 import type { Member, Recoverable } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
 import { useRecoverables, useRepay } from "./api";
-import { todayInDhaka } from "./dates";
-import { parseTakaToPaisa } from "./money-input";
-import { Banner, fieldClass, useErrorText } from "./ui";
+import { todayInDhaka } from "@/lib/format/date";
+import { parseTakaToPaisa } from "@/lib/format/money-input";
+import { Banner, useErrorText } from "./ui";
+import { fieldClass } from "@/components/ui/field";
 
 /** All "doesn't pay" requests and unpaid shares of the mess; the manager records repayments. */
 export function RecoverablesPanel({

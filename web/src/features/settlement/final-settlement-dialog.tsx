@@ -10,13 +10,10 @@ import { formatMoney } from "@/lib/format";
 import { useMessRoles } from "@/features/mess/api";
 import { useMess } from "@/lib/mess/mess-context";
 import { rowFor, useFinalSettlement, useSettlementDashboard } from "./api";
-import { paisaToTakaInput, parseTakaToPaisa } from "./money-input";
+import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
+import { todayInDhaka } from "@/lib/format/date";
 
 const FIELD = "min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-base text-foreground";
-
-function todayInDhaka(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-}
 
 function numberFrom(body: unknown, key: string): number | null {
   if (body && typeof body === "object") {
