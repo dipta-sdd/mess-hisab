@@ -10,6 +10,7 @@ use App\Services\Sms\SmsFailed;
 use App\Services\Sms\SmsSender;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 /** Issues and checks the 6-digit SMS codes in `phone_otps` (only a hash is stored). */
 class PhoneOtpService
@@ -19,6 +20,11 @@ class PhoneOtpService
     public const RESEND_SECONDS = 60;
 
     public const MAX_ATTEMPTS = 5;
+
+    /** Per number and purpose, across codes (IP throttles alone don't stop a spread-out attacker). */
+    public const MAX_SENDS_PER_HOUR = 5;
+
+    public const MAX_FAILS_PER_HOUR = 10;
 
     public function __construct(private SmsSender $sms) {}
 
@@ -39,6 +45,12 @@ class PhoneOtpService
                 throw OtpException::resendWait($wait);
             }
         }
+
+        $sendKey = "otp-sends:{$purpose->value}:{$phone}";
+        if (RateLimiter::tooManyAttempts($sendKey, self::MAX_SENDS_PER_HOUR)) {
+            throw OtpException::resendWait(RateLimiter::availableIn($sendKey));
+        }
+        RateLimiter::hit($sendKey, 3600);
 
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         PhoneOtp::where('phone', $phone)->where('purpose', $purpose->value)->delete();
@@ -72,6 +84,11 @@ class PhoneOtpService
     {
         $phone = BdMobile::normalize($phone);
 
+        $failKey = "otp-fails:{$purpose->value}:{$phone}";
+        if (RateLimiter::tooManyAttempts($failKey, self::MAX_FAILS_PER_HOUR)) {
+            throw OtpException::tooMany();
+        }
+
         $otp = PhoneOtp::where('phone', $phone)->where('purpose', $purpose->value)
             ->when($userId !== null, fn ($q) => $q->where('user_id', $userId))
             ->latest('id')->first();
@@ -90,6 +107,7 @@ class PhoneOtpService
         if (! Hash::check($code, $otp->code_hash)) {
             // Atomic bump so parallel guesses can't dodge the cap.
             PhoneOtp::whereKey($otp->id)->increment('attempts');
+            RateLimiter::hit($failKey, 3600);
             $otp->refresh();
             if ($otp->attempts >= self::MAX_ATTEMPTS) {
                 $otp->forceFill(['consumed_at' => now()])->save();

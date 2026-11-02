@@ -162,6 +162,10 @@ return [
 
     'attributes' => [
         'amount_paisa' => 'টাকার পরিমাণ',
+        'login' => 'ফোন বা ইমেইল',
+        'phone' => 'ফোন নম্বর',
+        'code' => 'কোড',
+        'reset_token' => 'রিসেট টোকেন',
         'approval_required' => 'অনুমোদন লাগবে কি না',
         'breakfast_weight_centi' => 'সকালের মিলের ওজন',
         'lunch_weight_centi' => 'দুপুরের মিলের ওজন',

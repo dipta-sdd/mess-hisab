@@ -33,6 +33,12 @@ class GoogleAuthService
         }
 
         $user = User::whereRaw('lower(email) = ?', [$email])->first();
+        if ($user && $user->email_verified_at === null && $user->hasVerifiedPhone()) {
+            // The account belongs to whoever proved the phone; the unproven address is all the Google
+            // owner can claim, so it moves to a new Google account instead of taking this one over.
+            $user->forceFill(['email' => null])->save();
+            $user = null;
+        }
         if ($user) {
             $user->forceFill(['google_id' => $googleId]);
             if ($user->email_verified_at === null) {

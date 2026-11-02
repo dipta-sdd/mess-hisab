@@ -95,7 +95,7 @@ it('redirects with status=error when Google gives no email', function () {
 });
 
 it('takes over an unverified same-email account, dropping its password and sessions', function () {
-    $squatter = user(['email' => 'gee@example.com', 'email_verified_at' => null]);
+    $squatter = user(['email' => 'gee@example.com', 'email_verified_at' => null, 'phone_verified_at' => null]);
     $squatter->createToken('t');
     DB::table('sessions')->insert(['id' => 'sq', 'user_id' => $squatter->id, 'payload' => '', 'last_activity' => time()]);
     cMockGoogle(cGoogleProfile());

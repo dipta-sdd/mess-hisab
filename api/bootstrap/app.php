@@ -17,8 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: \App\Http\Middleware\SetLocale::class);
         $middleware->encryptCookies(except: ['NEXT_LOCALE']); // set by the web app, read in SetLocale
         $middleware->alias([
-            'mess' => \App\Http\Middleware\ResolveMess::class,
             'mess.role' => \App\Http\Middleware\EnsureMessRole::class,
+            'phone.verified' => \App\Http\Middleware\EnsurePhoneVerified::class,
+        ]);
+        // Every mess route needs a verified phone (or Google-verified email) before the mess resolves.
+        $middleware->group('mess', [
+            \App\Http\Middleware\EnsurePhoneVerified::class,
+            \App\Http\Middleware\ResolveMess::class,
         ]);
         // Resolve the mess before route-model binding so bound child models are mess-scoped.
         $middleware->prependToPriorityList(

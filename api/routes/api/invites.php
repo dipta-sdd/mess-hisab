@@ -11,4 +11,4 @@ Route::middleware(['auth:sanctum', 'mess', 'mess.role:admin,manager'])->prefix('
 });
 
 Route::get('invites/{token}', [PublicInviteController::class, 'show'])->middleware('throttle:30,1');
-Route::post('invites/{token}/accept', [PublicInviteController::class, 'accept'])->middleware(['auth:sanctum', 'throttle:20,1']);
+Route::post('invites/{token}/accept', [PublicInviteController::class, 'accept'])->middleware(['auth:sanctum', 'phone.verified', 'throttle:20,1']);

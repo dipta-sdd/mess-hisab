@@ -18,8 +18,14 @@ class PasswordController extends Controller
     /** Always 202, whether or not the email exists (no account enumeration). */
     public function forgot(ForgotPasswordRequest $request): JsonResponse
     {
+        // Only a proven address may recover an account (email verification is off, so in practice the
+        // phone reset is the way in); an unproven one could belong to someone squatting the account.
+        $email = strtolower(trim($request->validated('email')));
+        if (! User::whereRaw('lower(email) = ?', [$email])->whereNotNull('email_verified_at')->exists()) {
+            return response()->json(['message' => __('If that email has an account, a reset link is on its way.')], 202);
+        }
         Password::broker()->sendResetLink(
-            ['email' => strtolower(trim($request->validated('email')))],
+            ['email' => $email],
             fn (User $user, string $token) => $user->notify(new ResetPasswordNotification($token)),
         );
 

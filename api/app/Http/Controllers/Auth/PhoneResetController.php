@@ -62,7 +62,11 @@ class PhoneResetController extends Controller
             throw ValidationException::withMessages(['reset_token' => [__('otp.reset_token_invalid')]]);
         }
 
-        // Receiving the code proves the number is theirs.
+        // Receiving the code proves the number is theirs. When that claims an account whose phone was
+        // never proven, an unproven email on it may be the squatter's: drop it so it can't win it back.
+        if ($user->phone_verified_at === null && $user->email_verified_at === null) {
+            $user->forceFill(['email' => null]);
+        }
         $user->forceFill([
             'password' => $request->validated('password'),
             'remember_token' => Str::random(60),

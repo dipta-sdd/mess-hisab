@@ -4,7 +4,7 @@ use App\Http\Controllers\Member\RoleController;
 use App\Http\Controllers\Mess\MessController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'phone.verified'])->group(function () {
     Route::post('messes', [MessController::class, 'store']);
 });
 
