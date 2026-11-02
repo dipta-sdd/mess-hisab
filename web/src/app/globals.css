@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+body {
+  min-height: 100dvh;
+}

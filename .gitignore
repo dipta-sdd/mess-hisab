@@ -1,0 +1,18 @@
+# Secrets and local env (api/.gitignore and web/.gitignore cover their own trees too)
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+vendor/
+node_modules/
+.next/
+*.tsbuildinfo
+
+# The original Google Form export holds real people's data — never commit it
+*.xlsx
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
