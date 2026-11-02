@@ -18,7 +18,7 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | C Auth & accounts | 1 | merged (Google link hardened by lead) | worktree-agent-a518c2b2036905045 | |
 | D Web foundation | 1 | merged (formatMoney never rounds paisa away) | worktree-agent-a0a89bd43a2bb0d1e | |
 | M Months & categories API | 2 | running | | |
-| G Payments & cash API | 2 | running | | |
+| G Payments & cash API | 2 | merged | worktree-agent-aee041d75e389152c | |
 | W1 Web: auth, mess, members, settings | 2 | running | | |
 | E Expenses API | 3 | blocked by M, G | | |
 | F Meals API | 3 | blocked by M, G | | |
@@ -46,3 +46,4 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 - Web (D): `apiClient` paths are absolute (`/api/...`) and return the full JSON body; `useMe()` lives in `src/lib/api-client/auth.ts`. Nav icons known to the shell: dashboard, expenses, meals, payments, members, settings, months, audit, reports. `formatBalance(paisa, locale, mode, t)` with `t = useTranslations("common")`.
 - API (C): `/api/auth/me` returns `{data: {user, memberships}}`. Links to the web app go through `App\Services\Auth\FrontendUrl` (`config('app.frontend_url')`). Lead change after merge: Google sign-in refuses `email_verified=false`, and when it links to an *unverified* local account it drops that account's password, tokens and sessions (stops pre-account hijacking).
 - Open (C): adding a member with an opening balance needs an open month (422 otherwise); archiving a member doesn't check their balance yet (K's final settlement should gate it).
+- API (G): payments write no ledger row (they are their own term in §3). `CashPool::balance()` is not clamped; E must refuse/convert so it never goes negative. `PaymentMonth` has a `TODO(lead)` to switch to `Calendar::monthFor` when M merges. Open: payments dated outside a member's joined_on/left_on are not rejected; editing may change member_id/group while the month is open.
