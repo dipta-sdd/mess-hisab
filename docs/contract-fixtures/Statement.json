@@ -1,0 +1,35 @@
+{
+  "member": {
+    "id": 1,
+    "display_name": "X",
+    "is_archived": false,
+    "is_active": true
+  },
+  "month": {
+    "id": 1,
+    "starts_on": "2026-11-01",
+    "ends_on": "2026-11-30",
+    "status": "open",
+    "fixed_deadline": "2026-11-10",
+    "deposit_deadline": "2026-11-05"
+  },
+  "today": "2026-11-15",
+  "carry_in_paisa": 0,
+  "lines": [
+    {
+      "kind": "fixed_bill",
+      "group": "fixed",
+      "label": "Rent",
+      "date": null,
+      "amount_paisa": -200000
+    }
+  ],
+  "fixed_balance_paisa": -230000,
+  "meals_balance_paisa": 70000,
+  "total_paisa": -160000,
+  "fixed_outstanding_paisa": 160000,
+  "deposit_required_paisa": 100000,
+  "deposit_outstanding_paisa": 0,
+  "fixed_overdue_days": 5,
+  "deposit_overdue_days": 0
+}

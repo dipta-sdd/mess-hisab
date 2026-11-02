@@ -1,0 +1,16 @@
+{
+  "month_id": 1,
+  "starts_on": "2026-11-01",
+  "ends_on": "2026-11-30",
+  "status": "open",
+  "closed_at": null,
+  "fixed_charged_paisa": 840000,
+  "meals_charged_paisa": 200000,
+  "expenses_paisa": 200000,
+  "paid_paisa": 50000,
+  "total_meals_centi": 5000,
+  "meal_rate_paisa": 4000,
+  "rounding_extra_paisa": 0,
+  "total_due_paisa": 420000,
+  "total_credit_paisa": 70000
+}
