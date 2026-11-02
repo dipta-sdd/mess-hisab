@@ -114,6 +114,19 @@ it('writes a month workbook whose numbers equal the dashboard', function () {
         ->and($cell->getValue())->toEqual(500)
         ->and($cell->getStyle()->getNumberFormat()->getFormatCode())->toBe('0.00')
         ->and($book->getSheetByName('Payments')->getCell('A1')->getDataType())->toBe(\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+
+    // Overdue days are never text: blank when not overdue (nobody is here), a number otherwise (next test).
+    $members = $book->getSheetByName('Members');
+    $last = $members->getHighestColumn();
+    expect($members->getCell("{$last}1")->getValue())->toBe('Deposit overdue days')
+        ->and($members->getCell("{$last}2")->getDataType())->not->toBe(\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+});
+
+it('writes integers such as overdue days as numbers', function () {
+    $cell = (new Spreadsheet)->getActiveSheet()->getCell('A1');
+    (new \App\Exports\ArraySheet('x', []))->bindValue($cell, 28);
+    expect($cell->getDataType())->toBe(\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC)
+        ->and($cell->getValue())->toBe(28);
 });
 
 it('writes a statement workbook with the statement lines', function () {

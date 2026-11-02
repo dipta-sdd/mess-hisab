@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ExportButton, StatementExport } from "@/features/export";
 import type { AppLocale } from "@/i18n/config";
 import type { Month } from "@/lib/api/contract";
-import { formatDate, formatMoney } from "@/lib/format";
+import { formatBalance, formatDate, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useMembers, useMessInfo, useMonths } from "./api";
 import { AdjustmentsPanel } from "./adjustments-panel";
@@ -20,6 +20,7 @@ import { Banner, Notice } from "./ui";
 export function MonthsPage() {
   const { messId } = useMess();
   const t = useTranslations("months");
+  const tc = useTranslations("common");
   const locale = useLocale() as AppLocale;
   const messQ = useMessInfo(messId);
   const monthsQ = useMonths(messId);
@@ -43,6 +44,7 @@ export function MonthsPage() {
   const ctx: BlockContext = {
     messId,
     money,
+    balance: (paisa) => formatBalance(paisa, locale, roundingMode, tc),
     nameOf,
     monthLabelOf: (id) => {
       const m = months.find((x) => x.id === id);

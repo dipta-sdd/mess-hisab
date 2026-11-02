@@ -36,8 +36,8 @@ class StatementExportBuilder
         $rows[] = ['', '', '', 'Fixed outstanding (BDT)', Money::taka($s['fixed_outstanding_paisa'])];
         $rows[] = ['', '', '', 'Deposit required (BDT)', Money::taka($s['deposit_required_paisa'])];
         $rows[] = ['', '', '', 'Deposit outstanding (BDT)', Money::taka($s['deposit_outstanding_paisa'])];
-        $rows[] = ['', '', '', 'Fixed overdue days', (string) $s['fixed_overdue_days']];
-        $rows[] = ['', '', '', 'Deposit overdue days', (string) $s['deposit_overdue_days']];
+        $rows[] = ['', '', '', 'Fixed overdue days', $s['fixed_overdue_days']];
+        $rows[] = ['', '', '', 'Deposit overdue days', $s['deposit_overdue_days']];
 
         return new ExportWorkbook([new ArraySheet('Statement', $rows)]);
     }

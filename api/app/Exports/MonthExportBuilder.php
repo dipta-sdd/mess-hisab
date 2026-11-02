@@ -60,7 +60,7 @@ class MonthExportBuilder
                 Money::taka($r['fixed_bill_paisa']), Money::taka($r['meals_bill_paisa']), Money::taka($r['paid_paisa']),
                 Money::taka($r['fixed_balance_paisa']), Money::taka($r['meals_balance_paisa']), Money::taka($r['balance_paisa']),
                 Money::taka($r['fixed_outstanding_paisa']), Money::taka($r['deposit_required_paisa']),
-                Money::taka($r['deposit_outstanding_paisa']), (string) $r['fixed_overdue_days'], (string) $r['deposit_overdue_days'],
+                Money::taka($r['deposit_outstanding_paisa']), $r['fixed_overdue_days'], $r['deposit_overdue_days'],
             ];
         }
 

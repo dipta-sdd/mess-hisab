@@ -13,7 +13,11 @@ import { NavIcon } from "./nav-icon";
 import { rolesOf, visibleNavItems } from "./nav-items";
 
 function isActive(pathname: string | null, href: string) {
-  return !!pathname && (pathname === href || pathname.startsWith(`${href}/`));
+  if (!pathname) return false;
+  if (pathname === href) return true;
+  // The mess root (`/7`, the dashboard) is a prefix of every page, so it only matches exactly.
+  const isMessRoot = href.split("/").filter(Boolean).length === 1;
+  return !isMessRoot && pathname.startsWith(`${href}/`);
 }
 
 function NavLinks({ items, messId, variant }: { items: NavItem[]; messId: number; variant: "side" | "bottom" }) {

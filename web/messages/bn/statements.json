@@ -35,7 +35,7 @@
     "other": "অন্যান্য"
   },
   "kinds": {
-    "carry_in": "গত মাসের বাকি",
+    "carry_in": "গত মাস থেকে আসা",
     "fixed_bill": "ফিক্সড বিল",
     "meal_charge": "মিলের বিল",
     "rounding": "রাউন্ডিং",

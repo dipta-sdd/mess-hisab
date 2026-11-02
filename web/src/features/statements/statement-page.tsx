@@ -142,7 +142,7 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
         <ul className="divide-y divide-default-200">
           <li className="flex items-start justify-between gap-3 py-2" data-testid="line-carry_in">
             <p className="font-medium">{t("kinds.carry_in")}</p>
-            <span className={`shrink-0 tabular-nums ${carryIn < 0 ? "text-danger" : carryIn > 0 ? "text-success" : "text-muted"}`}>{money(carryIn)}</span>
+            <span className="shrink-0"><Balance paisa={carryIn} mode={mode} /></span>
           </li>
         </ul>
         {rest.length === 0 ? <p className="mt-2 text-muted">{t("lines.empty")}</p> : null}

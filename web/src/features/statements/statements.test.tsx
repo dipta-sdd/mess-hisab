@@ -57,8 +57,8 @@ describe("StatementPage", () => {
     const requests = mockApi();
     renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
     const first = await screen.findByTestId("line-carry_in");
-    expect(first).toHaveTextContent("Last month due");
-    expect(first).toHaveTextContent("-৳300.00");
+    expect(first).toHaveTextContent("Brought forward from last month");
+    expect(first).toHaveTextContent("Due ৳300.00");
 
     const all = screen.getAllByTestId(/^line-/).map((n) => n.getAttribute("data-testid"));
     expect(all).toEqual(["line-carry_in", "line-payment", "line-fixed_bill", "line-meal_charge", "line-own_pocket_expense"]);
@@ -115,7 +115,7 @@ describe("StatementPage", () => {
   it("renders in Bangla", async () => {
     mockApi();
     renderWithProviders(<StatementPage memberId={1} />, { messId: 7, locale: "bn" });
-    expect(await screen.findByText("গত মাসের বাকি")).toBeInTheDocument();
+    expect(await screen.findByText("গত মাস থেকে আসা")).toBeInTheDocument();
     expect(screen.getByTestId("stmt-total")).toHaveTextContent("১,৬০০");
     expect(screen.getByText("মিলের বিল")).toBeInTheDocument();
     expectBanglaOnly(["Paid from pocket: rice", "X"]);

@@ -64,8 +64,8 @@ export function ReopenPanel({ messId, month, ctx, onReopened }: { messId: number
                 {data.members.map((m) => (
                   <tr key={m.member_id} className="border-t border-default-200">
                     <th scope="row" className="sticky start-0 z-10 min-w-28 max-w-40 break-words bg-surface p-2 text-start font-normal">{m.display_name}</th>
-                    <td className="whitespace-nowrap p-2 text-end">{ctx.money(m.before_paisa)}</td>
-                    <td className="whitespace-nowrap p-2 text-end">{ctx.money(m.after_paisa)}</td>
+                    <td className="whitespace-nowrap p-2 text-end">{ctx.balance(m.before_paisa)}</td>
+                    <td className="whitespace-nowrap p-2 text-end">{ctx.balance(m.after_paisa)}</td>
                     <td className="whitespace-nowrap p-2 text-end">{ctx.money(m.change_paisa)}</td>
                   </tr>
                 ))}

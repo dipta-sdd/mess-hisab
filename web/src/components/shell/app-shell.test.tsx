@@ -14,7 +14,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }), use
 const items: NavItem[] = [
   { key: "settings", href: (id) => `/${id}/settings`, labelKey: "app.name", icon: "settings", roles: ["admin"], order: 30 },
   { key: "expenses", href: (id) => `/${id}/expenses`, labelKey: "common.shell.messFallback", icon: "expenses", order: 20 },
-  { key: "dash", href: (id) => `/${id}/dashboard`, labelKey: "common.language.label", icon: "dashboard", order: 10 },
+  { key: "dash", href: (id) => `/${id}`, labelKey: "common.language.label", icon: "dashboard", order: 10 },
   { key: "close", href: (id) => `/${id}/close`, labelKey: "common.balance.settled", icon: "months", roles: ["manager", "admin"], order: 40 },
 ];
 
@@ -53,8 +53,10 @@ describe("AppShell", () => {
     expect((await screen.findAllByText("Green House")).length).toBeGreaterThan(0);
     const sidebar = screen.getByRole("navigation", { name: "Main navigation" });
     const links = sidebar.querySelectorAll("a");
-    expect([...links].map((a) => a.getAttribute("href"))).toEqual(["/7/dashboard", "/7/expenses"]);
-    expect(sidebar.querySelector('a[aria-current="page"]')).toHaveAttribute("href", "/7/expenses");
+    expect([...links].map((a) => a.getAttribute("href"))).toEqual(["/7", "/7/expenses"]);
+    // The dashboard (`/7`) is a prefix of every page but must not light up on them.
+    const active = sidebar.querySelectorAll('a[aria-current="page"]');
+    expect([...active].map((a) => a.getAttribute("href"))).toEqual(["/7/expenses"]);
     expect(screen.queryByRole("link", { name: /Mess Hisab/ })).toBeNull();
   });
 

@@ -7,6 +7,8 @@ import type { CloseBlock, ReopenPreview } from "@/lib/api/contract";
 export interface BlockContext {
   messId: number;
   money: (paisa: number) => string;
+  /** A member balance as "Due ৳X" / "Credit ৳X" / "Settled". */
+  balance: (paisa: number) => string;
   nameOf: (memberId: number) => string;
   monthLabelOf: (monthId: number) => string;
 }
