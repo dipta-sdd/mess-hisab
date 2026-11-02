@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -176,5 +176,20 @@ describe("MemberRowActions final settlement", () => {
     await new Promise((r) => setTimeout(r, 50));
     expect(screen.queryByRole("button", { name: /Final settlement/ })).toBeNull();
     expect(dashboardCalls).toBe(0);
+  });
+});
+
+describe("MemberRowActions final settlement (Bangla)", () => {
+  it("renders the dialog in Bangla with Bangla digits and no leftover English", async () => {
+    serve(manager, dashboard([row(2, 150000)], 90050));
+    const user = userEvent.setup();
+    renderWithProviders(<MemberRowActions member={karim} />, { messId: 3, locale: "bn" });
+    await user.click(await screen.findByRole("button", { name: "Karim-এর ফাইনাল হিসাব" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByTestId("settlement-credit")).toHaveTextContent("৳১,৫০০.০০");
+    expect(within(dialog).getByTestId("settlement-cash")).toHaveTextContent("৳৯০০.৫০");
+    const text = (dialog.textContent ?? "").replaceAll("Karim", "");
+    expect(text).not.toMatch(/[A-Za-z]/);
+    expect(text).not.toMatch(/[0-9]/);
   });
 });

@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
 import type { DashboardRow } from "@/lib/api/contract";
-import { formatDate, formatMeals, formatMoney } from "@/lib/format";
+import { formatDate, formatMeals, formatMoney, formatNumber } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useDashboard, useHistory, useMessInfo } from "./api";
 import { Balance, MonthPicker, OverdueBadge, is404 } from "./shared";
@@ -131,7 +131,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
               onClick={() => setView("all")}
               className={`min-h-11 rounded-lg border px-3 text-sm ${view === "all" ? "border-accent bg-accent text-accent-foreground" : "border-default-300"}`}
             >
-              {t("members.all", { count: members.length })}
+              {t("members.all", { count: formatNumber(members.length, locale) })}
             </button>
             <button
               type="button"
@@ -139,7 +139,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
               onClick={() => setView("overdue")}
               className={`min-h-11 rounded-lg border px-3 text-sm ${view === "overdue" ? "border-danger bg-danger text-white" : "border-default-300"}`}
             >
-              {t("members.overdue", { count: overdueCount })}
+              {t("members.overdue", { count: formatNumber(overdueCount, locale) })}
             </button>
           </div>
         </div>

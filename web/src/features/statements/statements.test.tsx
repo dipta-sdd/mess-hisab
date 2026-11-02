@@ -7,6 +7,7 @@ import StatementFx from "../../../../docs/contract-fixtures/Statement.json";
 import type { HistoryRow, Member, Mess, Statement } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { HistoryPage } from "./history-page";
 import { StatementPage } from "./statement-page";
@@ -114,9 +115,10 @@ describe("StatementPage", () => {
   it("renders in Bangla", async () => {
     mockApi();
     renderWithProviders(<StatementPage memberId={1} />, { messId: 7, locale: "bn" });
-    expect(await screen.findByText("গত মাসের বকেয়া")).toBeInTheDocument();
+    expect(await screen.findByText("গত মাসের বাকি")).toBeInTheDocument();
     expect(screen.getByTestId("stmt-total")).toHaveTextContent("১,৬০০");
-    expect(screen.getByText("মিলের চার্জ")).toBeInTheDocument();
+    expect(screen.getByText("মিলের বিল")).toBeInTheDocument();
+    expectBanglaOnly(["Paid from pocket: rice", "X"]);
   });
 });
 

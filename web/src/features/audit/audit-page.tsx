@@ -68,6 +68,7 @@ function timeOfDay(iso: string, locale: AppLocale): string {
   return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD-u-nu-beng" : "en-GB", {
     hour: "2-digit",
     minute: "2-digit",
+    hourCycle: "h23",
     timeZone: "Asia/Dhaka",
   }).format(d);
 }

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { NavItem } from "@/features/types";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { AppShell } from "./app-shell";
 import { rolesOf, visibleNavItems } from "./nav-items";
@@ -71,5 +72,6 @@ describe("AppShell", () => {
     expect(screen.getByRole("main")).toHaveTextContent("hello");
     expect(screen.queryByRole("navigation")).toBeNull();
     expect(screen.getAllByRole("button", { name: "বাংলা" }).length).toBeGreaterThan(0);
+    expectBanglaOnly(["English", "hello"]);
   });
 });

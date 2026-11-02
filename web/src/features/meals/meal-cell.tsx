@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import type { AppLocale } from "@/i18n/config";
 import type { MealEntry, MealTracking } from "@/lib/api/contract";
-import { formatMeals } from "@/lib/format";
+import { formatMeals, formatNumber } from "@/lib/format";
 import { centiToInput } from "./centi";
 import { draftProblems, ticksOf, type CellDraft, type Ticks } from "./draft";
 
@@ -78,7 +78,7 @@ export function MealCell({
           className={inputClass}
           inputMode="decimal"
           autoComplete="off"
-          placeholder="0"
+          placeholder={formatNumber(0, locale)}
           value={mealsValue}
           aria-label={`${t("cell.meals")}: ${label}`}
           aria-invalid={problems.meals || undefined}

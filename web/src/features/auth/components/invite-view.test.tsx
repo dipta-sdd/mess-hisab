@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_BASE_URL, resetApiClientState } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { InviteView } from "./invite-view";
 import { Landing } from "./landing";
@@ -119,6 +120,7 @@ describe("InviteView", () => {
     server.use(signedIn(), preview({ data: { mess_name: "Green House", valid: true } }));
     renderWithProviders(<InviteView token="tok" />, { locale: "bn" });
     expect(await screen.findByRole("button", { name: "এই মেসে যোগ দিন" })).toBeInTheDocument();
+    expectBanglaOnly(["House"]);
   });
 });
 

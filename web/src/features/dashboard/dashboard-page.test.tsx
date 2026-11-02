@@ -7,6 +7,7 @@ import HistoryFx from "../../../../docs/contract-fixtures/History.json";
 import type { Dashboard, DashboardRow, HistoryRow, Member, Mess } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { DashboardPage } from "./dashboard-page";
 
@@ -120,6 +121,7 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("heading", { name: "ড্যাশবোর্ড" })).toBeInTheDocument();
     expect(await screen.findByTestId("stat-fixed-bills")).toHaveTextContent("৮,৪০০");
     expect(screen.getAllByText(/বকেয়া/).length).toBeGreaterThan(0);
+    expectBanglaOnly(["X"]);
   });
 
   it("shows an error state when the dashboard cannot load", async () => {

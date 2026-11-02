@@ -1,39 +1,52 @@
 {
-  "nav": "হিসাবের বিবরণ",
-  "title": "হিসাবের বিবরণ",
-  "titleFor": "{name}-এর হিসাব",
+  "nav": "স্টেটমেন্ট",
+  "title": "স্টেটমেন্ট",
+  "titleFor": "{name}-এর স্টেটমেন্ট",
   "loading": "লোড হচ্ছে…",
   "inactive": "এই মাসে সদস্যটি সক্রিয় ছিলেন না।",
-  "links": { "dashboard": "ড্যাশবোর্ড", "history": "মাসের ইতিহাস" },
+  "links": {
+    "dashboard": "ড্যাশবোর্ড",
+    "history": "মাসের ইতিহাস"
+  },
   "errors": {
-    "loadFailed": "হিসাব লোড করা যায়নি। আবার চেষ্টা করুন।",
+    "loadFailed": "স্টেটমেন্ট লোড করা যায়নি। আবার চেষ্টা করুন।",
     "notFound": "সদস্য বা মাসটি পাওয়া যায়নি।"
   },
-  "member": { "label": "সদস্য", "archived": "আর্কাইভ করা" },
+  "member": {
+    "label": "সদস্য",
+    "archived": "আর্কাইভ করা"
+  },
   "summary": {
     "title": "সারসংক্ষেপ",
     "total": "মোট ব্যালেন্স",
     "fixedBalance": "ফিক্সড ব্যালেন্স",
     "mealsBalance": "মিলের ব্যালেন্স",
-    "outstanding": "দেয় বিল",
-    "depositRequired": "প্রয়োজনীয় জামানত",
-    "depositOutstanding": "দেয় জামানত"
+    "outstanding": "বিল বাকি",
+    "depositRequired": "নির্ধারিত ডিপোজিট",
+    "depositOutstanding": "ডিপোজিট বাকি"
   },
-  "lines": { "title": "বিস্তারিত", "empty": "এই মাসে এখনও কিছু লেখা হয়নি।" },
-  "groups": { "fixed": "ফিক্সড", "meals": "মিল", "other": "অন্যান্য" },
+  "lines": {
+    "title": "বিস্তারিত",
+    "empty": "এই মাসে এখনও কিছু লেখা হয়নি।"
+  },
+  "groups": {
+    "fixed": "ফিক্সড",
+    "meals": "মিল",
+    "other": "অন্যান্য"
+  },
   "kinds": {
-    "carry_in": "গত মাসের বকেয়া",
+    "carry_in": "গত মাসের বাকি",
     "fixed_bill": "ফিক্সড বিল",
-    "meal_charge": "মিলের চার্জ",
+    "meal_charge": "মিলের বিল",
     "rounding": "রাউন্ডিং",
-    "charge": "চার্জ",
-    "payment": "জমা",
+    "charge": "বিল",
+    "payment": "পেমেন্ট",
     "own_pocket_expense": "নিজের পকেট থেকে খরচ",
     "adjustment": "সমন্বয়",
     "doesnt_pay_out": "না-দেওয়া অংশ অন্যদের ওপর ভাগ হয়েছে",
     "doesnt_pay_in": "অন্য সদস্যের না-দেওয়া বিলের অংশ",
     "recoverable_repay": "ফেরত পাওয়া টাকা",
-    "final_payout": "চূড়ান্ত পরিশোধ",
+    "final_payout": "ফাইনাল হিসাবের টাকা",
     "opening": "শুরুর ব্যালেন্স"
   },
   "history": {
@@ -44,13 +57,13 @@
     "closed": "বন্ধ",
     "month": "মাস",
     "status": "অবস্থা",
-    "fixedCharged": "ফিক্সড ধার্য",
-    "mealsCharged": "মিল ধার্য",
+    "fixedCharged": "ফিক্সড বিল",
+    "mealsCharged": "মিলের বিল",
     "expenses": "খরচ",
-    "paid": "জমা পড়েছে",
+    "paid": "পেমেন্ট এসেছে",
     "totalMeals": "মোট মিল",
     "mealRate": "মিল রেট",
-    "totalDue": "মোট বকেয়া",
+    "totalDue": "মোট বাকি",
     "totalCredit": "মোট পাওনা"
   }
 }

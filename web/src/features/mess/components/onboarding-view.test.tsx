@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_BASE_URL, resetApiClientState } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { OnboardingView } from "./onboarding-view";
 
@@ -151,5 +152,6 @@ describe("OnboardingView", () => {
     server.use(session());
     renderWithProviders(<OnboardingView />, { locale: "bn" });
     expect(await screen.findByRole("button", { name: "মেস খুলুন" })).toBeInTheDocument();
+    expectBanglaOnly([]);
   });
 });

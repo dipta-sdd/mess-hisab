@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Category, Expense, Member, Mess, Month } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { ExpensesPage } from "./expenses-page";
 
@@ -369,5 +370,6 @@ describe("ExpensesPage Bangla", () => {
     renderWithProviders(<ExpensesPage />, { messId: 7, locale: "bn" });
     expect(await screen.findByText("খরচ যোগ করুন")).toBeInTheDocument();
     await waitFor(() => expect(within(screen.getByTestId("total-fixed")).getByText("৳১,৫০০.০০")).toBeInTheDocument());
+    expectBanglaOnly([]);
   });
 });

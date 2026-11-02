@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AuditLog, Member } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import fixture from "../../../../docs/contract-fixtures/AuditLog.json";
 
@@ -195,9 +196,10 @@ describe("AuditPage", () => {
     mockApi(() => envelope([entry({ id: 1, event: "payout.final", member_id: 1, after: { amount_paisa: 150000 } })]));
     const user = userEvent.setup();
     render("bn");
-    expect(await screen.findByText("চূড়ান্ত নিষ্পত্তির টাকা দেওয়া হয়েছে")).toBeInTheDocument();
+    expect(await screen.findByText("ফাইনাল হিসাবের টাকা দেওয়া হয়েছে")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "অডিট লগ" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /পরিবর্তন দেখুন/ }));
     expect(screen.getByTestId("diff-amount_paisa")).toHaveTextContent("৳১,৫০০.০০");
+    expectBanglaOnly(["payout.final", "amount_paisa", "2026-11-02T10:00:00+06:00"]);
   });
 });

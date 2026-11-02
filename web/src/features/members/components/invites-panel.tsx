@@ -9,7 +9,7 @@ import { z } from "zod";
 import type { Invite, Member } from "@/lib/api/contract";
 import { ErrorAlert, SuccessAlert, useApiErrorText, useFormError } from "@/features/mess/ui/errors";
 import { SelectField, TextInputField } from "@/features/mess/ui/fields";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatNumber } from "@/lib/format";
 import type { AppLocale } from "@/i18n/config";
 import { useMess } from "@/lib/mess/mess-context";
 import { useCreateInvite, useInvites, useRevokeInvite } from "../api";
@@ -72,7 +72,7 @@ function InviteRow({ invite, members }: { invite: Invite; members: Member[] }) {
         <span className="text-xs text-muted">{t(`invites.status.${status}`)}</span>
       </div>
       <p className="text-xs text-muted">
-        {t("invites.uses", { uses: invite.uses, max: invite.max_uses ?? t("invites.unlimited") })}
+        {t("invites.uses", { uses: formatNumber(invite.uses, locale), max: invite.max_uses == null ? t("invites.unlimited") : formatNumber(invite.max_uses, locale) })}
         {invite.expires_at ? ` · ${t("invites.expires", { date: formatDate(invite.expires_at.slice(0, 10), locale) })}` : ""}
       </p>
       <ErrorAlert message={error} />

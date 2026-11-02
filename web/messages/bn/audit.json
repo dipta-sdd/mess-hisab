@@ -1,7 +1,7 @@
 {
   "nav": "অডিট লগ",
   "title": "অডিট লগ",
-  "loading": "অডিট লগ লোড হচ্ছে...",
+  "loading": "লোড হচ্ছে…",
   "loadFailed": "অডিট লগ লোড করা যায়নি। আবার চেষ্টা করুন।",
   "empty": "এই ফিল্টারে কোনো কার্যক্রম নেই।",
   "system": "সিস্টেম",
@@ -16,7 +16,11 @@
     "to": "শেষের তারিখ",
     "rangeInvalid": "শেষের তারিখ শুরুর তারিখের আগে হতে পারে না।"
   },
-  "columns": { "when": "কখন", "what": "কী ঘটেছে", "who": "কে" },
+  "columns": {
+    "when": "কখন",
+    "what": "কী ঘটেছে",
+    "who": "কে"
+  },
   "pagination": {
     "label": "পৃষ্ঠা",
     "previous": "নতুন",
@@ -45,17 +49,17 @@
     "charge_override": "বিল পরিবর্তন",
     "member_month_setting": "সদস্যের মাসিক সেটিং",
     "mess_member": "সদস্যের তথ্য",
-    "member": "সদস্য সংক্রান্ত কাজ",
+    "member": "সদস্যের কাজ",
     "ledger_entry": "খতিয়ান এন্ট্রি",
-    "payout": "পরিশোধ",
-    "doesnt_pay": "দেবে না",
-    "recoverable": "আদায়যোগ্য",
+    "payout": "টাকা দেওয়া",
+    "doesnt_pay": "দিচ্ছেন না",
+    "recoverable": "ফেরত পাওনা",
     "recoverable_repayment": "ফেরত",
-    "category": "ক্যাটাগরি",
+    "category": "খাত",
     "invite": "আমন্ত্রণ",
     "mess": "মেসের তথ্য",
     "settings": "সেটিংস",
-    "role": "ভূমিকা"
+    "role": "দায়িত্ব"
   },
   "models": {
     "expense": "খরচ",
@@ -67,10 +71,10 @@
     "member_month_setting": "সদস্যের মাসিক সেটিং",
     "mess_member": "সদস্য",
     "ledger_entry": "খতিয়ান এন্ট্রি",
-    "recoverable": "আদায়যোগ্য",
-    "recoverable_share": "আদায়যোগ্য অংশ",
+    "recoverable": "ফেরত পাওনা",
+    "recoverable_share": "ফেরত পাওনার অংশ",
     "recoverable_repayment": "ফেরত",
-    "category": "ক্যাটাগরি",
+    "category": "খাত",
     "invite": "আমন্ত্রণ",
     "mess": "মেস"
   },
@@ -80,20 +84,28 @@
       "reopened": "মাস আবার খোলা হয়েছে"
     },
     "doesnt_pay": {
-      "set": "একজন সদস্যকে \"দেবে না\" হিসেবে চিহ্নিত করা হয়েছে",
-      "undone": "\"দেবে না\" চিহ্ন তুলে নেওয়া হয়েছে"
+      "set": "একজন সদস্যকে “দিচ্ছেন না” হিসেবে ধরা হয়েছে",
+      "undone": "“দিচ্ছেন না” চিহ্ন তুলে নেওয়া হয়েছে"
     },
-    "settings": { "updated": "সেটিংস বদলানো হয়েছে" },
+    "settings": {
+      "updated": "সেটিংস বদলানো হয়েছে"
+    },
     "role": {
-      "admin_transferred": "অ্যাডমিনের দায়িত্ব হস্তান্তর",
-      "manager_assigned": "ম্যানেজার নিয়োগ"
+      "admin_transferred": "অ্যাডমিনের দায়িত্ব অন্যকে দেওয়া হয়েছে",
+      "manager_assigned": "ম্যানেজার ঠিক করা হয়েছে"
     },
-    "member": { "archived": "সদস্য আর্কাইভ করা হয়েছে" },
-    "payout": { "final": "চূড়ান্ত নিষ্পত্তির টাকা দেওয়া হয়েছে" },
-    "invite": { "accepted": "আমন্ত্রণ গ্রহণ করা হয়েছে" },
+    "member": {
+      "archived": "সদস্য আর্কাইভ করা হয়েছে"
+    },
+    "payout": {
+      "final": "ফাইনাল হিসাবের টাকা দেওয়া হয়েছে"
+    },
+    "invite": {
+      "accepted": "আমন্ত্রণ নেওয়া হয়েছে"
+    },
     "expense": {
       "approved": "খরচ অনুমোদিত",
-      "rejected": "খরচ প্রত্যাখ্যাত"
+      "rejected": "খরচ নামঞ্জুর"
     }
   }
 }

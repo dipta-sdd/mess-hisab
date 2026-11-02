@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Bill, Member, Mess, Month } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
+import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { FixedPage } from "./fixed-page";
 
@@ -206,6 +207,7 @@ describe("FixedPage (read-only)", () => {
     mockApi();
     renderWithProviders(<FixedPage />, { messId: 7, locale: "bn" });
     expect(await screen.findByRole("heading", { name: "ফিক্সড বিল সেটআপ" })).toBeInTheDocument();
-    expect(await screen.findByRole("button", { name: "বিল সংরক্ষণ করুন: Rent" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "বিল সেভ করুন: Rent" })).toBeInTheDocument();
+    expectBanglaOnly([]);
   });
 });
