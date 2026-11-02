@@ -31,7 +31,7 @@ export function ReopenPanel({ messId, month, ctx, onReopened }: { messId: number
   }
 
   return (
-    <section aria-labelledby="reopen-title" className="flex flex-col gap-3 rounded-2xl border border-default-200 bg-surface p-4">
+    <section aria-labelledby="reopen-title" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
       <h3 id="reopen-title" className="text-lg font-semibold">{t("title")}</h3>
       <p className="text-sm text-muted">{t("intro")}</p>
 
@@ -49,7 +49,7 @@ export function ReopenPanel({ messId, month, ctx, onReopened }: { messId: number
         <>
           {data.blocks.length > 0 ? <ReopenBlocks blocks={data.blocks} ctx={ctx} /> : null}
 
-          <div className="max-h-[60vh] overflow-auto rounded-lg border border-default-200">
+          <div className="max-h-[60vh] overflow-auto rounded-lg border border-border">
             <table className="w-full text-sm tabular-nums">
               <caption className="p-2 text-start font-medium">{t("table.caption")}</caption>
               <thead>
@@ -62,7 +62,7 @@ export function ReopenPanel({ messId, month, ctx, onReopened }: { messId: number
               </thead>
               <tbody>
                 {data.members.map((m) => (
-                  <tr key={m.member_id} className="border-t border-default-200">
+                  <tr key={m.member_id} className="border-t border-border">
                     <th scope="row" className="sticky start-0 z-10 min-w-28 max-w-40 break-words bg-surface p-2 text-start font-normal">{m.display_name}</th>
                     <td className="whitespace-nowrap p-2 text-end">{ctx.balance(m.before_paisa)}</td>
                     <td className="whitespace-nowrap p-2 text-end">{ctx.balance(m.after_paisa)}</td>
