@@ -55,6 +55,7 @@ it('builds the report with per-person next-month totals matching the Fixed page'
     foreach ($data['next_month']['rows'] as $row) {
         expect($row['by_category'])->toHaveCount(1);
         expect($row['by_category'][0]['name'])->toBe('Rent');
+        expect($row['by_category'][0]['split_type'])->toBe('equal');
         expect($row['by_category'][0]['amount_paisa'])->toBe(200000);
         $carry = jRow($dash, $row['member_id'])['carry_in_paisa'];
         expect($row['last_month_due_paisa'])->toBe(max(0, -$carry));

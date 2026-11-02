@@ -150,6 +150,7 @@ class MonthlyReport
                 $byCategory[] = [
                     'category_id' => $bill['category_id'],
                     'name' => $names->get($bill['category_id'])?->name ?? '',
+                    'split_type' => $bill['split_type'],
                     'amount_paisa' => $amount,
                 ];
             }
