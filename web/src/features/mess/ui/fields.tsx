@@ -37,7 +37,7 @@ export function TextInputField({
       <label htmlFor={id} className="text-sm font-medium">
         {label}
       </label>
-      <Input id={id} fullWidth aria-invalid={!!message} {...input} />
+      <Input id={id} fullWidth aria-invalid={!!message} data-invalid={message ? "true" : undefined} {...input} />
       {description ? <p className="text-xs text-muted">{description}</p> : null}
       {message ? (
         <p role="alert" className="text-sm text-danger">

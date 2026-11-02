@@ -49,6 +49,50 @@ describe("LoginForm", () => {
     expect(body).toHaveBeenCalledWith({ email: "rina@example.com", password: "secret-pass", remember: false });
   });
 
+  async function signInAs(accountLocale: string) {
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/login`, () => HttpResponse.json({ data: { ...user, locale: accountLocale } })),
+    );
+    renderWithProviders(<LoginForm />);
+    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
+  }
+
+  it("saves the device language on the account via PATCH /api/auth/me when they differ", async () => {
+    const body = vi.fn();
+    server.use(
+      http.patch(`${API_BASE_URL}/api/auth/me`, async ({ request }) => {
+        body(await request.json());
+        return HttpResponse.json({ data: user });
+      }),
+    );
+    await signInAs("bn"); // device cookie says en, account says bn
+    await waitFor(() => expect(body).toHaveBeenCalledWith({ locale: "en" }));
+  });
+
+  it("adopts the account language on a device with no language choice", async () => {
+    document.cookie = "NEXT_LOCALE=; path=/; max-age=0";
+    const patch = vi.fn();
+    server.use(
+      http.patch(`${API_BASE_URL}/api/auth/me`, () => {
+        patch();
+        return HttpResponse.json({ data: user });
+      }),
+    );
+    await signInAs("bn");
+    await waitFor(() => expect(refresh).toHaveBeenCalled());
+    expect(document.cookie).toContain("NEXT_LOCALE=bn");
+    expect(patch).not.toHaveBeenCalled();
+  });
+
+  it("still signs in when saving the language fails", async () => {
+    server.use(http.patch(`${API_BASE_URL}/api/auth/me`, () => HttpResponse.json({ message: "x" }, { status: 500 })));
+    await signInAs("bn");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
   it("links to register, forgot password and Google", () => {
     renderWithProviders(<LoginForm />);
     expect(screen.getByRole("link", { name: "Create one" })).toHaveAttribute("href", "/register");
