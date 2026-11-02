@@ -15,11 +15,15 @@ class GoogleController extends Controller
 {
     public function redirect(): RedirectResponse
     {
+        abort_unless(config('auth.google_enabled'), 404);
+
         return Socialite::driver('google')->redirect();
     }
 
     public function callback(Request $request, GoogleAuthService $google): RedirectResponse
     {
+        abort_unless(config('auth.google_enabled'), 404);
+
         try {
             $profile = Socialite::driver('google')->user();
             $user = $google->resolveUser($profile);

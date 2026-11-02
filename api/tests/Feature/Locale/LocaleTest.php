@@ -29,7 +29,7 @@ it('keeps English field errors for an en user', function () {
 it('resolves the user locale for SPA cookie auth (after the session starts)', function () {
     user(['email' => 'b@example.com', 'password' => 'secret-pass', 'locale' => 'bn']);
 
-    $this->withHeaders(lSpa())->postJson('/api/auth/login', ['email' => 'b@example.com', 'password' => 'secret-pass'])->assertOk();
+    $this->withHeaders(lSpa())->postJson('/api/auth/login', ['login' => 'b@example.com', 'password' => 'secret-pass'])->assertOk();
     // The login request itself was a guest request; the next one carries the session cookie.
     $res = $this->withHeaders(lSpa() + ['Accept-Language' => 'en'])->patchJson('/api/auth/me', ['locale' => 'fr'])->assertUnprocessable();
 
@@ -50,21 +50,21 @@ it('gives a Bangla login error to a guest with the NEXT_LOCALE cookie', function
     user(['email' => 'g@example.com', 'password' => 'secret-pass']);
 
     $res = $this->withCredentials()->withUnencryptedCookie('NEXT_LOCALE', 'bn')
-        ->postJson('/api/auth/login', ['email' => 'g@example.com', 'password' => 'wrong-pass'])
+        ->postJson('/api/auth/login', ['login' => 'g@example.com', 'password' => 'wrong-pass'])
         ->assertUnprocessable();
 
-    expect($res->json('errors.email.0'))->toBe('ইমেইল বা পাসওয়ার্ড মিলছে না।');
+    expect($res->json('errors.login.0'))->toBe('ইমেইল বা পাসওয়ার্ড মিলছে না।');
 });
 
 it('falls back to Accept-Language bn, then to English', function () {
     user(['email' => 'g@example.com', 'password' => 'secret-pass']);
-    $bad = ['email' => 'g@example.com', 'password' => 'wrong-pass'];
+    $bad = ['login' => 'g@example.com', 'password' => 'wrong-pass'];
 
-    expect($this->postJson('/api/auth/login', $bad)->json('errors.email.0'))
+    expect($this->postJson('/api/auth/login', $bad)->json('errors.login.0'))
         ->toBe('These credentials do not match our records.');
-    expect($this->postJson('/api/auth/login', $bad, ['Accept-Language' => 'bn-BD,bn;q=0.9'])->json('errors.email.0'))
+    expect($this->postJson('/api/auth/login', $bad, ['Accept-Language' => 'bn-BD,bn;q=0.9'])->json('errors.login.0'))
         ->toBe('ইমেইল বা পাসওয়ার্ড মিলছে না।');
-    expect($this->withCredentials()->withUnencryptedCookie('NEXT_LOCALE', 'fr')->postJson('/api/auth/login', $bad)->json('errors.email.0'))
+    expect($this->withCredentials()->withUnencryptedCookie('NEXT_LOCALE', 'fr')->postJson('/api/auth/login', $bad)->json('errors.login.0'))
         ->toBe('These credentials do not match our records.');
 });
 
@@ -72,7 +72,7 @@ it('prefers the user locale over the cookie', function () {
     user(['email' => 'u@example.com', 'password' => 'secret-pass', 'locale' => 'en']);
     $res = $this->withCredentials()->withUnencryptedCookie('NEXT_LOCALE', 'bn')
         ->withHeaders(['Accept-Language' => 'bn'])
-        ->postJson('/api/auth/login', ['email' => 'u@example.com', 'password' => 'secret-pass'])->assertOk();
+        ->postJson('/api/auth/login', ['login' => 'u@example.com', 'password' => 'secret-pass'])->assertOk();
     expect($res->json('data.locale'))->toBe('en');
 });
 
@@ -80,9 +80,9 @@ it('reads a plain NEXT_LOCALE cookie on stateful (encrypted-cookie) SPA requests
     user(['email' => 'g@example.com', 'password' => 'secret-pass']);
 
     $res = $this->withHeaders(lSpa())->withCredentials()->withUnencryptedCookie('NEXT_LOCALE', 'bn')
-        ->postJson('/api/auth/login', ['email' => 'g@example.com', 'password' => 'wrong-pass'])->assertUnprocessable();
+        ->postJson('/api/auth/login', ['login' => 'g@example.com', 'password' => 'wrong-pass'])->assertUnprocessable();
 
-    expect($res->json('errors.email.0'))->toBe('ইমেইল বা পাসওয়ার্ড মিলছে না।');
+    expect($res->json('errors.login.0'))->toBe('ইমেইল বা পাসওয়ার্ড মিলছে না।');
 });
 
 it('translates the 409 message but not its code', function () {

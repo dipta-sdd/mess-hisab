@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enums\Locale;
+use App\Enums\OtpPurpose;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
@@ -10,6 +11,9 @@ use App\Http\Requests\Auth\UpdateMeRequest;
 use App\Http\Resources\MembershipResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Rules\BdMobile;
+use App\Services\Auth\OtpException;
+use App\Services\Auth\PhoneOtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,28 +23,39 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request): JsonResponse
+    public function register(RegisterRequest $request, PhoneOtpService $otps): JsonResponse
     {
         $data = $request->validated();
 
         $user = User::create([
             'name' => $data['name'],
-            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'email' => $data['email'] ?? null,
             'password' => $data['password'],
             'locale' => $data['locale'] ?? Locale::En->value,
         ]);
 
         $this->startSession($request, $user);
 
+        try {
+            $otps->send($user, $user->phone, OtpPurpose::Verify);
+        } catch (OtpException) {
+            // The account exists; the verify screen asks again through auth/phone/send.
+        }
+
         return (new UserResource($user))->response()->setStatusCode(201);
     }
 
     public function login(LoginRequest $request): UserResource
     {
-        $credentials = ['email' => strtolower(trim($request->validated('email'))), 'password' => $request->validated('password')];
+        $login = trim($request->validated('login'));
+        $credentials = str_contains($login, '@')
+            ? ['email' => strtolower($login)]
+            : ['phone' => BdMobile::normalize($login)];
+        $credentials['password'] = $request->validated('password');
 
         if (! Auth::guard('web')->attempt($credentials, (bool) $request->boolean('remember'))) {
-            throw ValidationException::withMessages(['email' => [trans('auth.failed')]]);
+            throw ValidationException::withMessages(['login' => [trans('auth.failed')]]);
         }
 
         if ($request->hasSession()) {

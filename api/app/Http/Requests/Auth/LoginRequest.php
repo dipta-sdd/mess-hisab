@@ -11,10 +11,11 @@ class LoginRequest extends FormRequest
         return true;
     }
 
+    /** `login` is a phone in any accepted form, or an email. */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
             'remember' => ['sometimes', 'boolean'],
         ];

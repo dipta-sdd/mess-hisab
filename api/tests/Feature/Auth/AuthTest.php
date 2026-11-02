@@ -3,68 +3,107 @@
 use App\Models\MessMember;
 use App\Models\User;
 
+require_once __DIR__.'/AuthHelpers.php';
+
 // A Referer in SANCTUM_STATEFUL_DOMAINS makes Sanctum start a session, like the real SPA.
 function cSpaHeaders(): array
 {
     return ['Referer' => 'http://localhost:3000/'];
 }
 
-it('registers a user, logs them in and returns the User shape', function () {
+beforeEach(function () {
+    $this->sms = cBootPhoneAuth();
+});
+
+it('registers a user, logs them in, sends a verify code and returns the User shape', function () {
     $res = $this->withHeaders(cSpaHeaders())->postJson('/api/auth/register', [
-        'name' => 'Shuvendu', 'email' => 'Shuvendu@Example.com', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass', 'locale' => 'bn',
+        'name' => 'Shuvendu', 'phone' => '01712345678', 'email' => 'Shuvendu@Example.com', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass', 'locale' => 'bn',
     ])->assertCreated();
 
     expectContractShape($res->json('data'), 'User');
-    expect($res->json('data'))->toMatchArray(['name' => 'Shuvendu', 'email' => 'shuvendu@example.com', 'locale' => 'bn', 'has_password' => true, 'has_google' => false]);
+    expect($res->json('data'))->toMatchArray([
+        'name' => 'Shuvendu', 'phone' => '01712345678', 'phone_verified' => false, 'has_verified_contact' => false,
+        'email' => 'shuvendu@example.com', 'locale' => 'bn', 'has_password' => true, 'has_google' => false,
+    ]);
     $this->assertAuthenticated('web');
     expect(User::count())->toBe(1);
+    $this->sms->assertSentTo('01712345678', 1);
 });
 
-it('defaults the locale to en on register', function () {
-    $this->postJson('/api/auth/register', [
-        'name' => 'A', 'email' => 'a@example.com', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass',
-    ])->assertCreated()->assertJsonPath('data.locale', 'en');
+it('registers without an email and normalizes +880 phones', function () {
+    $res = $this->postJson('/api/auth/register', [
+        'name' => 'A', 'phone' => '+880 1712-345678', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass',
+    ])->assertCreated()->assertJsonPath('data.locale', 'en')->assertJsonPath('data.email', null);
+
+    expect($res->json('data.phone'))->toBe('01712345678');
+    $this->sms->assertSentTo('01712345678');
 });
 
 it('validates registration', function () {
-    user(['email' => 'taken@example.com']);
+    user(['email' => 'taken@example.com', 'phone' => '01811111111']);
+    $ok = ['name' => 'A', 'phone' => '01722222222', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass'];
 
-    $this->postJson('/api/auth/register', [])->assertUnprocessable()->assertJsonValidationErrors(['name', 'email', 'password']);
-    $this->postJson('/api/auth/register', [
-        'name' => 'A', 'email' => 'taken@example.com', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass',
-    ])->assertUnprocessable()->assertJsonValidationErrors(['email']);
-    $this->postJson('/api/auth/register', [
-        'name' => 'A', 'email' => 'new@example.com', 'password' => 'secret-pass', 'password_confirmation' => 'different',
-    ])->assertUnprocessable()->assertJsonValidationErrors(['password']);
-    $this->postJson('/api/auth/register', [
-        'name' => 'A', 'email' => 'new@example.com', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass', 'locale' => 'fr',
-    ])->assertUnprocessable()->assertJsonValidationErrors(['locale']);
+    $this->postJson('/api/auth/register', [])->assertUnprocessable()->assertJsonValidationErrors(['name', 'phone', 'password']);
+    $this->postJson('/api/auth/register', [...$ok, 'phone' => '01811111111'])->assertUnprocessable()->assertJsonValidationErrors(['phone']);
+    $this->postJson('/api/auth/register', [...$ok, 'phone' => '+8801811111111'])->assertUnprocessable()->assertJsonValidationErrors(['phone']);
+    $this->postJson('/api/auth/register', [...$ok, 'phone' => '12345'])->assertUnprocessable()->assertJsonValidationErrors(['phone']);
+    $this->postJson('/api/auth/register', [...$ok, 'email' => 'taken@example.com'])->assertUnprocessable()->assertJsonValidationErrors(['email']);
+    $this->postJson('/api/auth/register', [...$ok, 'password_confirmation' => 'different'])->assertUnprocessable()->assertJsonValidationErrors(['password']);
+    $this->postJson('/api/auth/register', [...$ok, 'locale' => 'fr'])->assertUnprocessable()->assertJsonValidationErrors(['locale']);
+    expect(User::count())->toBe(1);
+    $this->sms->assertNothingSent();
 });
 
-it('logs in with valid credentials', function () {
-    $user = user(['email' => 'me@example.com', 'password' => 'secret-pass']);
+it('still creates the account when the first SMS fails', function () {
+    $this->sms->failNext();
 
-    $res = $this->withHeaders(cSpaHeaders())->postJson('/api/auth/login', ['email' => 'ME@example.com', 'password' => 'secret-pass', 'remember' => true])->assertOk();
+    $this->postJson('/api/auth/register', [
+        'name' => 'A', 'phone' => '01712345678', 'password' => 'secret-pass', 'password_confirmation' => 'secret-pass',
+    ])->assertCreated();
+
+    expect(User::count())->toBe(1);
+});
+
+it('logs in with a phone in any accepted form', function (string $typed) {
+    $user = user(['phone' => '01712345678', 'password' => 'secret-pass']);
+
+    $res = $this->withHeaders(cSpaHeaders())->postJson('/api/auth/login', ['login' => $typed, 'password' => 'secret-pass', 'remember' => true])->assertOk();
 
     expectContractShape($res->json('data'), 'User');
     expect($res->json('data.id'))->toBe($user->id);
     $this->assertAuthenticatedAs($user, 'web');
+})->with(['01712345678', '+8801712345678', '8801712345678', '017 1234 5678', '1712345678']);
+
+it('logs in with an email', function () {
+    $user = user(['email' => 'me@example.com', 'password' => 'secret-pass']);
+
+    $this->withHeaders(cSpaHeaders())->postJson('/api/auth/login', ['login' => 'ME@example.com', 'password' => 'secret-pass'])->assertOk();
+
+    $this->assertAuthenticatedAs($user, 'web');
 });
 
-it('rejects bad credentials with 422', function () {
-    user(['email' => 'me@example.com', 'password' => 'secret-pass']);
+it('lets a locked account log in normally', function () {
+    $user = user(['phone' => '01712345678', 'password' => 'secret-pass', 'phone_verified_at' => null]);
 
-    $this->postJson('/api/auth/login', ['email' => 'me@example.com', 'password' => 'wrong'])->assertUnprocessable()->assertJsonValidationErrors(['email']);
-    $this->postJson('/api/auth/login', ['email' => 'nobody@example.com', 'password' => 'x'])->assertUnprocessable()->assertJsonValidationErrors(['email']);
-    $this->postJson('/api/auth/login', [])->assertUnprocessable()->assertJsonValidationErrors(['email', 'password']);
+    $this->postJson('/api/auth/login', ['login' => '01712345678', 'password' => 'secret-pass'])
+        ->assertOk()->assertJsonPath('data.has_verified_contact', false);
+});
+
+it('rejects bad credentials with 422 on login', function () {
+    user(['phone' => '01712345678', 'email' => 'me@example.com', 'password' => 'secret-pass']);
+
+    $this->postJson('/api/auth/login', ['login' => '01712345678', 'password' => 'wrong'])->assertUnprocessable()->assertJsonValidationErrors(['login']);
+    $this->postJson('/api/auth/login', ['login' => 'me@example.com', 'password' => 'wrong'])->assertUnprocessable()->assertJsonValidationErrors(['login']);
+    $this->postJson('/api/auth/login', ['login' => '01999999999', 'password' => 'x'])->assertUnprocessable()->assertJsonValidationErrors(['login']);
+    $this->postJson('/api/auth/login', [])->assertUnprocessable()->assertJsonValidationErrors(['login', 'password']);
     $this->assertGuest('web');
 });
 
 it('does not let a Google-only account log in with a password', function () {
     user(['email' => 'g@example.com', 'password' => null, 'google_id' => 'gid-1']);
 
-    $this->postJson('/api/auth/login', ['email' => 'g@example.com', 'password' => ''])->assertUnprocessable();
-    $this->postJson('/api/auth/login', ['email' => 'g@example.com', 'password' => 'anything'])->assertUnprocessable();
+    $this->postJson('/api/auth/login', ['login' => 'g@example.com', 'password' => ''])->assertUnprocessable();
+    $this->postJson('/api/auth/login', ['login' => 'g@example.com', 'password' => 'anything'])->assertUnprocessable();
 });
 
 it('logs out with 204', function () {
