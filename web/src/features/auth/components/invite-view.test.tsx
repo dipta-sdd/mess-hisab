@@ -52,7 +52,7 @@ describe("InviteView", () => {
     renderWithProviders(<InviteView token="tok" />);
     await userEvent.type(await screen.findByLabelText(/Display name in this mess/), "Karim R");
     await userEvent.click(screen.getByRole("button", { name: "Join this mess" }));
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/7/members"));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/7"));
     expect(body).toHaveBeenCalledWith({ display_name: "Karim R" });
   });
 
@@ -134,7 +134,7 @@ describe("Landing", () => {
   it("opens the only mess directly", async () => {
     server.use(signedIn([{ mess_id: 9, member_id: 1, role: "admin" }]));
     renderWithProviders(<Landing />);
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/9/members"));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/9"));
   });
 
   it("sends people with no or several messes to onboarding", async () => {

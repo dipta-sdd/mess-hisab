@@ -146,8 +146,8 @@ Note that by-meal food carried from month M to M+1 is charged in M+1, so over al
 7. **Balances & overdue** (per member, open month):
    - `fixed_balance = carry_in + fixed payments + fixed own-pocket expenses + fixed adjustments + fixed other ledger − fixed charges`
    - `meals_balance` = same for meals group (deposit is **not** a charge; meals payments count toward it).
-   - **Cross-group netting:** `fixed_outstanding = max(0, −(fixed_balance + max(0, meals_balance)))`.
-     Example: X fixed −230000, meals +70000 → fixed_outstanding **160000**.
+   - **No cross-group netting for Fixed to pay (2026-11-03):** `fixed_outstanding = max(0, −fixed_balance)`. A meals credit never lowers it; only payments toward Fixed do.
+     Example: X fixed −230000, meals +70000 → fixed_outstanding **230000** (total −160000 carries over at close).
    - **Deposit:** `deposit_outstanding = max(0, deposit_required − (meals payments + meals own-pocket expenses + meals adjustments + max(0, fixed_balance)))`.
    - Overdue days = today − deadline when outstanding > 0 and today > deadline; else 0. No late fee.
 8. **Doesn't pay** (before close; computed on the debtor's **total** balance T < 0 at close; live preview while open). Debtor gets +|T| (`doesnt_pay_out`, group fixed); others get −share (`doesnt_pay_in`, group fixed). Mode `equal` = LR equal among other active members; `by_meals` = LR by effective meals; `manual` = typed amounts, must sum to |T| or close is blocked (`doesnt_pay_mismatch`). Shares are saved; a later repayment R is credited back LR by the saved shares (`recoverable_repay`, positive), also to archived members ("payable to ex-member").
@@ -304,6 +304,13 @@ Service `App\Services\Balance\MonthBalanceService::forMonth(Month): BalanceResul
 | GET `/history` | member | → per month totals |
 | GET `/statements/{member}/history` | member | → `MemberHistoryRow[]` newest first, months the member belonged to: `charged_paisa` (that month's fixed + meals charges for the member), `paid_paisa`, `balance_paisa` (the statement's `total_paisa` for that month). Fixture `MemberHistory`. Cross-mess member → 404. |
 Shapes (exact TS in `web/src/lib/api/contract.ts`, fixtures `Dashboard`/`Statement`/`History`): `Dashboard {month: MonthInfo, today, totals, cash_pool_paisa, manager_member_id, manager_balance_paisa, members: DashboardRow[]}`; `Statement {member, month, today, carry_in_paisa, lines: StatementLine[], fixed/meals_balance_paisa, total_paisa, fixed_outstanding_paisa, deposit_required/outstanding_paisa, fixed/deposit_overdue_days}`; `StatementLine {kind, group, label, date, amount_paisa}`; `/history` → `HistoryRow[]` newest first. Default month (no `month_id`): the month containing today, else newest open, else newest — never creates one. Closed months: overdue judged at `closed_at`; charges come from stored `charge`/`rounding` rows. `cash_pool_paisa` is the current pool regardless of the month viewed.
+
+**Member visibility (2026-11-03).** Responses depend on the caller's role. Admin/manager ("staff") get everything as above. A normal member gets:
+- `GET dashboard`: same shape; `members[]` holds only their own row; `manager_balance_paisa` is `null`. `totals` and `cash_pool_paisa` unchanged.
+- `GET statements/{member}` and `…/history`: **403** unless `{member}` is their own member id.
+- `GET expenses`: only rows they paid or entered. `GET meals`, `GET payments`: only their own rows. `GET cash` stays open.
+- **403** for `GET months/{month}/setup`, `GET audit`, `GET adjustments`, `GET recoverables`, and all export routes.
+- `GET members` and `GET history` stay open (names only / mess totals only).
 
 ### Task K — month lifecycle
 | GET `/months/{month}/close-check` | manager | → `{can_close, blocks: [{code, data}]}` codes: `pending_expenses`, `zero_meals_unresolved`, `unallocated`, `doesnt_pay_mismatch`, `cash_mismatch`, `previous_month_open` |

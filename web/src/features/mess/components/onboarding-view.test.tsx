@@ -41,7 +41,7 @@ describe("OnboardingView", () => {
       ]),
     );
     renderWithProviders(<OnboardingView />);
-    expect(await screen.findByRole("link", { name: /Green House/ })).toHaveAttribute("href", "/4/members");
+    expect(await screen.findByRole("link", { name: /Green House/ })).toHaveAttribute("href", "/4");
     expect(screen.getByRole("link", { name: /Blue Flat/ })).toBeInTheDocument();
     expect(screen.getByText("Admin")).toBeInTheDocument();
     expect(screen.getByText("Archived")).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe("OnboardingView", () => {
     await userEvent.click(radios[1]!);
 
     await userEvent.click(screen.getByRole("button", { name: "Create mess" }));
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/12/members"));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/12"));
     expect(body).toHaveBeenCalledWith({
       name: "Green House",
       month_start_day: 1,

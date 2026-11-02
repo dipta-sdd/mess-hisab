@@ -13,7 +13,7 @@ const BASE = `${API_BASE_URL}/api/messes/7`;
 const fixture = DashboardFx as Dashboard;
 const owing: DashboardRow = { ...fixture.members[0], member_id: 2, display_name: "Karim", carry_in_paisa: 0 };
 const credit: DashboardRow = {
-  ...owing, balance_paisa: 70000, fixed_outstanding_paisa: 0, carry_in_paisa: -20000, paid_paisa: 50000,
+  ...owing, balance_paisa: 70000, fixed_outstanding_paisa: 0, carry_in_paisa: 20000, paid_paisa: 50000,
 };
 const mess = { id: 7, name: "Green House", rounding_mode: "two_decimals" } as Mess;
 
@@ -45,6 +45,13 @@ describe("MemberDashboard", () => {
     expect(screen.getByTestId("mini-meal-rate")).toHaveTextContent("৳40.00");
     expect(screen.getByTestId("mini-bazar")).toHaveTextContent("৳2,000.00");
     expect(screen.queryByRole("table")).toBeNull();
+  });
+
+  it("labels a negative carry-in as last month's due", async () => {
+    mockApi({ ...owing, carry_in_paisa: -141100 });
+    render();
+    expect(await screen.findByTestId("line-carry")).toHaveTextContent("Last month due");
+    expect(screen.getByTestId("line-carry")).toHaveTextContent("৳1,411.00");
   });
 
   it("shows what you get back, last month's credit and the payment", async () => {

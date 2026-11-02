@@ -9,9 +9,9 @@ export function unwrap<T>(body: unknown): T {
   return body as T;
 }
 
-/** Where a signed-in user lands inside a mess until a dashboard exists. */
+/** Where a signed-in user lands inside a mess: the dashboard (members are staff-only). */
 export function messHomePath(messId: number): string {
-  return `/${messId}/members`;
+  return `/${messId}`;
 }
 
 export const messDetailKey = (messId: number) => ["mess", messId, "detail"] as const;

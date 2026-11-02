@@ -80,7 +80,7 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
         ...(row.carry_in_paisa !== 0
           ? [{
               key: "carry",
-              label: row.carry_in_paisa > 0 ? t("member.breakdown.carryDue") : t("member.breakdown.carryCredit"),
+              label: row.carry_in_paisa < 0 ? t("member.breakdown.carryDue") : t("member.breakdown.carryCredit"),
               value: money(Math.abs(row.carry_in_paisa)),
             }]
           : []),

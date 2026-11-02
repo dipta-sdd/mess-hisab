@@ -34,7 +34,8 @@ The user's own mess has 3 members (Shuvendu, Dipta, Nilu). **"Nilu" is just a pl
   - **Admin** — the creator; transferable. Mess settings, members, assigns the manager.
   - **Manager (cashier)** — manages everything money-related: edits/deletes any entry, records payments, closes the month, holds the cash. Can be the same person as Admin. The manager is also a normal member.
   - **Member** — adds own expenses, (optionally) own meals, views everything.
-- **Visibility:** members see everything in the mess, **read-only** (all expenses, meals, everyone's dues). *Why: builds trust and makes the "X doesn't pay" split easy to explain.* (An earlier idea of a per-mess "see only own numbers" setting was dropped.)
+- **Visibility (user decision, 2026-11-03, replacing the earlier "members see everything"):** a normal member sees **only their own things plus a few mess totals**: their own balance/statement, their own expenses (paid or entered by them), their own meals and payments, and mess-wide meal rate, total bazar and cash in the manager's hand. Admin/manager see everything as before. **The server enforces this** (other members' rows are never sent; another member's statement is 403; setup/audit/adjustments/recoverables/exports are staff-only).
+- **Navigation:** one bottom bar for everyone (Dashboard, Meals, Expenses, Payments, My statement); admin/manager additionally get a sidebar (☰ on phones) with Members, Fixed, Statements, Reports, Close month, Audit, Settings (admin only). Normal members have no sidebar.
 - **Strict data isolation between messes** (every table scoped by `mess_id`).
 - **Languages:** English + Bangla, switchable per user (incl. Bangla numerals/dates).
 - Each mess sets its own **month start day (1–28)** (default 1st). Some messes run e.g. 10th→9th.
@@ -64,9 +65,10 @@ There are exactly **two groups**, each with subcategories:
 - There is **no payment-method field** and **no member-to-member transfers** (both explicitly declined).
 
 ### Credits and dues across groups (decided with a worked example)
-- A credit in **either** group automatically reduces a due in the **other** group. Each person effectively has one running balance; the screen still shows the Fixed bill and Meals bill separately; overdue is computed after credit is applied.
-- Example: X spends 1,500 own money on bazar, Meals bill is 800 → +700 credit. If X still owes 2,300 Fixed, Fixed due becomes 1,600 automatically.
-- *Opus review had recommended keeping groups separate with a manual "move credit" entry; the user chose automatic netting.*
+- Each person has one running **total** balance (both groups together), which is what carries over at month close.
+- **"Fixed to pay" only goes down when the member pays toward it** (user decision, 2026-11-03, replacing the earlier automatic netting). A meals credit, e.g. bazar paid from their own pocket, does **not** reduce Fixed to pay during the month; it stays on the meals side and is settled through the total at month close.
+- Example: X spends 1,500 own money on bazar, Meals bill is 800 → +700 meals credit. X still owes 2,300 Fixed → Fixed to pay stays **2,300**; X's total is −1,600, and that is what carries over.
+- A Fixed overpayment still counts toward the meals deposit (unchanged).
 
 ---
 
