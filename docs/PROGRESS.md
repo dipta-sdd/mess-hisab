@@ -17,9 +17,9 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | A2 Engine: balances, doesn't-pay, close check | 1 | merged (private LR replaced by A1's) | worktree-agent-a901bbf0747fdcdb8 | gate: Balance + Close tests |
 | C Auth & accounts | 1 | merged (Google link hardened by lead) | worktree-agent-a518c2b2036905045 | |
 | D Web foundation | 1 | merged (formatMoney never rounds paisa away) | worktree-agent-a0a89bd43a2bb0d1e | |
-| M Months & categories API | 2 | blocked by C | | |
-| G Payments & cash API | 2 | blocked by C | | |
-| W1 Web: auth, mess, members, settings | 2 | blocked by C, D | | |
+| M Months & categories API | 2 | running | | |
+| G Payments & cash API | 2 | running | | |
+| W1 Web: auth, mess, members, settings | 2 | running | | |
 | E Expenses API | 3 | blocked by M, G | | |
 | F Meals API | 3 | blocked by M, G | | |
 | H Fixed setup & deposits API | 3 | blocked by M, G | | |
