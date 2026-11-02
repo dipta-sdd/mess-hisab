@@ -79,7 +79,7 @@ final class BalanceCalculator
                 $g($in->payments, 'meals', $m) + $g($in->ownPocket, 'meals', $m) + $g($in->ledger, 'meals', $m) - $g($in->charges, 'meals', $m),
             );
 
-            $fixedOutstanding = max(0, -($fixed->balancePaisa + max(0, $meals->balancePaisa)));
+            $fixedOutstanding = max(0, -$fixed->balancePaisa);
             $required = $in->depositRequired[$m] ?? 0;
             $depositOutstanding = max(0, $required - ($meals->paymentsPaisa + $meals->ownPocketPaisa + $meals->ledgerPaisa + max(0, $fixed->balancePaisa)));
 

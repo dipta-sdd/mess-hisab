@@ -15,10 +15,13 @@ use App\Models\MessMember;
 final class BalanceViews
 {
     /** @return array<string,mixed> */
-    public static function dashboard(MonthSnapshot $s, int $cashPoolPaisa, ?int $managerMemberId): array
+    public static function dashboard(MonthSnapshot $s, int $cashPoolPaisa, ?int $managerMemberId, ?int $onlyMemberId = null): array
     {
         $rows = [];
         foreach ($s->memberIds as $id) {
+            if ($onlyMemberId !== null && $id !== $onlyMemberId) {
+                continue;
+            }
             $member = $s->members->get($id);
             $rows[] = self::row($s, $member, $s->balances->members[$id]);
         }
@@ -50,7 +53,7 @@ final class BalanceViews
             ],
             'cash_pool_paisa' => $cashPoolPaisa,
             'manager_member_id' => $managerMemberId,
-            'manager_balance_paisa' => $managerBalance,
+            'manager_balance_paisa' => $onlyMemberId !== null ? null : $managerBalance,
             'members' => $rows,
         ];
     }

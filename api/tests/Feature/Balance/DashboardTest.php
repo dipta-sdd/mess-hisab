@@ -13,7 +13,7 @@ require_once __DIR__.'/BalanceHelpers.php';
 afterEach(fn () => $this->travelBack());
 
 it('replays PROJECT §7 example 2 over HTTP', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     [$x, $y, $z] = $ids;
     jExample2($mess, $month, $ids);
     jToday('2026-11-15');
@@ -35,7 +35,7 @@ it('replays PROJECT §7 example 2 over HTTP', function () {
 
     expect(jRow($d, $x))->toMatchArray([
         'fixed_bill_paisa' => 230000, 'meals_bill_paisa' => 80000, 'fixed_balance_paisa' => -230000, 'meals_balance_paisa' => 70000,
-        'balance_paisa' => -160000, 'fixed_outstanding_paisa' => 160000, 'fixed_overdue_days' => 5,
+        'balance_paisa' => -160000, 'fixed_outstanding_paisa' => 230000, 'fixed_overdue_days' => 5,
         'deposit_outstanding_paisa' => 0, 'deposit_overdue_days' => 0, 'meals_centi' => 2000,
     ]);
     expect(jRow($d, $y))->toMatchArray([
@@ -52,7 +52,7 @@ it('replays PROJECT §7 example 2 over HTTP', function () {
 });
 
 it('shows each statement line and reconciles to the dashboard total (example 2)', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     [$x, , $z] = $ids;
     jExample2($mess, $month, $ids);
     jToday('2026-11-15');
@@ -76,7 +76,7 @@ it('shows each statement line and reconciles to the dashboard total (example 2)'
 });
 
 it('applies whole-taka rounding per member and shows it as its own statement line (example 1)', function () {
-    [$mess, , $month, $ids] = jSetup('member', 4);
+    [$mess, , $month, $ids] = jSetup('manager', 4);
     $mess->update(['rounding_mode' => 'whole_taka', 'min_meals_enabled' => true, 'min_meals_centi' => 2000]);
     $bazar = jCategory($mess, ['name' => 'Bazar', 'group' => 'meals', 'split_type' => 'by_meal']);
     jExpense($mess, $month, $bazar, 800000, $ids[0]);
@@ -98,7 +98,7 @@ it('applies whole-taka rounding per member and shows it as its own statement lin
 });
 
 it('reports the extra collected by round-up mode', function () {
-    [$mess, , $month] = jSetup('member');
+    [$mess, , $month] = jSetup('manager');
     $mess->update(['rounding_mode' => 'round_up']);
     jBill($mess, $month, jCategory($mess, ['name' => 'Wifi']), 156345);
 
@@ -109,7 +109,7 @@ it('reports the extra collected by round-up mode', function () {
 });
 
 it('carries "last month due" from a closed earlier month and from opening rows', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     [$x, $y] = $ids;
     $oct = Month::factory()->closed()->create(['mess_id' => $mess->id, 'starts_on' => '2026-10-01', 'ends_on' => '2026-10-31']);
     // Oct, stored: X was charged 1000, paid 300 (so owes 700); Y was charged 100, paid 500 (credit 400).
@@ -133,7 +133,7 @@ it('carries "last month due" from a closed earlier month and from opening rows',
 });
 
 it('carries an earlier month that is still open (live charges, replayed in order)', function () {
-    [$mess, , $nov, $ids] = jSetup('member');
+    [$mess, , $nov, $ids] = jSetup('manager');
     $oct = Month::factory()->create(['mess_id' => $mess->id, 'starts_on' => '2026-10-01', 'ends_on' => '2026-10-31']);
     jBill($mess, $oct, jCategory($mess, ['name' => 'Wifi']), 90000);
     jPay($mess, $oct, $ids[0], 'fixed', 50000, '2026-10-04');
@@ -149,7 +149,7 @@ it('carries an earlier month that is still open (live charges, replayed in order
 });
 
 it('reads a closed month from its stored ledger rows, not from the raw bills', function () {
-    [$mess, , , $ids] = jSetup('member');
+    [$mess, , , $ids] = jSetup('manager');
     $oct = Month::factory()->closed()->create(['mess_id' => $mess->id, 'starts_on' => '2026-10-01', 'ends_on' => '2026-10-31', 'closed_at' => '2026-11-02 08:00:00']);
     // Nothing in bills/expenses/meals: only the rows task K would have written.
     $rows = [
@@ -177,7 +177,7 @@ it('reads a closed month from its stored ledger rows, not from the raw bills', f
 });
 
 it('counts overdue days after the deadline and none before or on it', function (string $today, int $days) {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     $month->update(['fixed_deadline' => '2026-11-10']);
     jBill($mess, $month, jCategory($mess, ['name' => 'Wifi']), 90000);
     jToday($today);
@@ -193,7 +193,7 @@ it('counts overdue days after the deadline and none before or on it', function (
 ]);
 
 it('stops counting overdue once the member has paid', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     $month->update(['fixed_deadline' => '2026-11-10']);
     jBill($mess, $month, jCategory($mess, ['name' => 'Wifi']), 90000);
     jPay($mess, $month, $ids[0], 'fixed', 30000);
@@ -205,7 +205,7 @@ it('stops counting overdue once the member has paid', function () {
 });
 
 it('shows a pending doesn\'t-pay request live without storing anything', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     jBill($mess, $month, jCategory($mess, ['name' => 'Wifi']), 90000);
     Recoverable::factory()->create(['mess_id' => $mess->id, 'month_id' => $month->id, 'debtor_member_id' => $ids[2], 'created_by_member_id' => $ids[2]]);
     $before = LedgerEntry::count();
@@ -222,7 +222,7 @@ it('shows a pending doesn\'t-pay request live without storing anything', functio
 });
 
 it('defaults to the month containing today and never creates one', function () {
-    [$mess, , $month] = jSetup('member');
+    [$mess, , $month] = jSetup('manager');
     jToday('2026-11-12');
     $count = Month::count();
 
@@ -238,7 +238,7 @@ it('lets an archived member read', function () {
 });
 
 it('lists an archived member as a row with their balance', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     $gone = MessMember::factory()->for($mess)->archived()->create();
     jPay($mess, $month, $gone->id, 'fixed', 12000);
 
@@ -254,7 +254,7 @@ it('needs a login', function () {
 });
 
 it('is 404 for a mess I am not in, and for another mess\'s or a missing month', function () {
-    [$mess, , $month] = jSetup('member');
+    [$mess, , $month] = jSetup('manager');
     $foreign = otherMess();
     $foreignMonth = Month::factory()->create(['mess_id' => $foreign->id]);
 
@@ -266,7 +266,7 @@ it('is 404 for a mess I am not in, and for another mess\'s or a missing month', 
 });
 
 it('writes nothing', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     jExample2($mess, $month, $ids);
     Recoverable::factory()->create(['mess_id' => $mess->id, 'month_id' => $month->id, 'debtor_member_id' => $ids[1], 'created_by_member_id' => $ids[1]]);
     $counts = fn () => [LedgerEntry::count(), Month::count(), AuditLog::count(), MessMember::count(), Recoverable::count()];

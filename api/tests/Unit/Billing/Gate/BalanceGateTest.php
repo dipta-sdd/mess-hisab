@@ -42,7 +42,7 @@ it('nets groups and counts overdue days for PROJECT §7 example 2', function () 
     expect($x->fixed->balancePaisa)->toBe(-230000)
         ->and($x->meals->balancePaisa)->toBe(70000)
         ->and($x->totalPaisa)->toBe(-160000)
-        ->and($x->fixedOutstandingPaisa)->toBe(160000)
+        ->and($x->fixedOutstandingPaisa)->toBe(230000)
         ->and($x->fixedOverdueDays)->toBe(5)
         ->and($x->depositOutstandingPaisa)->toBe(0)
         ->and($x->depositOverdueDays)->toBe(0)
@@ -111,4 +111,15 @@ it('excludes every debtor from the others and uses each debtor total before any 
     expect(array_map(fn ($m) => $m->totalPaisa, $r->members))->toBe([1 => 0, 2 => 0, 3 => -150, 4 => -150])
         ->and($r->doesntPay[0]->shares)->toBe([3 => 50, 4 => 50])
         ->and($r->doesntPay[1]->shares)->toBe([3 => 100, 4 => 100]);
+});
+
+it('fixed outstanding is not reduced by an own-pocket meals credit, but the total still nets', function () {
+    $ids = [1];
+    $m = BalanceCalculator::calculate(gateBalanceInput($ids, [
+        'charges' => gateGroups($ids, fixed: [1 => 100000]),
+        'ownPocket' => gateGroups($ids, meals: [1 => 60000]),
+    ]))->members[1];
+    expect($m->fixedOutstandingPaisa)->toBe(100000)
+        ->and($m->meals->balancePaisa)->toBe(60000)
+        ->and($m->totalPaisa)->toBe(-40000);
 });

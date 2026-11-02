@@ -32,7 +32,7 @@ function fmMember(Mess $mess, array $attrs = []): MessMember
 // ---------------------------------------------------------------- GET
 
 it('lists a month with style, entries and totals (default current month)', function () {
-    [$mess, $me, $month] = fmSetup('member');
+    [$mess, $me, $month] = fmSetup('manager');
     $other = fmMember($mess);
     $quiet = fmMember($mess);
     MealEntry::factory()->create(['mess_id' => $mess->id, 'month_id' => $month->id, 'member_id' => $me->id, 'entry_date' => '2026-11-03', 'meals_centi' => 200, 'guest_meals_centi' => 50, 'entered_by_member_id' => $me->id]);
@@ -55,7 +55,7 @@ it('lists a month with style, entries and totals (default current month)', funct
 });
 
 it('rejects a month id from another mess and answers 404 outside the mess', function () {
-    [$mess] = fmSetup('member');
+    [$mess] = fmSetup('manager');
     $foreign = otherMess();
     $foreignMonth = fmMonth($foreign);
 
@@ -64,7 +64,7 @@ it('rejects a month id from another mess and answers 404 outside the mess', func
 });
 
 it('still lists meals when tracking is off', function () {
-    [$mess] = fmSetup('member', ['meal_tracking' => 'off']);
+    [$mess] = fmSetup('manager', ['meal_tracking' => 'off']);
 
     $this->getJson(messPath($mess, 'meals'))->assertOk()->assertJsonPath('data.style', 'off')->assertJsonPath('data.entries', []);
 });

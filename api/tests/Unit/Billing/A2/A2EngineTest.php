@@ -95,7 +95,7 @@ it('debtor with no other active members leaves the whole amount as mismatch', fu
     expect($r->doesntPay[0]->shares)->toBe([])->and($r->doesntPay[0]->mismatchPaisa)->toBe(700);
 });
 
-it('cross-group netting: positive meals credit offsets fixed due; positive fixed credit offsets deposit', function () {
+it('cross-group: meals credit does NOT offset fixed due; positive fixed credit offsets deposit', function () {
     $ids = [1, 2];
     $r = BalanceCalculator::calculate(gateBalanceInput($ids, [
         'charges' => gateGroups($ids, fixed: [1 => 100000, 2 => 100000]),
@@ -103,8 +103,8 @@ it('cross-group netting: positive meals credit offsets fixed due; positive fixed
         'ownPocket' => gateGroups($ids, meals: [1 => 250000]),
         'depositRequired' => [1 => 100000, 2 => 100000],
     ]));
-    // m1: fixed -100000, meals +250000 -> outstanding 0
-    expect($r->members[1]->fixedOutstandingPaisa)->toBe(0)
+    // m1: fixed -100000, meals +250000 -> outstanding stays the full fixed due
+    expect($r->members[1]->fixedOutstandingPaisa)->toBe(100000)
         // m2: fixed +50000 (credit) -> deposit outstanding 100000-50000
         ->and($r->members[2]->fixed->balancePaisa)->toBe(50000)
         ->and($r->members[2]->depositOutstandingPaisa)->toBe(50000)
@@ -157,7 +157,7 @@ it('ledger adjustments count in their own group; meals ledger counts toward depo
         'depositRequired' => [1 => 5000],
     ]))->members[1];
     expect($r->fixed->balancePaisa)->toBe(-2000)->and($r->meals->balancePaisa)->toBe(3000)
-        ->and($r->fixedOutstandingPaisa)->toBe(0)->and($r->depositOutstandingPaisa)->toBe(2000);
+        ->and($r->fixedOutstandingPaisa)->toBe(2000)->and($r->depositOutstandingPaisa)->toBe(2000);
 });
 
 it('Excel October: manual doesnt-pay matching exactly has no mismatch', function () {

@@ -8,7 +8,7 @@ use App\Models\Month;
 require_once __DIR__.'/BalanceHelpers.php';
 
 it('lists every month newest first with per-month totals', function () {
-    [$mess, , $nov, $ids] = jSetup('member');
+    [$mess, , $nov, $ids] = jSetup('manager');
     $oct = Month::factory()->closed()->create(['mess_id' => $mess->id, 'starts_on' => '2026-10-01', 'ends_on' => '2026-10-31']);
     LedgerEntry::factory()->create(['mess_id' => $mess->id, 'month_id' => $oct->id, 'member_id' => $ids[0], 'type' => LedgerType::Charge, 'group' => 'fixed', 'amount_paisa' => -90000]);
     LedgerEntry::factory()->create(['mess_id' => $mess->id, 'month_id' => $oct->id, 'member_id' => $ids[1], 'type' => LedgerType::Charge, 'group' => 'meals', 'amount_paisa' => -60000]);
@@ -32,7 +32,7 @@ it('lists every month newest first with per-month totals', function () {
 });
 
 it('reads each month once, in order, with the carry flowing through', function () {
-    [$mess, , $nov, $ids] = jSetup('member');
+    [$mess, , $nov, $ids] = jSetup('manager');
     $oct = Month::factory()->create(['mess_id' => $mess->id, 'starts_on' => '2026-10-01', 'ends_on' => '2026-10-31']);
     jBill($mess, $oct, jCategory($mess, ['name' => 'Wifi']), 90000);
 
@@ -47,7 +47,7 @@ it('reads each month once, in order, with the carry flowing through', function (
 });
 
 it('is just the mess\'s own months', function () {
-    [$mess] = jSetup('member');
+    [$mess] = jSetup('manager');
     $foreign = otherMess();
     Month::factory()->create(['mess_id' => $foreign->id]);
 
@@ -64,6 +64,6 @@ it('needs a login and a mess I belong to', function () {
     $mess = Mess::factory()->create();
     $this->getJson(messPath($mess, 'history'))->assertUnauthorized();
 
-    jSetup('member');
+    jSetup('manager');
     $this->getJson(messPath($mess, 'history'))->assertNotFound();
 });

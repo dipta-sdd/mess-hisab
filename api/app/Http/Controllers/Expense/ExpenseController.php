@@ -37,6 +37,9 @@ class ExpenseController extends Controller
             ->when(isset($data['member_id']), fn ($q) => $q->where(fn ($w) => $w
                 ->where('created_by_member_id', $data['member_id'])
                 ->orWhere('paid_by_member_id', $data['member_id'])))
+            ->unless(currentMember()->isStaff(), fn ($q) => $q->where(fn ($w) => $w
+                ->where('created_by_member_id', currentMember()->id)
+                ->orWhere('paid_by_member_id', currentMember()->id)))
             ->orderByDesc('spent_on')->orderByDesc('id')
             ->get();
 

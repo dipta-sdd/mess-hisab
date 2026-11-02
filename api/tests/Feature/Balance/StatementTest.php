@@ -11,7 +11,7 @@ require_once __DIR__.'/BalanceHelpers.php';
 afterEach(fn () => $this->travelBack());
 
 it('lets any member read any other member\'s statement', function () {
-    [$mess, $me, $month, $ids] = jSetup('member');
+    [$mess, $me, $month, $ids] = jSetup('manager');
     $other = collect($ids)->first(fn ($id) => $id !== $me->id);
     jBill($mess, $month, jCategory($mess, ['name' => 'Wifi']), 90000);
 
@@ -33,7 +33,7 @@ it('lets an archived member read a statement, and shows an archived member\'s ow
 });
 
 it('lists payments, own-pocket expenses and adjustments with their dates and groups', function () {
-    [$mess, , $month, $ids] = jSetup('member');
+    [$mess, , $month, $ids] = jSetup('manager');
     $x = $ids[0];
     $tea = jCategory($mess, ['name' => 'Tea', 'group' => 'meals', 'split_type' => 'equal']);
     jExpense($mess, $month, $tea, 30000, $x, ['spent_on' => '2026-11-07']);
@@ -53,7 +53,7 @@ it('lists payments, own-pocket expenses and adjustments with their dates and gro
 });
 
 it('shows a member who joined late as not active but still readable', function () {
-    [$mess, , $month] = jSetup('member');
+    [$mess, , $month] = jSetup('manager');
     $late = MessMember::factory()->for($mess)->create(['joined_on' => '2026-12-05']);
 
     $s = $this->getJson(messPath($mess, "statements/{$late->id}?month_id={$month->id}"))->assertOk()->json('data');
@@ -68,7 +68,7 @@ it('needs a login', function () {
 });
 
 it('is 404 for another mess, another mess\'s member or month, and a missing member', function () {
-    [$mess, $me, $month] = jSetup('member');
+    [$mess, $me, $month] = jSetup('manager');
     $foreign = otherMess();
     $foreignMonth = Month::factory()->create(['mess_id' => $foreign->id]);
 

@@ -247,7 +247,7 @@ it('does not count pending cash expenses against the pool until approved, then c
 // ---------------------------------------------------------------- index
 
 it('lists expenses for any member with filters', function () {
-    [$mess, $me] = actingAsMember('member');
+    [$mess, $me] = actingAsMember('manager');
     $month = exMonth($mess);
     $other = MessMember::factory()->for($mess)->create();
     $catA = exCategory($mess);

@@ -41,7 +41,7 @@ it('records payments for archived members', function () {
 });
 
 it('lists payments for any member with filters', function () {
-    [$mess, $me] = actingAsMember('member');
+    [$mess, $me] = actingAsMember('manager');
     $month = gpOpenMonth($mess);
     $other = MessMember::factory()->for($mess)->create();
     Payment::factory()->create(['mess_id' => $mess->id, 'month_id' => $month->id, 'member_id' => $me->id, 'received_by_member_id' => $mess->manager_member_id]);

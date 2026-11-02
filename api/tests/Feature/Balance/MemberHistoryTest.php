@@ -13,7 +13,7 @@ afterEach(fn () => $this->travelBack());
 /** Closed October (stored charges, a carry into November) plus open November for a 3-member mess. */
 function mhSetup(): array
 {
-    [$mess, $me, $nov, $ids] = jSetup('member');
+    [$mess, $me, $nov, $ids] = jSetup('manager');
     $oct = Month::factory()->closed()->create(['mess_id' => $mess->id, 'starts_on' => '2026-10-01', 'ends_on' => '2026-10-31']);
     LedgerEntry::factory()->create(['mess_id' => $mess->id, 'month_id' => $oct->id, 'member_id' => $ids[0], 'type' => LedgerType::Charge, 'group' => 'fixed', 'amount_paisa' => -90000]);
     LedgerEntry::factory()->create(['mess_id' => $mess->id, 'month_id' => $oct->id, 'member_id' => $ids[0], 'type' => LedgerType::Charge, 'group' => 'meals', 'amount_paisa' => -60000]);
