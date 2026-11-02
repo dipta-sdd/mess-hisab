@@ -5,6 +5,7 @@ import { dashboardNav } from "./dashboard/nav";
 import { expensesNav } from "./expenses/nav";
 import { fixedNav } from "./fixed/nav";
 import { mealsNav } from "./meals/nav";
+import { monthsNav } from "./months/nav";
 import { nav as membersNav } from "./members/nav";
 import { paymentsNav } from "./payments/nav";
 import { nav as settingsNav } from "./settings/nav";
@@ -19,6 +20,7 @@ const items: NavItem[] = [
   paymentsNav,
   ...membersNav,
   ...settingsNav,
+  monthsNav,
   auditNav,
   // dashboardNav, expensesNav, ... (one NavItem per feature)
 ];
