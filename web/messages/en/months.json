@@ -1,0 +1,255 @@
+{
+  "nav": "Months",
+  "title": "Months",
+  "loading": "Loading…",
+  "unknownMember": "Unknown member",
+  "list": {
+    "label": "Months",
+    "empty": "There are no months yet."
+  },
+  "status": {
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "closedOn": "Closed on {date}",
+  "zeroMealResolution": {
+    "split_equal": "Nobody had meals this month, so the food cost was split equally.",
+    "carry": "Nobody had meals this month, so the food cost was carried to the next month."
+  },
+  "export": {
+    "title": "Export"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "loadFailed": "Could not load the months. Please try again.",
+    "month_closed": "This month is already closed, so it cannot be changed.",
+    "month_not_closed": "This month is not closed, so there is nothing to reopen.",
+    "member_not_active": "That member was not part of this month.",
+    "already_doesnt_pay": "This member already has an unpaid-share request in this month. Undo it first to make a new one.",
+    "not_pending": "This request is no longer pending, so it cannot be undone.",
+    "recoverable_not_open": "This amount cannot take repayments yet. It is recorded only after the month is closed.",
+    "exceeds_outstanding": "That is more than is still owed. Enter the remaining amount or less.",
+    "exceeds_credit": "That is more than the member's credit.",
+    "exceeds_cash": "There is not enough cash in the pool for that.",
+    "balances_changed": "Closing or reopening would have changed someone's balance, so nothing was changed. Please contact support.",
+    "not_latest_closed": "Only the latest closed month can be reopened. Use an adjustment in the current month instead.",
+    "payout_after_close": "A final payout was made after this month closed, so it cannot be reopened. Use an adjustment in the current month instead.",
+    "archive_after_close": "A member was archived after this month closed, so it cannot be reopened. Use an adjustment in the current month instead.",
+    "recoverable_repaid": "Someone has already repaid an unpaid share from this month, so it cannot be reopened. Use an adjustment in the current month instead."
+  },
+  "close": {
+    "title": "Close this month",
+    "intro": "Closing locks the month and carries each member's balance forward. Check first to see if anything needs fixing.",
+    "check": "Check if the month can be closed",
+    "recheck": "Check again",
+    "checking": "Checking the month…",
+    "ready": "Everything looks good. This month can be closed.",
+    "action": "Close month",
+    "confirmTitle": "Close this month?",
+    "confirmBody": "Balances are locked and the next month opens. You can reopen it later only if nothing has happened after it.",
+    "cancel": "Not yet",
+    "confirmYes": "Yes, close the month",
+    "closing": "Closing…",
+    "done": "{month} is now closed.",
+    "blockedByServer": "The month could not be closed. Fix the items below and try again.",
+    "zeroMeals": {
+      "legend": "Nobody had any meals this month",
+      "hint": "Choose what happens to the food cost.",
+      "split_equal": {
+        "label": "Split the food cost equally",
+        "help": "Every member pays an equal share this month."
+      },
+      "carry": {
+        "label": "Carry the food cost to next month",
+        "help": "Nobody pays now. The cost is added to next month's food cost."
+      }
+    },
+    "blocks": {
+      "title": "Things to fix before closing",
+      "pending_expenses": "{count, plural, one {# expense is} other {# expenses are}} still waiting for approval. Approve or reject them first.",
+      "pending_expenses_link": "Go to expenses",
+      "unallocated": "Some fixed bills have money that is not assigned to anyone:",
+      "unallocated_item": "{name}: {amount} not assigned",
+      "unallocated_link": "Go to fixed bills",
+      "doesnt_pay_mismatch": "The amounts typed for an unpaid share do not add up to what the member owes:",
+      "doesnt_pay_mismatch_item": "{name} owes {amount}, but the typed shares total {shares} (difference {mismatch}). Undo the request and add it again with the right amounts.",
+      "cash_mismatch": "The cash pool does not match the books:",
+      "cash_actual": "Actual cash",
+      "cash_expected": "Expected cash",
+      "cash_difference": "Difference",
+      "previous_month_open": "An earlier month is still open: {months}. Close it first.",
+      "zero_meals_unresolved": "Nobody has any meals this month, but the food cost is {amount}. Choose below what to do with it.",
+      "month_closed": "This month is already closed.",
+      "unknown": "Something else needs attention before this month can be closed."
+    }
+  },
+  "reopen": {
+    "title": "Reopen this month",
+    "intro": "Only the latest closed month can be reopened. Check what would change first.",
+    "review": "Review what reopening does",
+    "loading": "Working out what would change…",
+    "table": {
+      "caption": "Each member's balance before and after reopening",
+      "member": "Member",
+      "before": "Now",
+      "after": "After reopening",
+      "change": "Change"
+    },
+    "rowsToDelete": "{count, plural, one {# closing record will be deleted.} other {# closing records will be deleted.}}",
+    "nextMonth": {
+      "none": "There is no next month.",
+      "deleted": "The next month is empty, so it will be removed.",
+      "kept": "The next month stays open as it is. It cannot be closed until this month is closed again."
+    },
+    "action": "Reopen month",
+    "cannot": "This month cannot be reopened right now.",
+    "confirmTitle": "Reopen this month?",
+    "confirmBody": "The month becomes open again and its closing records are removed. You will need to close it again.",
+    "cancel": "Not yet",
+    "confirmYes": "Yes, reopen the month",
+    "reopening": "Reopening…",
+    "done": "{month} is open again.",
+    "onlyLatest": "Only the latest closed month can be reopened. To fix an older month, use an adjustment in the current month.",
+    "blocks": {
+      "title": "Why this month cannot be reopened",
+      "month_not_closed": {
+        "title": "Month is not closed",
+        "body": "There is nothing to reopen."
+      },
+      "not_latest_closed": {
+        "title": "A later month is already closed",
+        "body": "Only the latest closed month can be reopened. Use an adjustment in the current month instead.",
+        "later": "Later closed months: {months}"
+      },
+      "payout_after_close": {
+        "title": "A final payout was made after closing",
+        "body": "Money was paid out to a leaving member after this month closed. Use an adjustment in the current month instead."
+      },
+      "archive_after_close": {
+        "title": "A member was archived after closing",
+        "body": "A member was archived after this month closed. Use an adjustment in the current month instead.",
+        "members": "Archived: {names}"
+      },
+      "recoverable_repaid": {
+        "title": "An unpaid share was already repaid",
+        "body": "Someone has repaid money that was passed on to others from this month. Use an adjustment in the current month instead."
+      }
+    }
+  },
+  "doesntPay": {
+    "title": "A member doesn’t pay",
+    "intro": "If a member cannot pay their bill, the others take it over. The member still owes the mess and can repay later.",
+    "loading": "Loading…",
+    "none": "No requests this month.",
+    "pendingTitle": "Pending requests",
+    "pendingItem": "{name} doesn’t pay",
+    "undo": "Undo",
+    "undoFor": "Undo the request for {name}",
+    "formTitle": "Add a request",
+    "member": "Member who doesn’t pay",
+    "memberPlaceholder": "Choose a member",
+    "debt": "They owe {amount} this month. This is what the others will take over.",
+    "noDebt": "This member has nothing due right now.",
+    "modeLegend": "How should the others share it?",
+    "modes": {
+      "equal": {
+        "label": "Equally",
+        "help": "Everyone else pays the same part."
+      },
+      "by_meals": {
+        "label": "By meals",
+        "help": "Members who ate more take over more."
+      },
+      "manual": {
+        "label": "Typed amounts",
+        "help": "You type how much each member takes over."
+      }
+    },
+    "typedTitle": "How much does each member take over?",
+    "typedFor": "{name} (taka)",
+    "typedInvalid": "Enter taka like 250 or 250.50.",
+    "remaining": "Still to share: {amount}",
+    "remainingDone": "Fully shared. The amounts match exactly.",
+    "over": "Too much by {amount}. Lower some amounts.",
+    "saving": "Saving…",
+    "submit": "Save request"
+  },
+  "recoverables": {
+    "title": "Money owed back",
+    "intro": "When a member didn’t pay, the others covered it. This shows who owes what and who gets repaid.",
+    "loadFailed": "Could not load the list. Please try again.",
+    "loading": "Loading…",
+    "empty": "Nothing is owed back.",
+    "unknownMember": "Unknown member",
+    "modes": {
+      "equal": "Shared equally",
+      "by_meals": "Shared by meals",
+      "manual": "Typed amounts"
+    },
+    "status": {
+      "pending": "Month still open",
+      "open": "Waiting for repayment",
+      "settled": "Fully repaid",
+      "undone": "Undone"
+    },
+    "amount": "Amount owed",
+    "amountAtClose": "Set when the month closes",
+    "repaid": "Repaid so far",
+    "shares": "Who gets repaid",
+    "payableToExMember": "Payable to ex-member",
+    "repaymentSaved": "Repayment recorded.",
+    "record": "Record repayment",
+    "recordFor": "Record a repayment from {name}",
+    "form": {
+      "title": "Repayment from {name}",
+      "amount": "Amount (taka)",
+      "date": "Date received",
+      "cancel": "Cancel",
+      "save": "Save repayment",
+      "saving": "Saving…",
+      "amountRequired": "Enter the amount.",
+      "amountInvalid": "Enter taka like 1,000 or 250.50.",
+      "dateRequired": "Choose a date."
+    }
+  },
+  "adjustments": {
+    "title": "Adjustments",
+    "intro": "A correction to one member's balance. It is recorded in the current month.",
+    "loadFailed": "Could not load adjustments. Please try again.",
+    "loading": "Loading…",
+    "empty": "No adjustments yet.",
+    "listLabel": "Adjustments",
+    "unknownMember": "Unknown member",
+    "groups": {
+      "fixed": "Fixed bills",
+      "meals": "Meals"
+    },
+    "chargeAmount": "Charge {amount}",
+    "creditAmount": "Credit {amount}",
+    "form": {
+      "title": "Add an adjustment",
+      "member": "Member",
+      "memberPlaceholder": "Choose a member",
+      "group": "Applies to",
+      "direction": "What should happen?",
+      "charge": {
+        "label": "Charge",
+        "help": "The member owes more."
+      },
+      "credit": {
+        "label": "Credit",
+        "help": "The member owes less."
+      },
+      "amount": "Amount (taka)",
+      "note": "Reason",
+      "save": "Save adjustment",
+      "saving": "Saving…",
+      "saved": "Adjustment saved.",
+      "memberRequired": "Choose a member.",
+      "amountRequired": "Enter the amount.",
+      "amountZero": "The amount must be more than zero.",
+      "amountInvalid": "Enter taka like 1,000 or 250.50.",
+      "noteRequired": "Write a short reason."
+    }
+  }
+}

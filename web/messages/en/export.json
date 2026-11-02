@@ -1,0 +1,15 @@
+{
+  "month": "Export month (Excel)",
+  "statement": "Export statement (Excel)",
+  "memberLabel": "Member for the statement",
+  "memberPlaceholder": "Choose a member",
+  "preparing": "Preparing your file…",
+  "download": "Download Excel file",
+  "failed": "The export could not be created. Please try again.",
+  "timedOut": "This is taking longer than expected. Please try again in a moment.",
+  "errors": {
+    "request": "Could not start the export. Please try again.",
+    "invalid": "That export cannot be created. Check the month and member.",
+    "forbidden": "You do not have permission to export."
+  }
+}
