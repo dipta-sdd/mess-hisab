@@ -324,8 +324,31 @@ POST `/exports {type, month_id, member_id?}` (member) → 202 `Export`; GET `/ex
 ### Task N — audit
 GET `/audit?event&member_id&from&to&page` (member) → paginated `AuditLog[]`.
 
+### v3 — phone accounts (task P1 API, P2 web)
+Phones are Bangladesh mobiles, stored as `01XXXXXXXXX` (`App\Rules\BdMobile::normalize()`; `+880…`/`880…`/spaces accepted). `users.phone` unique, `users.email` nullable. An account is **locked** until `has_verified_contact` (verified phone, or Google-verified email): it can log in, call `auth/*`, but every `/api/messes/*` and `/api/invites/*/accept` route answers **403 `{code:"phone_unverified"}`** (middleware `phone.verified`, appended to the `mess` group by the lead).
+
+SMS codes (`phone_otps`, hash only): 6 digits (`random_int`), valid 5 min, an unexpired unconsumed code for the same phone+purpose is **reused** (no new SMS), resend allowed 60 s after `sent_at`, 5 wrong tries consume it. Sender is `App\Services\Sms\SmsSender` (`bulksmsbd` | `log` by `services.sms.driver`); a failed send deletes the code row and answers **502 `sms_failed`**. Throttles (per IP, and per user when logged in): send 3/min & 10/h, verify 5/min & 20/h → 429.
+
+| Method & path | Who | Body → Response |
+|---|---|---|
+| POST `/api/auth/register` | guest | `{name, phone, password, password_confirmation, email?, locale?}` → 201 `User` (`phone_verified:false`), logged in, verify code sent. 422 on taken phone/email. |
+| POST `/api/auth/login` | guest | `{login, password, remember?}` — `login` is a phone (any accepted form) or an email → `User`; bad creds 422 on `login`. Locked accounts log in normally. |
+| POST `/api/auth/phone/send` | auth | `{}` → 200 `{expires_at, resend_at}` — (re)sends the verify code to the user's unverified phone. 409 `already_verified`; 429 `otp_resend_wait` `{retry_after}` |
+| POST `/api/auth/phone/verify` | auth | `{code}` → `User` (now verified). 422 `otp_invalid` / `otp_expired` / `otp_too_many` (on `code`) |
+| POST `/api/auth/password/phone` | guest | `{phone}` → 202 always (no account enumeration); sends a reset code if the phone belongs to a user |
+| POST `/api/auth/password/phone/verify` | guest | `{phone, code}` → 200 `{reset_token}` (single use, 15 min) or 422 as above |
+| POST `/api/auth/password/phone/reset` | guest | `{phone, reset_token, password, password_confirmation}` → 200; logs out other sessions. 422 `reset_token` invalid |
+| POST `/api/auth/me/phone` | auth | `{phone}` → 200 `{expires_at, resend_at}` — sends a `change` code to the **new** number; current phone unchanged. 422 taken |
+| POST `/api/auth/me/phone/verify` | auth | `{phone, code}` → `User` with the new phone, verified |
+| GET `/api/auth/google/*` | guest | **404 while `config('auth.google_enabled')` is false** (default) |
+
+Removed from the UI (API kept for now): `forgot-password` / `reset-password` by email.
+
+### v3 — monthly report (task R)
+GET `/api/messes/{mess}/reports/monthly/{month}` (admin, manager; member 403; other mess 404) → `{month, mess, summary, members[], expenses[], meals|null, next_month:{month, fixed_deadline, rows:[{member_id, display_name, by_category:[{category_id, name, amount_paisa}], last_month_due_paisa, total_paisa}]}}`, all money paisa. 409 `month_not_closed`; 409 `next_month_bills_missing` `{next_month_id}` when the following month has no saved Fixed bill. Exact inner shapes: `web/src/features/reports/types.ts` (owned by R).
+
 ### Resource shapes (TS names in `contract.ts`)
-- `User {id, name, email, locale, has_password, has_google}`
+- `User {id, name, email|null, phone|null, phone_verified, has_verified_contact, locale, has_password, has_google}`
 - `Membership {mess_id, mess_name, member_id, is_admin, is_manager, archived}`
 - `Mess {id, name, currency, month_start_day, admin_member_id, manager_member_id, approval_required, rounding_mode, meal_tracking, meal_entry_by, breakfast_weight_centi, lunch_weight_centi, dinner_weight_centi, min_meals_enabled, min_meals_centi, min_payable_enabled, min_payable_paisa, deposit_paisa, fixed_due_day_offset, deposit_due_day_offset}`
 - `Member {id, display_name, user_id, has_account, is_admin, is_manager, joined_on, left_on, archived_at}`

@@ -20,10 +20,10 @@ use Illuminate\Support\Facades\Hash;
 /**
  * Local demo data from the owner's real sheet, `Meser hisab (Responses).xlsx` (dev only).
  *
- * Logins (all three use the password "password"):
- *   dipta@mess.test     Dipta, admin and manager (created the mess)
- *   shuvendu@mess.test  Shuvendu, member
- *   nilu@mess.test      Nilu, member
+ * Logins (phone or email; all three use the password "password"; phones already verified):
+ *   01700000001  dipta@mess.test     Dipta, admin and manager (created the mess)
+ *   01700000002  shuvendu@mess.test  Shuvendu, member
+ *   01700000003  nilu@mess.test      Nilu, member
  *
  * October 2026 (sheet `Sheet1`): the 26 bazar entries, each paid from the member's own pocket,
  * shared equally (the sheet has no meal counts, so meal tracking is off). October is closed, so
@@ -49,6 +49,8 @@ class DatabaseSeeder extends Seeder
         [46326, 'Shuvendu', 280],
     ];
 
+    private const PHONES = ['Dipta' => '01700000001', 'Shuvendu' => '01700000002', 'Nilu' => '01700000003'];
+
     private const RENT = ['Shuvendu' => 2000, 'Dipta' => 3500, 'Nilu' => 2000];
 
     private const OTHERS = ['Didi (cook)' => 1500, 'Wifi' => 1000, 'Electricity' => 1565];
@@ -58,6 +60,8 @@ class DatabaseSeeder extends Seeder
         $users = collect(['Dipta', 'Shuvendu', 'Nilu'])->mapWithKeys(fn (string $name) => [$name => User::factory()->create([
             'name' => $name,
             'email' => strtolower($name).'@mess.test',
+            'phone' => self::PHONES[$name],
+            'phone_verified_at' => now(),
             'password' => Hash::make(self::PASSWORD),
         ])]);
 

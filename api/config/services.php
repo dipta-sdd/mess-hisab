@@ -42,4 +42,16 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+
+    // SMS codes. `bulksmsbd` sends real texts; `log` writes them to the Laravel log (tests).
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'bulksmsbd'),
+    ],
+
+    'bulksmsbd' => [
+        'api_key' => env('BULKSMSBD_API_KEY'),
+        'sender_id' => env('BULKSMSBD_SENDER_ID'),
+        'url' => env('BULKSMSBD_URL', 'https://bulksmsbd.net/api/smsapi'),
+    ],
+
 ];

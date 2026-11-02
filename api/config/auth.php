@@ -114,4 +114,10 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    | Google sign-in is built but switched off for now (phone + SMS is the only signup).
+    | When false the Google routes answer 404 and the web hides the button.
+    */
+    'google_enabled' => (bool) env('GOOGLE_LOGIN_ENABLED', false),
+
 ];

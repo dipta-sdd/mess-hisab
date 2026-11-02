@@ -130,6 +130,7 @@ return [
     'prohibited_unless' => ':other যদি :values-এর মধ্যে না থাকে, তাহলে :attribute দেওয়া যাবে না।',
     'prohibits' => ':attribute থাকলে :other দেওয়া যাবে না।',
     'regex' => ':attribute-এর ফরম্যাট ঠিক নয়।',
+    'bd_mobile' => 'বাংলাদেশের মোবাইল নম্বর দিন, যেমন 01712345678।',
     'required' => ':attribute দিতে হবে।',
     'required_array_keys' => ':attribute-এ এগুলোর এন্ট্রি থাকতে হবে: :values।',
     'required_if' => ':other যখন :value, তখন :attribute দিতে হবে।',

@@ -22,7 +22,7 @@ function me(flags: { is_admin: boolean; is_manager: boolean }) {
   server.use(
     http.get(`${API_BASE_URL}/api/auth/me`, () =>
       HttpResponse.json({
-        user: { id: 1, name: "A", email: "a@x.com", locale: "en", has_password: true, has_google: false },
+        user: { id: 1, name: "A", email: "a@x.com", phone: "01700000001", phone_verified: true, has_verified_contact: true, locale: "en", has_password: true, has_google: false },
         memberships: [{ mess_id: 7, mess_name: "Green House", member_id: 3, archived: false, ...flags }],
       }),
     ),

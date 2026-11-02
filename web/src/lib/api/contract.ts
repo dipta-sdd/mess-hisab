@@ -38,7 +38,14 @@ export type DateString = string;
 /** ISO-8601 timestamp */
 export type DateTimeString = string;
 
-export interface User { id: number; name: string; email: string; locale: Locale; has_password: boolean; has_google: boolean }
+export interface User {
+  id: number; name: string; email: string | null; phone: string | null; phone_verified: boolean;
+  /** False = locked: only the verify-phone screen is usable (mess routes answer 403 phone_unverified). */
+  has_verified_contact: boolean;
+  locale: Locale; has_password: boolean; has_google: boolean;
+}
+/** Sent after an SMS code goes out. */
+export interface OtpSent { expires_at: DateTimeString; resend_at: DateTimeString }
 export interface Membership { mess_id: number; mess_name: string; member_id: number; is_admin: boolean; is_manager: boolean; archived: boolean }
 export interface Mess {
   id: number; name: string; currency: string; month_start_day: number;

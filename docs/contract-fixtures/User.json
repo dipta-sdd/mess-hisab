@@ -1,1 +1,1 @@
-{"id":1,"name":"Shuvendu","email":"shuvendu@example.com","locale":"en","has_password":true,"has_google":false}
+{"id":1,"name":"Shuvendu","email":"shuvendu@example.com","phone":"01700000002","phone_verified":true,"has_verified_contact":true,"locale":"en","has_password":true,"has_google":false}
