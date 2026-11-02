@@ -22,7 +22,7 @@
   "lines": { "title": "Details", "empty": "Nothing recorded this month yet." },
   "groups": { "fixed": "Fixed", "meals": "Meals", "other": "Other" },
   "kinds": {
-    "carry_in": "Brought forward from last month",
+    "carry_in": "Last month due",
     "fixed_bill": "Fixed bill",
     "meal_charge": "Meal charge",
     "rounding": "Rounding",
