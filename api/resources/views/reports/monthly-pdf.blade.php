@@ -13,10 +13,6 @@
     .muted { color: #6b7785; }
     .head td { vertical-align: bottom; line-height: 1.5; }
     table { border-collapse: collapse; width: 100%; }
-    /* Cards: labels in one row and values in the next, so every label and number sits on the same line. */
-    .tiles td { width: 20%; border-left: 1px solid #d5dbe1; border-right: 1px solid #d5dbe1; padding: 0 9pt; vertical-align: top; }
-    .tiles td.tlabel { border-top: 1px solid #d5dbe1; padding-top: 9pt; padding-bottom: 3pt; font-size: 7.5pt; color: #6b7785; text-transform: uppercase; }
-    .tiles td.tvalue { border-bottom: 1px solid #d5dbe1; padding-bottom: 10pt; font-size: 12pt; font-weight: bold; }
     .grid th { background: #eef2f6; font-size: 8.5pt; text-align: right; padding: 7pt 8pt; color: #3d4852; vertical-align: bottom; }
     .grid th.l, .grid td.l { text-align: left; }
     .grid td { text-align: right; padding: 8pt 7pt; white-space: nowrap; border-bottom: 1px solid #e3e8ed; }
@@ -37,24 +33,10 @@
         <td style="text-align: right;" class="muted">
             {{ $day($r['month']['starts_on']) }} – {{ $day($r['month']['ends_on']) }}<br>
             {{ $s['member_count'] }} members · {{ $s['expense_count'] }} expenses<br>
+            @if ($meals) Meal rate {{ $tk($meals['meal_rate_paisa']) }}<br> @endif
             @if ($r['month']['closed_at']) Closed {{ $day($r['month']['closed_at']) }} @endif
         </td>
     </tr>
-</table>
-
-<h2>Summary</h2>
-@php
-    $tiles = [
-        ['Charged', $tk($s['charged_paisa']), ''],
-        ['Paid in', $tk($s['paid_paisa']), ''],
-        ['Own pocket', $tk($s['spent_paisa']), ''],
-        ['Left to pay', $tk($s['total_due_paisa']), 'due'],
-        $meals ? ['Meal rate', $tk($meals['meal_rate_paisa']), ''] : ['Credit left', $tk($s['total_credit_paisa']), 'credit'],
-    ];
-@endphp
-<table class="tiles">
-    <tr>@foreach ($tiles as [$label]) <td class="tlabel" style="width: 20%;">{{ $label }}</td> @endforeach</tr>
-    <tr>@foreach ($tiles as [, $value, $tone]) <td class="tvalue" style="width: 20%;"><span class="{{ $tone }}">{{ $value }}</span></td> @endforeach</tr>
 </table>
 
 <h2>Each person this month</h2>
