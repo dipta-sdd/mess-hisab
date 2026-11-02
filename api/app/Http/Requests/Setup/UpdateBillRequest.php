@@ -52,8 +52,9 @@ class UpdateBillRequest extends FormRequest
 
             $active = app(\App\Services\Setup\BillSetup::class)->activeMemberIds($month);
             foreach ($overrides as $i => $row) {
-                $id = is_array($row) ? ($row['member_id'] ?? null) : null;
-                if (is_int($id) && ! in_array($id, $active, true)) {
+                // `integer` also accepts "5", so normalise before checking (overrideMap casts the same way).
+                $id = is_array($row) ? filter_var($row['member_id'] ?? null, FILTER_VALIDATE_INT) : false;
+                if ($id !== false && ! in_array($id, $active, true)) {
                     $v->errors()->add("overrides.{$i}.member_id", 'This member is not active in this month.');
                 }
             }

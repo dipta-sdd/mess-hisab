@@ -258,6 +258,12 @@ it('rejects duplicate override members and members not active in the month', fun
     $foreign = MessMember::factory()->for(otherMess())->create();
     $this->putJson(hBillPath($mess, $month, $wifi), ['overrides' => [['member_id' => $foreign->id, 'amount_paisa' => 1]]])
         ->assertUnprocessable();
+
+    // A numeric string passes `integer`; it must still be checked against the month's members.
+    $this->putJson(hBillPath($mess, $month, $wifi), ['overrides' => [['member_id' => (string) $foreign->id, 'amount_paisa' => 1]]])
+        ->assertUnprocessable()->assertJsonValidationErrors(['overrides.0.member_id']);
+    $this->putJson(hBillPath($mess, $month, $wifi), ['overrides' => [['member_id' => (string) $left->id, 'amount_paisa' => 1]]])
+        ->assertUnprocessable()->assertJsonValidationErrors(['overrides.0.member_id']);
 });
 
 it('needs the amount before a fixed bill can be saved', function () {

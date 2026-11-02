@@ -342,6 +342,26 @@ it('validates PATCH fields and keeps a member from re-pointing the payer', funct
     $this->patchJson(messPath($mess, "expenses/{$e->id}"), ['paid_by' => 'cash'])->assertUnprocessable()->assertJsonValidationErrors(['paid_by']);
 });
 
+it('keeps a non-manager from changing money on an expense not paid from their own pocket', function () {
+    [$mess, $me] = actingAsMember('member');
+    $month = exMonth($mess);
+    // Recorded while they were the manager: cash, and one paid by someone else.
+    $cash = exRecord($mess, $month, $me, ['paid_by' => 'cash', 'paid_by_member_id' => null]);
+    $other = MessMember::factory()->for($mess)->create();
+    $theirs = exRecord($mess, $month, $me, ['paid_by_member_id' => $other->id]);
+
+    foreach ([$cash, $theirs] as $e) {
+        foreach ([['amount_paisa' => 999999], ['note' => 'x'], ['spent_on' => '2026-11-06']] as $change) {
+            $this->patchJson(messPath($mess, "expenses/{$e->id}"), $change)
+                ->assertUnprocessable()->assertJsonValidationErrors(['paid_by']);
+        }
+        expect($e->fresh()->amount_paisa)->toBe($e->amount_paisa);
+    }
+
+    // Re-pointing it to their own pocket is the allowed way to take it over.
+    $this->patchJson(messPath($mess, "expenses/{$theirs->id}"), ['paid_by_member_id' => $me->id])->assertOk();
+});
+
 it('re-runs the short-cash rule when an edit changes amount or payer', function () {
     [$mess, $me] = actingAsMember('manager');
     $month = exMonth($mess);

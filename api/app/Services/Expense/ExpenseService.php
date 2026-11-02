@@ -94,6 +94,10 @@ class ExpenseService
                 $expense->paid_by = $paidBy;
                 $expense->paid_by_member_id = $this->resolvePayer($isManager, $actor, $paidBy, $requested, updating: true);
                 $expense->short_cash_converted = false;
+            } elseif (! $isManager && ($expense->paid_by !== PaidBy::Member || $expense->paid_by_member_id !== $actor->id)) {
+                // A member may only touch money they paid themselves, even when not re-sending the payer
+                // (e.g. a cash expense they recorded while they were the manager).
+                throw ValidationException::withMessages(['paid_by' => ['Only the manager can change an expense paid from mess cash or by someone else.']]);
             }
 
             foreach (['category_id', 'amount_paisa', 'note'] as $field) {
