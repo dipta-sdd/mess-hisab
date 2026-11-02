@@ -108,10 +108,10 @@ export interface DashboardTotals {
   total_meals_centi: number; meal_rate_paisa: number; rounding_extra_paisa: number; uncharged_food_paisa: number;
   zero_meals_unresolved: boolean; charged_paisa: number; paid_paisa: number;
 }
-/** GET /messes/{mess}/dashboard. cash_pool_paisa is the mess's current pool, whatever month is viewed. */
+/** GET /messes/{mess}/dashboard. For a normal member `members` holds only their own row and manager_balance_paisa is null. cash_pool_paisa is the mess's current pool, whatever month is viewed. */
 export interface Dashboard {
   month: MonthInfo; today: DateString; totals: DashboardTotals;
-  cash_pool_paisa: number; manager_member_id: number | null; manager_balance_paisa: number;
+  cash_pool_paisa: number; manager_member_id: number | null; manager_balance_paisa: number | null;
   members: DashboardRow[];
 }
 export type StatementLineKind =

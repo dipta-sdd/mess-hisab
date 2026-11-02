@@ -185,7 +185,7 @@ describe("MealsPage", () => {
     renderPage();
     await screen.findByLabelText("Meals: Karim, 3 Nov 2026");
     expect(screen.queryByLabelText("Meals: Rahim, 3 Nov 2026")).toBeNull();
-    expect(screen.getByText("You can change your own meals only. Other rows are read-only.")).toBeInTheDocument();
+    expect(screen.getByText("You can see and change your own meals only.")).toBeInTheDocument();
 
     await user.type(cell("Meals", "Karim"), "1.5");
     await user.click(screen.getByRole("button", { name: "Save meals" }));
@@ -193,13 +193,21 @@ describe("MealsPage", () => {
     expect(bulkCalled).toBe(false);
   });
 
-  it("manager-only mode: a plain member sees everything read-only", async () => {
+  it("a plain member sees only their own row", async () => {
+    mockApi({ by: "manager", manager: false, entries: [entry(1, 1, "2026-11-03", { meals_centi: 250 })] });
+    renderPage();
+    await screen.findByTestId("readonly-note");
+    expect(screen.queryByLabelText("Rahim, 3 Nov 2026")).toBeNull();
+    expect(screen.queryByTestId("total-1")).toBeNull();
+    expect(screen.getByTestId("total-2")).toBeInTheDocument();
+  });
+
+  it("manager-only mode: a plain member sees their own row read-only", async () => {
     mockApi({ by: "manager", manager: false, entries: [entry(1, 1, "2026-11-03", { meals_centi: 250 })] });
     renderPage();
     expect(await screen.findByTestId("readonly-note")).toBeInTheDocument();
     expect(screen.queryAllByRole("textbox")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: "Save meals" })).toBeNull();
-    expect(screen.getByLabelText("Rahim, 3 Nov 2026")).toHaveTextContent("2.5");
   });
 
   it("closed month is read-only for the manager too", async () => {

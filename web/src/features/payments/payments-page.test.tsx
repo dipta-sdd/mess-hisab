@@ -43,7 +43,7 @@ function mockApi({ manager = true, payments = [pay(1, 2, "fixed", 150000, { note
 const renderPage = () => renderWithProviders(<PaymentsPage />, { messId: 7 });
 
 describe("PaymentsPage", () => {
-  it("lists the current month's payments with totals and the cash pool", async () => {
+  it("lists the current month's payments with totals and the cash in the manager's hand", async () => {
     const requests = mockApi();
     renderPage();
     expect(await screen.findByText("Rent share")).toBeInTheDocument();
@@ -67,6 +67,15 @@ describe("PaymentsPage", () => {
     await waitFor(() => expect(requests.at(-1)).toContain("member_id=2"));
     await user.selectOptions(screen.getByLabelText("Month"), "10");
     await waitFor(() => expect(requests.at(-1)).toContain("month_id=10"));
+  });
+
+  it("hides the member filter and labels the cash for a normal member", async () => {
+    mockApi({ manager: false });
+    renderPage();
+    await screen.findByText("Rent share");
+    expect(screen.queryByLabelText("Filter by member")).toBeNull();
+    expect(screen.getByText("Cash in manager's hand")).toBeInTheDocument();
+    expect(screen.getByLabelText("Month")).toBeInTheDocument();
   });
 
   it("records a payment (manager happy path)", async () => {

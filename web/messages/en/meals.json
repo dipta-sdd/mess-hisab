@@ -27,7 +27,7 @@
   "closedNote": "This month is closed. Meals can be viewed but not changed.",
   "readOnlyManager": "Only the manager enters meals in this mess. You can view them here.",
   "readOnlySelf": "You cannot change meals in this view.",
-  "ownRowOnly": "You can change your own meals only. Other rows are read-only.",
+  "ownRowOnly": "You can see and change your own meals only.",
   "saved": "Meals saved.",
   "unsaved": "{count} unsaved changes",
   "noChanges": "No changes yet",

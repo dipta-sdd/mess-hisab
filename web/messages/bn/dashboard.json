@@ -28,11 +28,12 @@
     "charged": "মোট বিল",
     "paid": "পেমেন্ট এসেছে",
     "roundingExtra": "রাউন্ডিংয়ের বাড়তি",
-    "cashPool": "মেসের ক্যাশ",
+    "cashPool": "ম্যানেজারের হাতে ক্যাশ",
     "managerBalance": "ম্যানেজারের নিজের ব্যালেন্স",
     "managerBalanceNamed": "{name}-এর নিজের ব্যালেন্স",
     "zeroMealsUnresolved": "বাজার হয়েছে, কিন্তু এই মাসে কারও মিল নেই। কীভাবে ভাগ হবে ঠিক করতে মাস বন্ধ করুন।",
-    "unchargedFood": "খাবারের খরচের {amount} এখনও কারও ওপর ধরা হয়নি।"
+    "unchargedFood": "খাবারের খরচের {amount} এখনও কারও ওপর ধরা হয়নি।",
+    "cashHint": "ম্যানেজারের কাছে মেসের যে টাকা আছে"
   },
   "overdue": {
     "fixed": "বিল {days} দিন বকেয়া",
@@ -76,5 +77,30 @@
       "member": "সদস্য",
       "balance": "ব্যালেন্স"
     }
+  },
+  "member": {
+    "title": "আমার হিসাব",
+    "owe": "আপনার বকেয়া {amount}",
+    "getBack": "আপনি ফেরত পাবেন {amount}",
+    "settled": "সব মিটে গেছে",
+    "payByDeadline": "ফিক্সড বিলের জন্য {date}-এর মধ্যে {amount} দিন",
+    "breakdown": {
+      "title": "হিসাব যেভাবে হলো",
+      "meals": "আমার মিল",
+      "mealBill": "মিলের বিল",
+      "mealBillHint": "{meals} মিল × {rate}",
+      "fixedBill": "ফিক্সড বিল",
+      "carryDue": "আগের মাসের বকেয়া",
+      "carryCredit": "আগের মাসের জমা",
+      "paid": "পরিশোধ"
+    },
+    "statement": "আমার পুরো স্টেটমেন্ট দেখুন",
+    "mess": {
+      "title": "এই মাসে মেস",
+      "mealRate": "মিল রেট",
+      "totalBazar": "মোট বাজার",
+      "cash": "ম্যানেজারের হাতে ক্যাশ"
+    },
+    "noRow": "এই মাসের জন্য দেখানোর মতো হিসাব নেই।"
   }
 }
