@@ -113,7 +113,7 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
 
       {!s.member.is_active ? <p role="note" className="text-sm text-muted">{t("inactive")}</p> : null}
 
-      <section aria-labelledby="stmt-summary" className="rounded-2xl border border-default-200 bg-surface p-4">
+      <section aria-labelledby="stmt-summary" className="rounded-2xl border border-border bg-surface p-4">
         <h2 id="stmt-summary" className="sr-only">{t("summary.title")}</h2>
         <p className="text-sm text-muted">{t("summary.total")}</p>
         <p className="break-words text-3xl" data-testid="stmt-total"><Balance paisa={s.total_paisa} mode={mode} /></p>
@@ -137,9 +137,9 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
         ) : null}
       </section>
 
-      <section aria-labelledby="stmt-lines" className="rounded-2xl border border-default-200 bg-surface p-4">
+      <section aria-labelledby="stmt-lines" className="rounded-2xl border border-border bg-surface p-4">
         <h2 id="stmt-lines" className="text-lg font-semibold">{t("lines.title")}</h2>
-        <ul className="divide-y divide-default-200">
+        <ul className="divide-y divide-border">
           <li className="flex items-start justify-between gap-3 py-2" data-testid="line-carry_in">
             <p className="font-medium">{t("kinds.carry_in")}</p>
             <span className="shrink-0"><Balance paisa={carryIn} mode={mode} /></span>
@@ -150,7 +150,7 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
           sec.lines.length === 0 ? null : (
             <div key={sec.key} className="mt-3" data-testid={`section-${sec.key}`}>
               <h3 className="text-sm font-semibold text-muted">{t(`groups.${sec.key}`)}</h3>
-              <ul className="divide-y divide-default-200">{sec.lines.map(lineRow)}</ul>
+              <ul className="divide-y divide-border">{sec.lines.map(lineRow)}</ul>
             </div>
           ),
         )}

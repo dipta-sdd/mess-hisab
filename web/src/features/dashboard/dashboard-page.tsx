@@ -113,7 +113,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
         <h2 id="totals-title" className="sr-only">{t("totals.title")}</h2>
         <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.key} className="rounded-xl border border-default-200 bg-surface p-3" data-testid={`stat-${s.key}`}>
+            <div key={s.key} className="rounded-xl border border-border bg-surface p-3" data-testid={`stat-${s.key}`}>
               <dt className="text-xs text-muted">{s.label}</dt>
               <dd className="break-words text-lg font-semibold tabular-nums">{s.value}</dd>
             </div>
@@ -129,7 +129,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
               type="button"
               aria-pressed={view === "all"}
               onClick={() => setView("all")}
-              className={`min-h-11 rounded-lg border px-3 text-sm ${view === "all" ? "border-accent bg-accent text-accent-foreground" : "border-default-300"}`}
+              className={`min-h-11 rounded-lg border px-3 text-sm ${view === "all" ? "border-accent bg-accent text-accent-foreground" : "border-border"}`}
             >
               {t("members.all", { count: formatNumber(members.length, locale) })}
             </button>
@@ -137,7 +137,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
               type="button"
               aria-pressed={view === "overdue"}
               onClick={() => setView("overdue")}
-              className={`min-h-11 rounded-lg border px-3 text-sm ${view === "overdue" ? "border-danger bg-danger text-danger-foreground" : "border-default-300"}`}
+              className={`min-h-11 rounded-lg border px-3 text-sm ${view === "overdue" ? "border-danger bg-danger text-danger-foreground" : "border-border"}`}
             >
               {t("members.overdue", { count: formatNumber(overdueCount, locale) })}
             </button>
@@ -152,7 +152,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
           <>
             <ul className="flex flex-col gap-3 md:hidden">
               {shown.map((r) => (
-                <li key={r.member_id} className="rounded-xl border border-default-200 bg-surface p-3" data-testid={`member-card-${r.member_id}`}>
+                <li key={r.member_id} className="rounded-xl border border-border bg-surface p-3" data-testid={`member-card-${r.member_id}`}>
                   <Link href={stmtHref(r.member_id)} className="flex flex-col gap-2" aria-label={t("members.openStatement", { name: r.display_name })}>
                     <div className="flex items-start justify-between gap-2">
                       <span className="min-w-0 break-words font-semibold">
@@ -189,7 +189,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-sm tabular-nums">
                 <thead>
-                  <tr className="border-b border-default-200 text-start text-muted">
+                  <tr className="border-b border-border text-start text-muted">
                     <th scope="col" className="p-2 text-start">{t("members.member")}</th>
                     <th scope="col" className="p-2 text-end">{t("members.fixedBill")}</th>
                     <th scope="col" className="p-2 text-end">{t("members.mealsBill")}</th>
@@ -203,7 +203,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
                 </thead>
                 <tbody>
                   {shown.map((r) => (
-                    <tr key={r.member_id} className="border-b border-default-100" data-testid={`member-row-${r.member_id}`}>
+                    <tr key={r.member_id} className="border-b border-border" data-testid={`member-row-${r.member_id}`}>
                       <th scope="row" className="p-2 text-start font-medium">
                         <Link href={stmtHref(r.member_id)} className="text-accent underline">{r.display_name}</Link>
                         {r.is_archived ? <span className="ml-2 text-xs text-muted">{t("members.archived")}</span> : null}

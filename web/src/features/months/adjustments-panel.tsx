@@ -33,7 +33,7 @@ export function AdjustmentsPanel({
   const list = adjustments.data ?? [];
 
   return (
-    <section aria-labelledby="adj-title" className="flex flex-col gap-3 rounded-2xl border border-default-200 bg-surface p-4">
+    <section aria-labelledby="adj-title" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
       <h2 id="adj-title" className="text-lg font-semibold">{t("title")}</h2>
       <p className="text-sm text-muted">{t("intro")}</p>
 
@@ -48,7 +48,7 @@ export function AdjustmentsPanel({
       ) : (
         <ul className="flex flex-col gap-2" aria-label={t("listLabel")}>
           {list.map((a) => (
-            <li key={a.id} className="rounded-xl border border-default-200 p-3">
+            <li key={a.id} className="rounded-xl border border-border p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="break-words font-medium">{nameOf(a.member_id)}</p>
@@ -122,7 +122,7 @@ function AdjustmentForm({ messId, members }: { messId: number; members: Member[]
   const fieldError = (key: string) => (errors[key] ? <p role="alert" className="text-sm text-danger">{errors[key]}</p> : null);
 
   return (
-    <form onSubmit={submit} noValidate aria-label={t("form.title")} className="flex flex-col gap-3 rounded-xl bg-default-100 p-3">
+    <form onSubmit={submit} noValidate aria-label={t("form.title")} className="flex flex-col gap-3 rounded-xl bg-default p-3">
       <h3 className="font-medium">{t("form.title")}</h3>
       {banner ? <Banner>{banner}</Banner> : null}
       {saved ? <p role="status" className="text-sm">{t("form.saved")}</p> : null}

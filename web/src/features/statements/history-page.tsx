@@ -35,7 +35,7 @@ export function HistoryPage() {
         <>
           <ul className="flex flex-col gap-3 md:hidden">
             {rows.map((r) => (
-              <li key={r.month_id} className="rounded-xl border border-default-200 bg-surface p-3" data-testid={`history-card-${r.month_id}`}>
+              <li key={r.month_id} className="rounded-xl border border-border bg-surface p-3" data-testid={`history-card-${r.month_id}`}>
                 <Link href={href(r.month_id)} className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">{formatMonthLabel(r.starts_on, locale)}</span>
@@ -58,7 +58,7 @@ export function HistoryPage() {
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-sm tabular-nums">
               <thead>
-                <tr className="border-b border-default-200 text-muted">
+                <tr className="border-b border-border text-muted">
                   <th scope="col" className="p-2 text-start">{t("history.month")}</th>
                   <th scope="col" className="p-2 text-start">{t("history.status")}</th>
                   <th scope="col" className="p-2 text-end">{t("history.fixedCharged")}</th>
@@ -73,7 +73,7 @@ export function HistoryPage() {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.month_id} className="border-b border-default-100" data-testid={`history-row-${r.month_id}`}>
+                  <tr key={r.month_id} className="border-b border-border" data-testid={`history-row-${r.month_id}`}>
                     <th scope="row" className="p-2 text-start font-medium">
                       <Link href={href(r.month_id)} className="text-accent underline">{formatMonthLabel(r.starts_on, locale)}</Link>
                     </th>

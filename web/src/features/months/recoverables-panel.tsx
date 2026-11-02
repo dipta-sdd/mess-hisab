@@ -30,7 +30,7 @@ export function RecoverablesPanel({
   const list = recoverables.data ?? [];
 
   return (
-    <section aria-labelledby="rec-title" className="flex flex-col gap-3 rounded-2xl border border-default-200 bg-surface p-4">
+    <section aria-labelledby="rec-title" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
       <h2 id="rec-title" className="text-lg font-semibold">{t("title")}</h2>
       <p className="text-sm text-muted">{t("intro")}</p>
       {recoverables.isError ? (
@@ -71,13 +71,13 @@ function RecoverableRow({
   const debtor = nameOf(r.debtor_member_id);
 
   return (
-    <li className="rounded-xl border border-default-200 p-3" data-testid={`recoverable-${r.id}`}>
+    <li className="rounded-xl border border-border p-3" data-testid={`recoverable-${r.id}`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="break-words font-medium">{debtor}</p>
           <p className="text-sm text-muted">{t(`modes.${r.mode}`)}</p>
         </div>
-        <span className="shrink-0 rounded-full bg-default-100 px-3 py-1 text-xs font-medium">{t(`status.${r.status}`)}</span>
+        <span className="shrink-0 rounded-full bg-default px-3 py-1 text-xs font-medium">{t(`status.${r.status}`)}</span>
       </div>
 
       <dl className="mt-2 grid grid-cols-2 gap-2 text-sm tabular-nums">
@@ -176,7 +176,7 @@ function RepayForm({
   }
 
   return (
-    <form onSubmit={submit} noValidate aria-label={t("form.title", { name: debtor })} className="mt-3 flex flex-col gap-3 rounded-xl bg-default-100 p-3">
+    <form onSubmit={submit} noValidate aria-label={t("form.title", { name: debtor })} className="mt-3 flex flex-col gap-3 rounded-xl bg-default p-3">
       <h4 className="font-medium">{t("form.title", { name: debtor })}</h4>
       {banner ? <Banner>{banner}</Banner> : null}
       <div className="grid gap-3 sm:grid-cols-2">

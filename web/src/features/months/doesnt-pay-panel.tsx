@@ -91,7 +91,7 @@ export function DoesntPayPanel({
   const list = pending.data ?? [];
 
   return (
-    <section aria-labelledby="dp-title" className="flex flex-col gap-3 rounded-2xl border border-default-200 bg-surface p-4">
+    <section aria-labelledby="dp-title" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
       <h3 id="dp-title" className="text-lg font-semibold">{t("title")}</h3>
       <p className="text-sm text-muted">{t("intro")}</p>
 
@@ -104,7 +104,7 @@ export function DoesntPayPanel({
       ) : (
         <ul className="flex flex-col gap-2" aria-label={t("pendingTitle")}>
           {list.map((r) => (
-            <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-default-200 p-3">
+            <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-border p-3">
               <div className="min-w-0">
                 <p className="break-words font-medium">{t("pendingItem", { name: nameOf(r.debtor_member_id) })}</p>
                 <p className="text-sm text-muted">{t(`modes.${r.mode}.label`)}</p>
@@ -127,7 +127,7 @@ export function DoesntPayPanel({
       )}
 
       {isManager ? (
-        <form onSubmit={submit} noValidate aria-label={t("formTitle")} className="flex flex-col gap-3 border-t border-default-200 pt-3">
+        <form onSubmit={submit} noValidate aria-label={t("formTitle")} className="flex flex-col gap-3 border-t border-border pt-3">
           <h4 className="font-medium">{t("formTitle")}</h4>
 
           <div className="flex flex-col gap-1">
@@ -183,7 +183,7 @@ export function DoesntPayPanel({
                   {invalidIds.has(r.member_id) ? <p role="alert" className="text-sm text-danger">{t("typedInvalid")}</p> : null}
                 </div>
               ))}
-              <p className="rounded-lg bg-default-100 p-3 text-sm" role="status" data-testid="dp-remaining">
+              <p className="rounded-lg bg-default p-3 text-sm" role="status" data-testid="dp-remaining">
                 {remaining === 0
                   ? t("remainingDone")
                   : remaining > 0

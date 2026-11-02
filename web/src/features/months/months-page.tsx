@@ -80,11 +80,11 @@ export function MonthsPage() {
                       aria-current={current ? "true" : undefined}
                       onClick={() => { setPicked(m.id); setNotice(null); }}
                       className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border p-3 text-start focus:outline-2 focus:outline-offset-2 focus:outline-accent ${
-                        current ? "border-accent bg-accent/10" : "border-default-200 bg-surface"
+                        current ? "border-accent bg-accent/10" : "border-border bg-surface"
                       }`}
                     >
                       <span className="font-medium">{formatMonthLabel(m.starts_on, locale)}</span>
-                      <span className="rounded-full bg-default-100 px-3 py-1 text-xs font-medium">
+                      <span className="rounded-full bg-default px-3 py-1 text-xs font-medium">
                         {m.status === "open" ? t("status.open") : t("status.closed")}
                       </span>
                     </button>
@@ -96,7 +96,7 @@ export function MonthsPage() {
 
           {selected ? (
             <section aria-labelledby="month-title" className="flex flex-col gap-4" key={selected.id}>
-              <div className="rounded-2xl border border-default-200 bg-surface p-4">
+              <div className="rounded-2xl border border-border bg-surface p-4">
                 <h2 id="month-title" className="text-xl font-semibold">{formatMonthLabel(selected.starts_on, locale)}</h2>
                 <p className="text-sm text-muted">
                   {formatDate(selected.starts_on, locale)} – {formatDate(selected.ends_on, locale)} · {selected.status === "open" ? t("status.open") : t("status.closed")}
@@ -107,7 +107,7 @@ export function MonthsPage() {
                 ) : null}
               </div>
 
-              <section aria-labelledby="export-title" className="flex flex-col gap-3 rounded-2xl border border-default-200 bg-surface p-4">
+              <section aria-labelledby="export-title" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
                 <h3 id="export-title" className="text-lg font-semibold">{t("export.title")}</h3>
                 <ExportButton type="month" monthId={selected.id} />
                 <StatementExport monthId={selected.id} members={members} />
@@ -131,7 +131,7 @@ export function MonthsPage() {
                     onReopened={() => { setNotice(t("reopen.done", { month: formatMonthLabel(selected.starts_on, locale) })); }}
                   />
                 ) : (
-                  <p className="rounded-xl border border-default-200 p-3 text-sm text-muted">{t("reopen.onlyLatest")}</p>
+                  <p className="rounded-xl border border-border p-3 text-sm text-muted">{t("reopen.onlyLatest")}</p>
                 )
               ) : null}
 

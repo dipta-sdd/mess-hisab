@@ -59,7 +59,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
   }
 
   return (
-    <section aria-labelledby="close-title" className="flex flex-col gap-3 rounded-2xl border border-default-200 bg-surface p-4">
+    <section aria-labelledby="close-title" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
       <h3 id="close-title" className="text-lg font-semibold">{t("title")}</h3>
       <p className="text-sm text-muted">{t("intro")}</p>
 
@@ -76,7 +76,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
       {result && blocks.length > 0 ? <CloseBlocks blocks={blocks} ctx={ctx} /> : null}
 
       {showChoice ? (
-        <fieldset className="flex flex-col gap-2 rounded-xl border border-default-200 p-3">
+        <fieldset className="flex flex-col gap-2 rounded-xl border border-border p-3">
           <legend className="px-1 text-sm font-medium">{t("zeroMeals.legend")}</legend>
           <p className="text-sm text-muted">{t("zeroMeals.hint")}</p>
           {(["split_equal", "carry"] as const).map((value) => (
