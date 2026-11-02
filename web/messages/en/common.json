@@ -1,1 +1,23 @@
-{}
+{
+  "balance": {
+    "due": "Due {amount}",
+    "credit": "Credit {amount}",
+    "settled": "Settled"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "shell": {
+    "messFallback": "Mess",
+    "archived": "Archived member (read-only)",
+    "skipToContent": "Skip to content",
+    "sidebarNav": "Main navigation",
+    "bottomNav": "Main navigation (bottom bar)"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Could not reach the server. Check your connection.",
+    "forbidden": "You do not have permission to do this.",
+    "notFound": "We could not find that."
+  }
+}
