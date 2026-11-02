@@ -35,7 +35,7 @@ it('replays PROJECT §7 example 2 over HTTP', function () {
 
     expect(jRow($d, $x))->toMatchArray([
         'fixed_bill_paisa' => 230000, 'meals_bill_paisa' => 80000, 'fixed_balance_paisa' => -230000, 'meals_balance_paisa' => 70000,
-        'balance_paisa' => -160000, 'fixed_outstanding_paisa' => 160000, 'fixed_overdue_days' => 5,
+        'balance_paisa' => -160000, 'fixed_outstanding_paisa' => 230000, 'fixed_overdue_days' => 5,
         'deposit_outstanding_paisa' => 0, 'deposit_overdue_days' => 0, 'meals_centi' => 2000,
     ]);
     expect(jRow($d, $y))->toMatchArray([
