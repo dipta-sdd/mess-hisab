@@ -20,10 +20,10 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | M Months & categories API | 2 | merged | worktree-agent-ab1bbe24c59d5bb47 | |
 | G Payments & cash API | 2 | merged | worktree-agent-aee041d75e389152c | |
 | W1 Web: auth, mess, members, settings | 2 | running | | |
-| E Expenses API | 3 | blocked by M, G | | |
-| F Meals API | 3 | blocked by M, G | | |
-| H Fixed setup & deposits API | 3 | blocked by M, G | | |
-| W2 Web: payments | 3 | blocked by G | | |
+| E Expenses API | 3 | running | | |
+| F Meals API | 3 | running | | |
+| H Fixed setup & deposits API | 3 | running | | |
+| W2 Web: payments | 3 | running | | |
 | J Live balances API | 4 | blocked by A1, A2, E, F, H | | |
 | W3 Web: expenses | 4 | | | |
 | W4 Web: meals & fixed setup | 4 | | | |
