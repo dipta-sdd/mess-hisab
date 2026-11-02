@@ -4,29 +4,25 @@ namespace App\Services\Payment;
 
 use App\Models\Mess;
 use App\Models\Month;
+use App\Services\Month\Calendar;
+use App\Services\Month\CalendarException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 
 /**
  * The single place Task G finds "the month a payment date belongs to".
- * TODO(lead): switch the lookup to App\Services\Month\Calendar::monthFor() on merge (Task M).
- * Never creates months.
+ * Delegates to Calendar::monthFor(), which creates missing (gap) months up to today's.
  */
 class PaymentMonth
 {
-    /** @throws ValidationException no month covers the date (422 on paid_on) */
+    /** @throws ValidationException the date can't be placed in a month (422 on paid_on) */
     public static function find(Mess $mess, string $date): Month
     {
-        $month = Month::query()->forMess($mess->id)
-            ->whereDate('starts_on', '<=', $date)
-            ->whereDate('ends_on', '>=', $date)
-            ->first();
-
-        if ($month === null) {
-            throw ValidationException::withMessages(['paid_on' => ['There is no month for this date.']]);
+        try {
+            return app(Calendar::class)->monthFor($mess, $date);
+        } catch (CalendarException $e) {
+            throw ValidationException::withMessages(['paid_on' => [$e->getMessage()]]);
         }
-
-        return $month;
     }
 
     /** The open month of that date; a closed one gives 409 month_closed. */
