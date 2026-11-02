@@ -2,7 +2,9 @@
   "nav": "Dashboard",
   "title": "Dashboard",
   "loading": "Loading…",
-  "links": { "history": "Month history" },
+  "links": {
+    "history": "Month history"
+  },
   "errors": {
     "loadFailed": "Could not load the dashboard. Please try again.",
     "notFound": "That month was not found."
@@ -26,11 +28,12 @@
     "charged": "Charged",
     "paid": "Paid in",
     "roundingExtra": "Rounding extra",
-    "cashPool": "Cash pool",
+    "cashPool": "Cash in manager's hand",
     "managerBalance": "Manager's own balance",
     "managerBalanceNamed": "{name}'s own balance",
     "zeroMealsUnresolved": "Food was bought but nobody has any meals this month. Close the month to decide how to split it.",
-    "unchargedFood": "{amount} of food cost is not charged to anyone yet."
+    "unchargedFood": "{amount} of food cost is not charged to anyone yet.",
+    "cashHint": "Money the manager is holding for the mess"
   },
   "overdue": {
     "fixed": "Bills {days} days overdue",
@@ -74,5 +77,30 @@
       "member": "Member",
       "balance": "Balance"
     }
+  },
+  "member": {
+    "title": "My balance",
+    "owe": "You owe {amount}",
+    "getBack": "You get back {amount}",
+    "settled": "All settled",
+    "payByDeadline": "Pay {amount} for fixed by {date}",
+    "breakdown": {
+      "title": "How it adds up",
+      "meals": "My meals",
+      "mealBill": "Meal bill",
+      "mealBillHint": "{meals} meals × {rate}",
+      "fixedBill": "Fixed bill",
+      "carryDue": "Last month due",
+      "carryCredit": "Last month credit",
+      "paid": "Paid"
+    },
+    "statement": "See my full statement",
+    "mess": {
+      "title": "Mess this month",
+      "mealRate": "Meal rate",
+      "totalBazar": "Total bazar",
+      "cash": "Cash in manager's hand"
+    },
+    "noRow": "No balance to show for this month."
   }
 }

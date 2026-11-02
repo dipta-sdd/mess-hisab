@@ -239,6 +239,15 @@ describe("ExpensesPage list", () => {
     await waitFor(() => expect(requests.at(-1)).toContain("month_id=10"));
   });
 
+  it("hides the member filter for a normal member but keeps the others", async () => {
+    mockApi({ manager: false });
+    renderPage();
+    await screen.findByText("November rent");
+    expect(screen.queryByLabelText("Recorded or paid by")).toBeNull();
+    expect(screen.getByLabelText("Status")).toBeInTheDocument();
+    expect(screen.getByLabelText("Filter by category")).toBeInTheDocument();
+  });
+
   it("hides edit/delete a member can't use, and shows the server's 409 anyway", async () => {
     // Member 2, approval on: pending own expense is editable, approved own expense is not.
     mockApi({ manager: false });

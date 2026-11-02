@@ -68,13 +68,16 @@ export function MealsPage() {
   const mess = messQ.data?.mess;
   const me = messQ.data?.me;
   const isManager = Boolean(me?.is_manager);
+  const isStaff = isManager || Boolean(me?.is_admin);
   const style = mess?.meal_tracking ?? "daily_number";
   const closed = month?.status === "closed";
 
   const members = useMemo(() => {
     if (!month) return [] as Member[];
-    return (membersQ.data ?? []).filter((m) => m.joined_on <= month.ends_on && (m.left_on === null || m.left_on >= month.starts_on));
-  }, [membersQ.data, month]);
+    return (membersQ.data ?? []).filter(
+      (m) => (isStaff || m.id === me?.id) && m.joined_on <= month.ends_on && (m.left_on === null || m.left_on >= month.starts_on),
+    );
+  }, [membersQ.data, month, isStaff, me?.id]);
 
   const days = useMemo(() => (month ? daysBetween(month.starts_on, month.ends_on) : []), [month]);
   const entryMap = useMemo(() => {

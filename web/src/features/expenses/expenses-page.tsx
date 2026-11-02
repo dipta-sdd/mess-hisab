@@ -46,6 +46,7 @@ export function ExpensesPage() {
   const mess = messQ.data?.mess;
   const me = messQ.data?.me;
   const isManager = Boolean(me?.is_manager);
+  const isStaff = isManager || Boolean(me?.is_admin);
   const pendingQ = usePendingExpenses(messId, isManager);
   const mode = mess?.rounding_mode ?? "two_decimals";
   const members = membersQ.data ?? [];
@@ -118,14 +119,16 @@ export function ExpensesPage() {
             </option>
           ))}
         </Select>
-        <Select id="member-filter" label={t("filters.member")} value={memberFilter ?? ""} onChange={(v) => setMemberFilter(v === "" ? null : Number(v))}>
-          <option value="">{t("filters.allMembers")}</option>
-          {members.map((m: Member) => (
-            <option key={m.id} value={m.id}>
-              {m.display_name}
-            </option>
-          ))}
-        </Select>
+        {isStaff ? (
+          <Select id="member-filter" label={t("filters.member")} value={memberFilter ?? ""} onChange={(v) => setMemberFilter(v === "" ? null : Number(v))}>
+            <option value="">{t("filters.allMembers")}</option>
+            {members.map((m: Member) => (
+              <option key={m.id} value={m.id}>
+                {m.display_name}
+              </option>
+            ))}
+          </Select>
+        ) : null}
         <Select id="category-filter" label={t("filters.category")} value={categoryFilter ?? ""} onChange={(v) => setCategoryFilter(v === "" ? null : Number(v))}>
           <option value="">{t("filters.allCategories")}</option>
           {activeCategories.map((c) => (

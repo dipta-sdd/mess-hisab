@@ -38,6 +38,7 @@ export function PaymentsPage() {
 
   const mess = messQ.data?.mess;
   const isManager = Boolean(messQ.data?.me.is_manager);
+  const isStaff = isManager || Boolean(messQ.data?.me.is_admin);
   const mode = mess?.rounding_mode ?? "two_decimals";
   const members = membersQ.data ?? [];
   const nameOf = (id: number | null) => members.find((m) => m.id === id)?.display_name ?? t("list.unknownMember");
@@ -97,20 +98,22 @@ export function PaymentsPage() {
             ))}
           </select>
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="member-filter" className="text-sm font-medium">{t("filter.label")}</label>
-          <select
-            id="member-filter"
-            className={fieldClassInvalid}
-            value={memberFilter ?? ""}
-            onChange={(e) => setMemberFilter(e.target.value === "" ? null : Number(e.target.value))}
-          >
-            <option value="">{t("filter.all")}</option>
-            {members.map((m: Member) => (
-              <option key={m.id} value={m.id}>{m.display_name}</option>
-            ))}
-          </select>
-        </div>
+        {isStaff ? (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="member-filter" className="text-sm font-medium">{t("filter.label")}</label>
+            <select
+              id="member-filter"
+              className={fieldClassInvalid}
+              value={memberFilter ?? ""}
+              onChange={(e) => setMemberFilter(e.target.value === "" ? null : Number(e.target.value))}
+            >
+              <option value="">{t("filter.all")}</option>
+              {members.map((m: Member) => (
+                <option key={m.id} value={m.id}>{m.display_name}</option>
+              ))}
+            </select>
+          </div>
+        ) : null}
       </div>
 
       <section aria-labelledby="totals-title" className="grid grid-cols-2 gap-3">

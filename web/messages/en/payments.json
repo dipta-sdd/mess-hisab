@@ -2,7 +2,7 @@
   "nav": "Payments",
   "title": "Payments",
   "cash": {
-    "label": "Cash pool",
+    "label": "Cash in manager's hand",
     "hint": "Money the manager is holding for the mess"
   },
   "month": {
