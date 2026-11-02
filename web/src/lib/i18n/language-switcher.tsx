@@ -29,11 +29,32 @@ export function useSetLocale() {
 
 const LABELS: Record<AppLocale, string> = { en: "English", bn: "বাংলা" };
 
-/** Compact EN | বাংলা toggle. */
-export function LanguageSwitcher({ className = "" }: { className?: string }) {
+const SHORT: Record<AppLocale, string> = { en: "EN", bn: "বাং" };
+
+/**
+ * EN | বাংলা toggle. `compact` is one small button that switches to the other language
+ * (it shows that language's short name), for tight spots like the sidebar header.
+ */
+export function LanguageSwitcher({ className = "", compact = false }: { className?: string; compact?: boolean }) {
   const current = useLocale();
   const t = useTranslations("common");
   const setLocale = useSetLocale();
+
+  if (compact) {
+    const other = locales.find((locale) => locale !== current) ?? locales[0];
+    return (
+      <button
+        type="button"
+        lang={other}
+        onClick={() => setLocale(other)}
+        aria-label={`${t("language.label")}: ${LABELS[other]}`}
+        title={LABELS[other]}
+        className={`inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border text-sm font-medium hover:bg-default ${className}`}
+      >
+        {SHORT[other]}
+      </button>
+    );
+  }
 
   return (
     <div role="group" aria-label={t("language.label")} className={`inline-flex overflow-hidden rounded-lg border border-border text-sm ${className}`}>

@@ -1,4 +1,5 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import type { NavItem } from "@/features/types";
@@ -73,8 +74,8 @@ describe("AppShell", () => {
     renderWithProviders(<AppShell items={[]}>hello</AppShell>, { messId: 7, locale: "bn" });
     expect(screen.getByRole("main")).toHaveTextContent("hello");
     expect(screen.queryByRole("navigation")).toBeNull();
-    expect(screen.getAllByRole("button", { name: "বাংলা" }).length).toBeGreaterThan(0);
-    expectBanglaOnly(["English", "hello"]);
+    expect(screen.getByRole("button", { name: "ভাষা: English" })).toHaveTextContent("EN");
+    expectBanglaOnly(["English", "EN", "hello", "A"]);
   });
 
   it("keeps content clear of the fixed bottom nav (safe area) and scrolls many tabs sideways", async () => {
@@ -85,5 +86,29 @@ describe("AppShell", () => {
     const bottom = screen.getAllByRole("navigation").find((n) => n.className.includes("fixed"));
     expect(bottom?.className).toContain("env(safe-area-inset-bottom)");
     expect(bottom?.querySelector("ul")?.className).toContain("overflow-x-auto");
+  });
+
+  it("puts the account in one sidebar row: profile link and a log out icon", async () => {
+    me({ is_admin: false, is_manager: false });
+    renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
+    const account = await screen.findByRole("group", { name: "Your account" });
+    await waitFor(() => expect(account.querySelector('a[href="/7/profile"]')).toHaveTextContent("A"));
+    const buttons = account.querySelectorAll("button");
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveAccessibleName("Log out");
+  });
+
+  it("opens a phone account menu with profile, language and log out", async () => {
+    me({ is_admin: false, is_manager: false });
+    renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Your account" }));
+    const menu = await screen.findByRole("dialog", { name: "Your account" });
+    expect(menu.querySelector('a[href="/7/profile"]')).toHaveTextContent("Profile");
+    expect(menu.querySelector('[role="group"][aria-label="Language"]')).not.toBeNull();
+    expect([...menu.querySelectorAll("button")].some((b) => b.textContent?.includes("Log out"))).toBe(true);
+
+    await user.click(menu.querySelector('a[href="/7/profile"]')!);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 });
