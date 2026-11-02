@@ -1,0 +1,74 @@
+{
+  "nav": "Fixed bills",
+  "title": "Fixed bills setup",
+  "loading": "Loading…",
+  "saved": "Saved.",
+  "closedNote": "This month is closed. You can look at the setup but not change it.",
+  "readOnlyNote": "Only the manager can change the setup. You can see how each bill is shared.",
+  "monthPicker": { "label": "Month", "open": "Open", "closed": "Closed" },
+  "groups": { "fixed": "Fixed bill", "meals": "Meals group" },
+  "split": {
+    "equal": "Shared equally",
+    "fixed_per_person": "Set amount per person",
+    "by_meal": "By meals"
+  },
+  "month": {
+    "title": "Deadlines and deposit",
+    "fixedDeadline": "Fixed bills deadline",
+    "depositDeadline": "Deposit deadline",
+    "deposit": "Deposit per member (taka)",
+    "none": "Not set",
+    "hint": "Leave a date empty for no deadline. Members with their own deposit below keep that amount."
+  },
+  "bills": {
+    "title": "Bills this month",
+    "empty": "There are no bills to set up for this month.",
+    "byMealNote": "Food bought for the meal pool is shared by meals and is worked out automatically."
+  },
+  "bill": {
+    "amount": "Bill amount (taka)",
+    "fromExpenses": "The total comes from approved expenses in this category.",
+    "shares": "Each person's share",
+    "override": "Set by hand (taka)",
+    "amountEach": "Amount (taka)",
+    "auto": "Auto",
+    "setByHand": "Set by hand",
+    "unknownCategory": "Category"
+  },
+  "unallocated": {
+    "positive": "Unallocated {amount}",
+    "negative": "Over-allocated by {amount}",
+    "accepted": "accepted",
+    "saveFirst": "Save your changes first."
+  },
+  "members": {
+    "title": "Deposit and minimum meals per member",
+    "hint": "Leave a box empty to use the month's default.",
+    "deposit": "Deposit (taka)",
+    "depositDefault": "Default {amount}",
+    "minMeals": "Minimum meals",
+    "minMealsDefault": "None",
+    "defaultValue": "Default"
+  },
+  "actions": {
+    "saveBill": "Save bill",
+    "saveMonth": "Save deadlines and deposit",
+    "saveMember": "Save",
+    "saving": "Saving…",
+    "spread": "Spread",
+    "accept": "Accept"
+  },
+  "errors": {
+    "amount_required": "Enter the bill's amount first.",
+    "nothing_to_spread": "Nothing is left unallocated, so there is nothing to spread.",
+    "over_allocated": "Too much is allocated. Lower someone's amount or raise the bill.",
+    "category_archived": "This category is archived and can't be changed.",
+    "month_closed": "That month is closed, so the setup can't be changed.",
+    "forbidden": "Only the manager can change the setup.",
+    "badAmount": "Enter taka like 1,000 or 521.50 (up to 2 decimals, no minus sign).",
+    "badValue": "Check the highlighted boxes: taka like 500 or 12.50, meals like 20 or 12.5.",
+    "generic": "Something went wrong. Please try again.",
+    "loadFailed": "Could not load the setup.",
+    "noMonth": "No month is available yet."
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "nav": "Meals",
+  "title": "Meals",
+  "loading": "Loading…",
+  "member": "Member",
+  "unknownMember": "Unknown member",
+  "totalLabel": "Total",
+  "month": { "label": "Month", "open": "Open", "closed": "Closed" },
+  "view": { "label": "View", "day": "One day", "grid": "Whole month" },
+  "day": { "pick": "Pick a day", "prev": "Previous day", "next": "Next day" },
+  "cell": {
+    "meals": "Meals",
+    "guests": "Guest meals",
+    "guestPlaceholder": "Guests",
+    "guestsShort": "+{count} guest"
+  },
+  "ticks": {
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "short": { "breakfast": "B", "lunch": "L", "dinner": "D" }
+  },
+  "off": {
+    "title": "Meal tracking is off",
+    "body": "This mess does not track meals, so there is nothing to enter here. The admin can turn it on in settings."
+  },
+  "closedNote": "This month is closed. Meals can be viewed but not changed.",
+  "readOnlyManager": "Only the manager enters meals in this mess. You can view them here.",
+  "readOnlySelf": "You cannot change meals in this view.",
+  "ownRowOnly": "You can change your own meals only. Other rows are read-only.",
+  "saved": "Meals saved.",
+  "unsaved": "{count} unsaved changes",
+  "noChanges": "No changes yet",
+  "actions": { "save": "Save meals", "saving": "Saving…", "discard": "Discard changes" },
+  "errors": {
+    "fixCells": "Meals must be whole or half numbers like 2 or 2.5. Please fix: {cells}",
+    "trackingOff": "Meal tracking is turned off for this mess.",
+    "monthClosed": "That month is closed, so meals in it can't be changed.",
+    "forbidden": "You are not allowed to change these meals.",
+    "generic": "Something went wrong. Please try again.",
+    "loadFailed": "Could not load meals.",
+    "noMonth": "No month is available yet."
+  }
+}
