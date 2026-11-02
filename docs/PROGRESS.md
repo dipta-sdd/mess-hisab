@@ -38,6 +38,7 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | P1b API messages in user language | 7 | merged | worktree-agent-a9e0c96123766d394 | api only |
 | P2 responsive pass | 7 | merged | worktree-agent-a497cacd337843617 | |
 | P3 PWA | 7 | done | main | lead: manifest + icons + viewport; no service worker on purpose (no stale balances offline) |
+| Final browser pass | — | done | main | lead: full flow at 375px and desktop, English and Bangla; 4 fixes in bf2df75 |
 
 ## Test commands
 - API: `cd api && DB_DATABASE=mh_test_<task> php artisan test` (DBs mh_test_{a1,a2,c,m,g,e,f,h,j,k,l,n} exist; create others via `php artisan tinker --execute 'DB::statement("CREATE DATABASE mh_test_x")'`)
@@ -81,3 +82,7 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
   - Desktop got no max-width pass.
   - The web fallback `Request failed (status)` (no server message) is still English.
   - Needs a real-browser check. Web 459 passed.
+- Final browser pass (lead, 2026-11-02), dev DB `mess_hisab`, manager account `rahim@mess.test` on localhost (test data only):
+  - Walked: register → create mess → expense from own pocket → meals grid → Wifi fixed bill → payment → dashboard → doesn't-pay (equal) → close-check → close → reopen preview → reopen → close again → statement → audit → month export through the queue. Checked at 375px (no sideways scroll) and desktop, in English and Bangla. Numbers matched by hand: after close Rahim +1,450, Karim −1,050, Nilu 0; cash 1,000 = 400 balances + 600 Wifi collected, not yet spent. Reopen preview showed no change. A server refusal (archiving the admin) came back in Bangla.
+  - Fixed (bf2df75): the dashboard nav link was active on every page; the statement carry line said "Last month due" even for a credit (now neutral label + Due/Credit); the reopen preview showed −৳ instead of Due/Credit; the Excel export wrote overdue days as text.
+  - Left as is (small, noted for later): the Archive button shows on the admin/manager row and the server refuses it with a clear message; a fixed bill's per-person shares show ৳0 until saved (no live preview); a doesn't-pay request shows no amount until the month closes; the "month closed" notice keeps its old language after switching; meal breakfast/lunch/dinner flags export as "1"/"".
