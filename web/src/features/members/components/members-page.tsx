@@ -24,7 +24,7 @@ function MemberRow({ member }: { member: Member }) {
   return (
     <li className="flex flex-col gap-2 rounded-xl border border-border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-medium">{member.display_name}</span>
+        <span className="min-w-0 break-words font-medium">{member.display_name}</span>
         <span className="flex flex-wrap gap-2 text-xs text-muted">
           {member.is_admin ? <span>{t("badge.admin")}</span> : null}
           {member.is_manager ? <span>{t("badge.manager")}</span> : null}

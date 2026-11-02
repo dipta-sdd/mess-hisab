@@ -11,7 +11,7 @@ import { useApproveExpense, useRejectExpense } from "./api";
 
 import { ExpenseRow } from "./expense-row";
 import { errorKey } from "./rules";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 export function ApprovalQueue({
   messId,
@@ -130,7 +130,7 @@ function QueueItem({
             id={`reason-${expense.id}`}
             rows={2}
             maxLength={500}
-            className={fieldClass}
+            className={fieldClassInvalid}
             value={reason}
             aria-invalid={reasonError}
             aria-describedby={reasonError ? `reason-${expense.id}-error` : undefined}

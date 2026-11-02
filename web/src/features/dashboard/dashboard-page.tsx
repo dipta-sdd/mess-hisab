@@ -115,7 +115,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
           {stats.map((s) => (
             <div key={s.key} className="rounded-xl border border-default-200 bg-surface p-3" data-testid={`stat-${s.key}`}>
               <dt className="text-xs text-muted">{s.label}</dt>
-              <dd className="text-lg font-semibold">{s.value}</dd>
+              <dd className="break-words text-lg font-semibold tabular-nums">{s.value}</dd>
             </div>
           ))}
         </dl>
@@ -155,13 +155,13 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
                 <li key={r.member_id} className="rounded-xl border border-default-200 bg-surface p-3" data-testid={`member-card-${r.member_id}`}>
                   <Link href={stmtHref(r.member_id)} className="flex flex-col gap-2" aria-label={t("members.openStatement", { name: r.display_name })}>
                     <div className="flex items-start justify-between gap-2">
-                      <span className="font-semibold">
+                      <span className="min-w-0 break-words font-semibold">
                         {r.display_name}
                         {r.is_archived ? <span className="ml-2 text-xs text-muted">{t("members.archived")}</span> : null}
                       </span>
                       <Balance paisa={r.balance_paisa} mode={mode} />
                     </div>
-                    <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                    <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm tabular-nums">
                       <dt className="text-muted">{t("members.fixedBill")}</dt>
                       <dd className="text-end">{money(r.fixed_bill_paisa)}</dd>
                       <dt className="text-muted">{t("members.mealsBill")}</dt>
@@ -187,7 +187,7 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
             </ul>
 
             <div className="hidden overflow-x-auto md:block">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm tabular-nums">
                 <thead>
                   <tr className="border-b border-default-200 text-start text-muted">
                     <th scope="col" className="p-2 text-start">{t("members.member")}</th>

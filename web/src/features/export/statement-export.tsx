@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { ExportButton } from "./export-button";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 /** Member picker + "Export statement" for one month. */
 export function StatementExport({ monthId, members, pollMs }: { monthId: number; members: { id: number; display_name: string }[]; pollMs?: number }) {
@@ -16,7 +16,7 @@ export function StatementExport({ monthId, members, pollMs }: { monthId: number;
       <label htmlFor={id} className="text-sm font-medium">{t("memberLabel")}</label>
       <select
         id={id}
-        className={fieldClass}
+        className={fieldClassInvalid}
         value={memberId ?? ""}
         onChange={(e) => setMemberId(e.target.value === "" ? undefined : Number(e.target.value))}
       >

@@ -13,7 +13,7 @@ import { todayInDhaka } from "@/lib/format/date";
 import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
 import { errorKey } from "./rules";
 import { expenseFormSchema, type ExpenseFormValues } from "./schema";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 /** Maps API field names to form field names. */
 const SERVER_FIELDS: Record<string, keyof ExpenseFormValues> = {
@@ -193,7 +193,7 @@ export function ExpenseForm({
           type="text"
           inputMode="decimal"
           autoComplete="off"
-          className={`${fieldClass} text-xl font-semibold`}
+          className={`${fieldClassInvalid} text-xl font-semibold`}
           aria-invalid={Boolean(errors.amount)}
           aria-describedby={describedBy("amount", true)}
           {...register("amount")}
@@ -204,7 +204,7 @@ export function ExpenseForm({
       {field(
         "category_id",
         t("form.category"),
-        <select id="ef-category_id" className={fieldClass} aria-invalid={Boolean(errors.category_id)} aria-describedby={describedBy("category_id")} {...register("category_id")}>
+        <select id="ef-category_id" className={fieldClassInvalid} aria-invalid={Boolean(errors.category_id)} aria-describedby={describedBy("category_id")} {...register("category_id")}>
           <option value="">{t("form.categoryPlaceholder")}</option>
           {groups.map(({ group, items }) => (
             <optgroup key={group} label={t(`groups.${group}`)}>
@@ -237,7 +237,7 @@ export function ExpenseForm({
             ? field(
                 "payer_member_id",
                 t("form.payerMember"),
-                <select id="ef-payer_member_id" className={fieldClass} aria-invalid={Boolean(errors.payer_member_id)} aria-describedby={describedBy("payer_member_id")} {...register("payer_member_id")}>
+                <select id="ef-payer_member_id" className={fieldClassInvalid} aria-invalid={Boolean(errors.payer_member_id)} aria-describedby={describedBy("payer_member_id")} {...register("payer_member_id")}>
                   <option value="">{t("form.payerMemberPlaceholder")}</option>
                   {payers.map((m) => (
                     <option key={m.id} value={m.id}>
@@ -262,21 +262,21 @@ export function ExpenseForm({
       {field(
         "spent_on",
         t("form.date"),
-        <input id="ef-spent_on" type="date" max={todayInDhaka()} className={fieldClass} aria-invalid={Boolean(errors.spent_on)} aria-describedby={describedBy("spent_on")} {...register("spent_on")} />,
+        <input id="ef-spent_on" type="date" max={todayInDhaka()} className={fieldClassInvalid} aria-invalid={Boolean(errors.spent_on)} aria-describedby={describedBy("spent_on")} {...register("spent_on")} />,
       )}
       {field(
         "note",
         t("form.note"),
-        <textarea id="ef-note" rows={2} maxLength={600} className={fieldClass} aria-invalid={Boolean(errors.note)} aria-describedby={describedBy("note")} {...register("note")} />,
+        <textarea id="ef-note" rows={2} maxLength={600} className={fieldClassInvalid} aria-invalid={Boolean(errors.note)} aria-describedby={describedBy("note")} {...register("note")} />,
       )}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         {onCancel ? (
-          <Button type="button" variant="ghost" onPress={onCancel}>
+          <Button type="button" variant="ghost" onPress={onCancel} className="w-full sm:w-auto">
             {t("actions.cancel")}
           </Button>
         ) : null}
-        <Button type="submit" variant="primary" isDisabled={isSubmitting} className="min-h-12">
+        <Button type="submit" variant="primary" isDisabled={isSubmitting} className="min-h-12 w-full sm:w-auto">
           {isSubmitting ? t("actions.saving") : editing ? t("actions.save") : t("actions.create")}
         </Button>
       </div>

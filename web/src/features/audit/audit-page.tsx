@@ -10,8 +10,8 @@ import { formatDate, formatMoney, formatNumber } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useAuditLog, useAuditMembers, type AuditFilters } from "./api";
 import { diffRows, EVENT_GROUPS, isMoneyKey } from "./diff";
+import { fieldClassInvalid } from "@/components/ui/field";
 
-const FIELD = "min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-base text-foreground";
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function readFilters(params: URLSearchParams): AuditFilters {
@@ -93,7 +93,7 @@ export function AuditPage() {
       <form role="search" aria-label={t("filters.title")} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(e) => e.preventDefault()}>
         <label className="flex flex-col gap-1 text-sm font-medium">
           {t("filters.event")}
-          <select className={FIELD} value={filters.event} onChange={(e) => update({ event: e.target.value })}>
+          <select className={fieldClassInvalid} value={filters.event} onChange={(e) => update({ event: e.target.value })}>
             <option value="">{t("filters.allEvents")}</option>
             {EVENT_GROUPS.map((g) => (
               <option key={g} value={g}>
@@ -104,7 +104,7 @@ export function AuditPage() {
         </label>
         <label className="flex flex-col gap-1 text-sm font-medium">
           {t("filters.member")}
-          <select className={FIELD} value={filters.member_id} onChange={(e) => update({ member_id: e.target.value })}>
+          <select className={fieldClassInvalid} value={filters.member_id} onChange={(e) => update({ member_id: e.target.value })}>
             <option value="">{t("filters.allMembers")}</option>
             {(members.data ?? []).map((m) => (
               <option key={m.id} value={m.id}>
@@ -115,11 +115,11 @@ export function AuditPage() {
         </label>
         <label className="flex flex-col gap-1 text-sm font-medium">
           {t("filters.from")}
-          <input className={FIELD} type="date" value={filters.from} onChange={(e) => update({ from: e.target.value })} />
+          <input className={fieldClassInvalid} type="date" value={filters.from} onChange={(e) => update({ from: e.target.value })} />
         </label>
         <label className="flex flex-col gap-1 text-sm font-medium">
           {t("filters.to")}
-          <input className={FIELD} type="date" value={filters.to} onChange={(e) => update({ to: e.target.value })} />
+          <input className={fieldClassInvalid} type="date" value={filters.to} onChange={(e) => update({ to: e.target.value })} />
         </label>
       </form>
       {rangeInvalid ? <p role="alert" className="text-sm text-danger">{t("filters.rangeInvalid")}</p> : null}
@@ -209,8 +209,8 @@ function AuditRow({ entry, who }: { entry: AuditLog; who: string }) {
         {relative ? <span className="block text-xs">{relative}</span> : null}
       </div>
       <div className="flex min-w-0 flex-col gap-2">
-        <p className="font-medium">{summary}</p>
-        {summary !== entry.event ? <p className="text-xs text-muted">{entry.event}</p> : null}
+        <p className="break-words font-medium">{summary}</p>
+        {summary !== entry.event ? <p className="break-all text-xs text-muted">{entry.event}</p> : null}
         {rows.length > 0 ? (
           <>
             <button
@@ -225,8 +225,8 @@ function AuditRow({ entry, who }: { entry: AuditLog; who: string }) {
               <dl className="flex flex-col gap-1 rounded-lg bg-surface p-2 text-sm">
                 {rows.map((r) => (
                   <div key={r.key} className="flex flex-wrap gap-x-2" data-testid={`diff-${r.key}`}>
-                    <dt className="font-medium">{r.key}</dt>
-                    <dd>
+                    <dt className="break-all font-medium">{r.key}</dt>
+                    <dd className="min-w-0 break-words">
                       <span className="text-muted">{r.hasBefore ? value(r.key, r.before) : t("diff.empty")}</span>
                       <span aria-label={t("diff.to")}> → </span>
                       <span>{r.hasAfter ? value(r.key, r.after) : t("diff.empty")}</span>

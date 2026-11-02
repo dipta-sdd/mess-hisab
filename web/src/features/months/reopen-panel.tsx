@@ -49,24 +49,24 @@ export function ReopenPanel({ messId, month, ctx, onReopened }: { messId: number
         <>
           {data.blocks.length > 0 ? <ReopenBlocks blocks={data.blocks} ctx={ctx} /> : null}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <caption className="pb-2 text-start font-medium">{t("table.caption")}</caption>
+          <div className="max-h-[60vh] overflow-auto rounded-lg border border-default-200">
+            <table className="w-full text-sm tabular-nums">
+              <caption className="p-2 text-start font-medium">{t("table.caption")}</caption>
               <thead>
                 <tr className="text-start text-muted">
-                  <th scope="col" className="py-1 pe-3 text-start font-medium">{t("table.member")}</th>
-                  <th scope="col" className="py-1 pe-3 text-end font-medium">{t("table.before")}</th>
-                  <th scope="col" className="py-1 pe-3 text-end font-medium">{t("table.after")}</th>
-                  <th scope="col" className="py-1 text-end font-medium">{t("table.change")}</th>
+                  <th scope="col" className="sticky start-0 top-0 z-20 min-w-28 bg-surface p-2 text-start font-medium">{t("table.member")}</th>
+                  <th scope="col" className="sticky top-0 z-10 whitespace-nowrap bg-surface p-2 text-end font-medium">{t("table.before")}</th>
+                  <th scope="col" className="sticky top-0 z-10 whitespace-nowrap bg-surface p-2 text-end font-medium">{t("table.after")}</th>
+                  <th scope="col" className="sticky top-0 z-10 whitespace-nowrap bg-surface p-2 text-end font-medium">{t("table.change")}</th>
                 </tr>
               </thead>
               <tbody>
                 {data.members.map((m) => (
                   <tr key={m.member_id} className="border-t border-default-200">
-                    <th scope="row" className="py-1 pe-3 text-start font-normal">{m.display_name}</th>
-                    <td className="py-1 pe-3 text-end">{ctx.money(m.before_paisa)}</td>
-                    <td className="py-1 pe-3 text-end">{ctx.money(m.after_paisa)}</td>
-                    <td className="py-1 text-end">{ctx.money(m.change_paisa)}</td>
+                    <th scope="row" className="sticky start-0 z-10 min-w-28 max-w-40 break-words bg-surface p-2 text-start font-normal">{m.display_name}</th>
+                    <td className="whitespace-nowrap p-2 text-end">{ctx.money(m.before_paisa)}</td>
+                    <td className="whitespace-nowrap p-2 text-end">{ctx.money(m.after_paisa)}</td>
+                    <td className="whitespace-nowrap p-2 text-end">{ctx.money(m.change_paisa)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -96,8 +96,8 @@ export function ReopenPanel({ messId, month, ctx, onReopened }: { messId: number
               <p className="font-medium">{t("confirmTitle")}</p>
               <p className="text-sm">{t("confirmBody")}</p>
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                <Button variant="ghost" onPress={() => setConfirming(false)}>{t("cancel")}</Button>
-                <Button variant="danger" onPress={doReopen} isDisabled={reopen.isPending}>
+                <Button variant="ghost" className="w-full sm:w-auto" onPress={() => setConfirming(false)}>{t("cancel")}</Button>
+                <Button variant="danger" className="w-full sm:w-auto" onPress={doReopen} isDisabled={reopen.isPending}>
                   {reopen.isPending ? t("reopening") : t("confirmYes")}
                 </Button>
               </div>

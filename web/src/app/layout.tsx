@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "./providers";
 import "./globals.css";
+
+/** `viewport-fit=cover` makes `env(safe-area-inset-bottom)` work for the fixed bottom nav on notched phones. */
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("app");

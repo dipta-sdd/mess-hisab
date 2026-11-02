@@ -67,7 +67,7 @@ export function AddMemberForm({ onDone }: { onDone: () => void }) {
         error={errors.amount?.message}
       />
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" variant="primary" isPending={add.isPending}>
+        <Button type="submit" variant="primary" className="w-full sm:w-auto" isPending={add.isPending}>
           {t("add.submit")}
         </Button>
         <Button type="button" variant="ghost" onPress={onDone}>

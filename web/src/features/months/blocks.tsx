@@ -22,7 +22,7 @@ export function CloseBlocks({ blocks, ctx }: { blocks: CloseBlock[]; ctx: BlockC
   return (
     <ul className="flex flex-col gap-2" aria-label={t("title")}>
       {blocks.map((block, i) => (
-        <li key={`${block.code}-${i}`} data-testid={`block-${block.code}`} className="rounded-xl border border-warning bg-warning/10 p-3 text-sm">
+        <li key={`${block.code}-${i}`} data-testid={`block-${block.code}`} className="break-words rounded-xl border border-warning bg-warning/10 p-3 text-sm">
           <CloseBlockBody block={block} ctx={ctx} />
         </li>
       ))}
@@ -79,7 +79,7 @@ function CloseBlockBody({ block, ctx }: { block: CloseBlock; ctx: BlockContext }
       return (
         <>
           <p>{t("cash_mismatch")}</p>
-          <dl className="my-1 grid grid-cols-[auto_1fr] gap-x-3">
+          <dl className="my-1 grid grid-cols-[auto_1fr] gap-x-3 tabular-nums">
             <dt className="text-muted">{t("cash_actual")}</dt>
             <dd>{ctx.money(num(d.actual_paisa))}</dd>
             <dt className="text-muted">{t("cash_expected")}</dt>
@@ -108,7 +108,7 @@ export function ReopenBlocks({ blocks, ctx }: { blocks: ReopenPreview["blocks"];
   return (
     <ul className="flex flex-col gap-2" aria-label={t("title")}>
       {blocks.map((block, i) => (
-        <li key={`${block.code}-${i}`} data-testid={`block-${block.code}`} className="rounded-xl border border-warning bg-warning/10 p-3 text-sm">
+        <li key={`${block.code}-${i}`} data-testid={`block-${block.code}`} className="break-words rounded-xl border border-warning bg-warning/10 p-3 text-sm">
           <p className="font-medium">{t(`${block.code}.title`)}</p>
           <p>{t(`${block.code}.body`)}</p>
           {block.code === "not_latest_closed" ? (

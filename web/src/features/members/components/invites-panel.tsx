@@ -66,7 +66,7 @@ function InviteRow({ invite, members }: { invite: Invite; members: Member[] }) {
   return (
     <li className="flex flex-col gap-2 rounded-xl border border-border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-sm font-medium">
+        <span className="min-w-0 break-all text-sm font-medium">
           {forMember ? t("invites.forMember", { name: forMember.display_name }) : t("invites.forAnyone")}
         </span>
         <span className="text-xs text-muted">{t(`invites.status.${status}`)}</span>
@@ -157,7 +157,7 @@ export function InvitesPanel({ members }: { members: Member[] }) {
             />
           </div>
           <div>
-            <Button type="submit" variant="primary" isPending={create.isPending}>
+            <Button type="submit" variant="primary" className="w-full sm:w-auto" isPending={create.isPending}>
               {t("invites.create")}
             </Button>
           </div>

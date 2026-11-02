@@ -10,7 +10,7 @@ import { formatDate } from "@/lib/format";
 import { useAdjustments, useCreateAdjustment } from "./api";
 import { parseTakaToPaisa } from "@/lib/format/money-input";
 import { Banner, useErrorText } from "./ui";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 type Direction = "charge" | "credit";
 
@@ -51,10 +51,10 @@ export function AdjustmentsPanel({
             <li key={a.id} className="rounded-xl border border-default-200 p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-medium">{nameOf(a.member_id)}</p>
+                  <p className="break-words font-medium">{nameOf(a.member_id)}</p>
                   <p className="text-sm text-muted">{t(`groups.${a.group}`)} · {formatDate(a.created_at, locale)}</p>
                 </div>
-                <p className={`shrink-0 font-semibold ${a.amount_paisa < 0 ? "text-danger" : "text-success"}`}>
+                <p className={`shrink-0 font-semibold tabular-nums ${a.amount_paisa < 0 ? "text-danger" : "text-success"}`}>
                   {a.amount_paisa < 0
                     ? t("chargeAmount", { amount: money(-a.amount_paisa) })
                     : t("creditAmount", { amount: money(a.amount_paisa) })}
@@ -130,7 +130,7 @@ function AdjustmentForm({ messId, members }: { messId: number; members: Member[]
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="adj-member" className="text-sm font-medium">{t("form.member")}</label>
-          <select id="adj-member" className={fieldClass} value={memberId} aria-invalid={Boolean(errors.member)} onChange={(e) => setMemberId(e.target.value)}>
+          <select id="adj-member" className={fieldClassInvalid} value={memberId} aria-invalid={Boolean(errors.member)} onChange={(e) => setMemberId(e.target.value)}>
             <option value="">{t("form.memberPlaceholder")}</option>
             {choices.map((m) => (
               <option key={m.id} value={m.id}>{m.display_name}</option>
@@ -140,7 +140,7 @@ function AdjustmentForm({ messId, members }: { messId: number; members: Member[]
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="adj-group" className="text-sm font-medium">{t("form.group")}</label>
-          <select id="adj-group" className={fieldClass} value={group} onChange={(e) => setGroup(e.target.value as Group)}>
+          <select id="adj-group" className={fieldClassInvalid} value={group} onChange={(e) => setGroup(e.target.value as Group)}>
             <option value="fixed">{t("groups.fixed")}</option>
             <option value="meals">{t("groups.meals")}</option>
           </select>
@@ -162,18 +162,18 @@ function AdjustmentForm({ messId, members }: { messId: number; members: Member[]
 
       <div className="flex flex-col gap-1">
         <label htmlFor="adj-amount" className="text-sm font-medium">{t("form.amount")}</label>
-        <input id="adj-amount" type="text" inputMode="decimal" autoComplete="off" className={fieldClass} value={amount} aria-invalid={Boolean(errors.amount)} onChange={(e) => setAmount(e.target.value)} />
+        <input id="adj-amount" type="text" inputMode="decimal" autoComplete="off" className={fieldClassInvalid} value={amount} aria-invalid={Boolean(errors.amount)} onChange={(e) => setAmount(e.target.value)} />
         {fieldError("amount")}
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="adj-note" className="text-sm font-medium">{t("form.note")}</label>
-        <textarea id="adj-note" rows={2} maxLength={500} className={fieldClass} value={note} aria-invalid={Boolean(errors.note)} onChange={(e) => setNote(e.target.value)} />
+        <textarea id="adj-note" rows={2} maxLength={500} className={fieldClassInvalid} value={note} aria-invalid={Boolean(errors.note)} onChange={(e) => setNote(e.target.value)} />
         {fieldError("note")}
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" variant="primary" isDisabled={create.isPending}>{create.isPending ? t("form.saving") : t("form.save")}</Button>
+        <Button type="submit" variant="primary" className="w-full sm:w-auto" isDisabled={create.isPending}>{create.isPending ? t("form.saving") : t("form.save")}</Button>
       </div>
     </form>
   );

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { navRegistry } from "@/features/nav-registry";
 import type { NavItem } from "@/features/types";
 import { useMe } from "@/lib/api-client/auth";
@@ -19,29 +19,43 @@ function isActive(pathname: string | null, href: string) {
 function NavLinks({ items, messId, variant }: { items: NavItem[]; messId: number; variant: "side" | "bottom" }) {
   const t = useTranslations();
   const pathname = usePathname();
+  const activeRef = useRef<HTMLAnchorElement | null>(null);
+
+  // With many items the bottom bar scrolls sideways; keep the current page's tab on screen.
+  useEffect(() => {
+    if (variant === "bottom") activeRef.current?.scrollIntoView?.({ inline: "center", block: "nearest" });
+  }, [variant, pathname]);
 
   return (
-    <ul className={variant === "side" ? "flex flex-col gap-1" : "flex items-stretch justify-around gap-1 overflow-x-auto"}>
+    <ul
+      className={
+        variant === "side"
+          ? "flex flex-col gap-1"
+          : "flex h-full items-stretch gap-1 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      }
+    >
       {items.map((item) => {
         const href = item.href(messId);
         const active = isActive(pathname, href);
         return (
-          <li key={item.key} className={variant === "bottom" ? "min-w-16 flex-1" : undefined}>
+          <li key={item.key} className={variant === "bottom" ? "min-w-[4.5rem] flex-1" : undefined}>
             <Link
               href={href}
+              ref={active ? activeRef : undefined}
+              title={variant === "bottom" ? t(item.labelKey) : undefined}
               aria-current={active ? "page" : undefined}
               className={
                 variant === "side"
-                  ? `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
+                  ? `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
                       active ? "bg-accent text-accent-foreground" : "hover:bg-default"
                     }`
-                  : `flex h-full flex-col items-center justify-center gap-0.5 px-2 py-2 text-xs ${
-                      active ? "font-semibold text-accent" : "text-muted"
+                  : `flex h-full min-h-11 flex-col items-center justify-center gap-0.5 px-2 py-2 text-[11px] leading-tight ${
+                      active ? "border-t-2 border-accent font-semibold text-accent" : "border-t-2 border-transparent text-muted"
                     }`
               }
             >
               <NavIcon name={item.icon} />
-              <span>{t(item.labelKey)}</span>
+              <span className={variant === "bottom" ? "block max-w-full truncate" : undefined}>{t(item.labelKey)}</span>
             </Link>
           </li>
         );
@@ -96,7 +110,7 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
           {header}
           <LanguageSwitcher />
         </header>
-        <main id="main-content" className={`flex-1 p-4 md:p-6 ${visible.length > 0 ? "pb-24 md:pb-6" : ""}`}>
+        <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${visible.length > 0 ? "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6" : ""}`}>
           {children}
         </main>
       </div>
@@ -104,7 +118,7 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
       {visible.length > 0 ? (
         <nav
           aria-label={t("shell.bottomNav")}
-          className="fixed inset-x-0 bottom-0 z-40 h-16 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
         >
           <NavLinks items={visible} messId={messId} variant="bottom" />
         </nav>

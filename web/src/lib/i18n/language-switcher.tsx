@@ -44,7 +44,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
           lang={locale}
           aria-pressed={current === locale}
           onClick={() => current !== locale && setLocale(locale)}
-          className={`min-h-9 px-3 py-1 font-medium transition-colors ${
+          className={`min-h-11 px-3 py-1 font-medium transition-colors ${
             current === locale ? "bg-accent text-accent-foreground" : "hover:bg-default"
           }`}
         >

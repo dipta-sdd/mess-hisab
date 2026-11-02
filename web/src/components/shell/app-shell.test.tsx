@@ -74,4 +74,14 @@ describe("AppShell", () => {
     expect(screen.getAllByRole("button", { name: "বাংলা" }).length).toBeGreaterThan(0);
     expectBanglaOnly(["English", "hello"]);
   });
+
+  it("keeps content clear of the fixed bottom nav (safe area) and scrolls many tabs sideways", async () => {
+    me({ is_admin: true, is_manager: true });
+    renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
+    await screen.findAllByText("Green House");
+    expect(screen.getByRole("main").className).toContain("env(safe-area-inset-bottom)");
+    const bottom = screen.getAllByRole("navigation").find((n) => n.className.includes("fixed"));
+    expect(bottom?.className).toContain("env(safe-area-inset-bottom)");
+    expect(bottom?.querySelector("ul")?.className).toContain("overflow-x-auto");
+  });
 });

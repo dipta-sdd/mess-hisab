@@ -14,7 +14,7 @@ import { formatMonthLabel } from "@/lib/format/date";
 import { ExpenseForm } from "./expense-form";
 import { ExpenseRow } from "./expense-row";
 import { errorKey, expenseAbilities } from "./rules";
-import { fieldClass } from "@/components/ui/field";
+import { fieldClassInvalid } from "@/components/ui/field";
 
 const STATUSES: ExpenseStatus[] = ["pending", "approved", "rejected"];
 
@@ -217,7 +217,7 @@ function Select({
       <label htmlFor={id} className="text-sm font-medium">
         {label}
       </label>
-      <select id={id} className={fieldClass} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
+      <select id={id} className={fieldClassInvalid} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
         {children}
       </select>
     </div>
