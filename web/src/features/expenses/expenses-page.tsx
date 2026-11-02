@@ -140,7 +140,7 @@ export function ExpensesPage() {
           {t("totals.title")}
         </h2>
         {(["fixed", "meals"] as const).map((g) => (
-          <div key={g} className="rounded-xl border border-default-200 bg-surface p-3" data-testid={`total-${g}`}>
+          <div key={g} className="rounded-xl border border-border bg-surface p-3" data-testid={`total-${g}`}>
             <p className="text-sm text-muted">{t(`groups.${g}`)}</p>
             <p className="text-lg font-semibold">{money(totals[g])}</p>
           </div>
@@ -249,7 +249,7 @@ function SavedPanel({
         </Button>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {expense.is_late ? <span className="rounded-full bg-default-200 px-2 py-0.5 text-xs font-medium">{t("badges.late")}</span> : null}
+        {expense.is_late ? <span className="rounded-full bg-default px-2 py-0.5 text-xs font-medium">{t("badges.late")}</span> : null}
       </div>
       {expense.is_late ? <p className="text-sm">{t("saved.lateHint")}</p> : null}
       {expense.status === "pending" ? <p className="text-sm">{t("saved.pendingHint")}</p> : null}

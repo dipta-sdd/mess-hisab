@@ -8,7 +8,7 @@ import { centiToInput } from "./centi";
 import { draftProblems, ticksOf, type CellDraft, type Ticks } from "./draft";
 
 const inputClass =
-  "w-full min-h-11 rounded-lg border border-default-300 bg-background px-2 py-1 text-center text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent aria-[invalid=true]:border-danger";
+  "w-full min-h-11 rounded-lg border border-border bg-background px-2 py-1 text-center text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent aria-[invalid=true]:border-danger";
 
 const TICKS = ["breakfast", "lunch", "dinner"] as const;
 

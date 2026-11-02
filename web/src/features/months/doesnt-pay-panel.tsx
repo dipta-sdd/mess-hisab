@@ -155,7 +155,7 @@ export function DoesntPayPanel({
             <legend className="text-sm font-medium">{t("modeLegend")}</legend>
             {MODES.map((m) => (
               <label key={m} className="flex min-h-11 items-start gap-2">
-                <input type="radio" name="dp-mode" className="mt-1 size-5" checked={mode === m} onChange={() => setMode(m)} />
+                <input type="radio" name="dp-mode" className="mt-1 size-5 accent-[var(--accent)]" checked={mode === m} onChange={() => setMode(m)} />
                 <span>
                   <span className="block font-medium">{t(`modes.${m}.label`)}</span>
                   <span className="block text-sm text-muted">{t(`modes.${m}.help`)}</span>

@@ -89,7 +89,7 @@ export function BillCard({
   }
 
   return (
-    <li className="rounded-2xl border border-default-200 bg-surface p-4" aria-label={name}>
+    <li className="rounded-2xl border border-border bg-surface p-4" aria-label={name}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="min-w-0 break-words text-lg font-semibold">{name}</h3>
@@ -119,7 +119,7 @@ export function BillCard({
       ) : null}
       {!isFixedGroup ? <p className="mt-2 text-xs text-muted">{t("bill.fromExpenses")}</p> : null}
 
-      <ul className="mt-3 flex flex-col divide-y divide-default-200" aria-label={t("bill.shares")}>
+      <ul className="mt-3 flex flex-col divide-y divide-border" aria-label={t("bill.shares")}>
         {members.map((m) => {
           const share = bill.shares[String(m.id)] ?? 0;
           const hasOverride = bill.overrides.some((o) => o.member_id === m.id);

@@ -76,12 +76,12 @@ export function FixedPage() {
       ) : (
         <>
           {month.status === "closed" ? (
-            <p role="status" className="rounded-lg border border-default-300 bg-surface p-3 text-sm" data-testid="closed-note">{t("closedNote")}</p>
+            <p role="status" className="rounded-lg border border-border bg-surface p-3 text-sm" data-testid="closed-note">{t("closedNote")}</p>
           ) : !isManager ? (
-            <p role="status" className="rounded-lg border border-default-300 bg-surface p-3 text-sm" data-testid="readonly-note">{t("readOnlyNote")}</p>
+            <p role="status" className="rounded-lg border border-border bg-surface p-3 text-sm" data-testid="readonly-note">{t("readOnlyNote")}</p>
           ) : null}
 
-          <section aria-labelledby="fx-month-title" className="rounded-2xl border border-default-200 bg-surface p-4">
+          <section aria-labelledby="fx-month-title" className="rounded-2xl border border-border bg-surface p-4">
             <h2 id="fx-month-title" className="mb-3 text-lg font-semibold">{t("month.title")}</h2>
             <MonthSetupForm
               key={`${month.id}:${month.fixed_deadline}:${month.deposit_deadline}:${month.deposit_paisa}`}
@@ -115,10 +115,10 @@ export function FixedPage() {
             {hasByMeal ? <p className="text-xs text-muted">{t("bills.byMealNote")}</p> : null}
           </section>
 
-          <section aria-labelledby="fx-members-title" className="rounded-2xl border border-default-200 bg-surface p-4">
+          <section aria-labelledby="fx-members-title" className="rounded-2xl border border-border bg-surface p-4">
             <h2 id="fx-members-title" className="text-lg font-semibold">{t("members.title")}</h2>
             <p className="mb-2 text-xs text-muted">{t("members.hint")}</p>
-            <ul className="divide-y divide-default-200">
+            <ul className="divide-y divide-border">
               {members.map((m) => (
                 <MemberSettingRow
                   key={`${m.id}:${JSON.stringify(setup?.member_settings.find((s) => s.member_id === m.id) ?? null)}`}

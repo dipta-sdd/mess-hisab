@@ -84,7 +84,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
               <input
                 type="radio"
                 name={`zero-meal-${month.id}`}
-                className="mt-1 size-5"
+                className="mt-1 size-5 accent-[var(--accent)]"
                 checked={resolution === value}
                 onChange={() => choose(value)}
               />

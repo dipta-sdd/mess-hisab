@@ -61,7 +61,7 @@ export function PaymentsPage() {
         ) : null}
       </div>
 
-      <section aria-labelledby="cash-label" className="rounded-2xl border border-default-200 bg-surface p-4">
+      <section aria-labelledby="cash-label" className="rounded-2xl border border-border bg-surface p-4">
         <p id="cash-label" className="text-sm text-muted">{t("cash.label")}</p>
         <p className="text-3xl font-bold" data-testid="cash-pool">
           {cashQ.data ? money(cashQ.data.pool_balance_paisa) : "…"}
@@ -116,7 +116,7 @@ export function PaymentsPage() {
       <section aria-labelledby="totals-title" className="grid grid-cols-2 gap-3">
         <h2 id="totals-title" className="sr-only">{t("totals.title")}</h2>
         {(["fixed", "meals"] as const).map((g) => (
-          <div key={g} className="rounded-xl border border-default-200 bg-surface p-3" data-testid={`total-${g}`}>
+          <div key={g} className="rounded-xl border border-border bg-surface p-3" data-testid={`total-${g}`}>
             <p className="text-sm text-muted">{t(`groups.${g}`)}</p>
             <p className="text-lg font-semibold">{money(totals[g])}</p>
           </div>
@@ -197,7 +197,7 @@ function PaymentRow({
   }
 
   return (
-    <li className="rounded-xl border border-default-200 bg-surface p-3">
+    <li className="rounded-xl border border-border bg-surface p-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-medium">{memberName}</p>

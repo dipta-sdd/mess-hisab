@@ -151,7 +151,7 @@ function AdjustmentForm({ messId, members }: { messId: number; members: Member[]
         <legend className="text-sm font-medium">{t("form.direction")}</legend>
         {(["charge", "credit"] as const).map((d) => (
           <label key={d} className="flex min-h-11 items-start gap-2">
-            <input type="radio" name="adj-direction" className="mt-1 size-5" checked={direction === d} onChange={() => setDirection(d)} />
+            <input type="radio" name="adj-direction" className="mt-1 size-5 accent-[var(--accent)]" checked={direction === d} onChange={() => setDirection(d)} />
             <span>
               <span className="block font-medium">{t(`form.${d}.label`)}</span>
               <span className="block text-sm text-muted">{t(`form.${d}.help`)}</span>

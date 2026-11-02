@@ -79,10 +79,14 @@ describe("no fixed palette colours in components", () => {
     });
   }
 
+  // HeroUI v3 has no numbered default scale: `border-default-200` etc. generate no CSS at all.
+  const DEAD = /\b[a-z]+-default-\d{2,3}\b/g;
+
   it("finds none", () => {
-    const hits = files(join(process.cwd(), "src")).flatMap((f) =>
-      [...readFileSync(f, "utf8").matchAll(RAW)].map((m) => `${f.replace(process.cwd() + "/", "")}: ${m[0]}`),
-    );
+    const hits = files(join(process.cwd(), "src")).flatMap((f) => {
+      const src = readFileSync(f, "utf8");
+      return [...src.matchAll(RAW), ...src.matchAll(DEAD)].map((m) => `${f.replace(process.cwd() + "/", "")}: ${m[0]}`);
+    });
     expect(hits).toEqual([]);
   });
 });

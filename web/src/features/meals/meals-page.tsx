@@ -213,11 +213,11 @@ export function MealsPage() {
       </div>
 
       {closed ? (
-        <p role="status" className="rounded-lg border border-default-300 bg-surface p-3 text-sm" data-testid="closed-note">
+        <p role="status" className="rounded-lg border border-border bg-surface p-3 text-sm" data-testid="closed-note">
           {t("closedNote")}
         </p>
       ) : !loading && !showOff && !anyEditable ? (
-        <p role="status" className="rounded-lg border border-default-300 bg-surface p-3 text-sm" data-testid="readonly-note">
+        <p role="status" className="rounded-lg border border-border bg-surface p-3 text-sm" data-testid="readonly-note">
           {mess?.meal_entry_by === "self" ? t("readOnlySelf") : t("readOnlyManager")}
         </p>
       ) : !loading && !showOff && !isManager ? (
@@ -238,7 +238,7 @@ export function MealsPage() {
       ) : monthId === null ? (
         <p className="text-muted">{t("errors.noMonth")}</p>
       ) : showOff ? (
-        <section className="rounded-2xl border border-default-200 bg-surface p-6 text-center" data-testid="tracking-off">
+        <section className="rounded-2xl border border-border bg-surface p-6 text-center" data-testid="tracking-off">
           <h2 className="text-lg font-semibold">{t("off.title")}</h2>
           <p className="mt-1 text-muted">{t("off.body")}</p>
         </section>
@@ -247,7 +247,7 @@ export function MealsPage() {
           {members.map((m) => {
             const key = cellKey(m.id, monthTotalDate);
             return (
-              <li key={m.id} className="rounded-xl border border-default-200 bg-surface p-3">
+              <li key={m.id} className="rounded-xl border border-border bg-surface p-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="min-w-0 break-words font-medium">{m.display_name}</p>
                   <p className="shrink-0 text-sm text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
@@ -287,7 +287,7 @@ export function MealsPage() {
               const key = cellKey(m.id, day);
               const label = `${m.display_name}, ${formatDate(day, locale)}`;
               return (
-                <li key={m.id} className="rounded-xl border border-default-200 bg-surface p-3">
+                <li key={m.id} className="rounded-xl border border-border bg-surface p-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="min-w-0 break-words font-medium">{m.display_name}</p>
                     <p className="shrink-0 text-xs text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
@@ -308,22 +308,22 @@ export function MealsPage() {
           </ul>
         </section>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-default-200 bg-surface">
+        <div className="overflow-x-auto rounded-xl border border-border bg-surface">
           <table className="min-w-full border-collapse text-sm">
             <caption className="sr-only">{t("title")}</caption>
             <thead>
               <tr>
-                <th scope="col" className="sticky start-0 z-10 min-w-24 max-w-32 border-e border-default-200 bg-surface p-2 text-start">{t("member")}</th>
+                <th scope="col" className="sticky start-0 z-10 min-w-24 max-w-32 border-e border-border bg-surface p-2 text-start">{t("member")}</th>
                 {days.map((d) => (
                   <th key={d} scope="col" className="min-w-24 p-2 text-center font-medium">{dayLabel(d, locale)}</th>
                 ))}
-                <th scope="col" className="sticky end-0 z-10 border-s border-default-200 bg-surface p-2 text-center">{t("totalLabel")}</th>
+                <th scope="col" className="sticky end-0 z-10 border-s border-border bg-surface p-2 text-center">{t("totalLabel")}</th>
               </tr>
             </thead>
             <tbody>
               {members.map((m) => (
-                <tr key={m.id} className="border-t border-default-200">
-                  <th scope="row" className="sticky start-0 z-10 min-w-24 max-w-32 break-words border-e border-default-200 bg-surface p-2 text-start font-medium">{m.display_name}</th>
+                <tr key={m.id} className="border-t border-border">
+                  <th scope="row" className="sticky start-0 z-10 min-w-24 max-w-32 break-words border-e border-border bg-surface p-2 text-start font-medium">{m.display_name}</th>
                   {days.map((d) => {
                     const key = cellKey(m.id, d);
                     const ok = editableCell(m, d);
@@ -345,7 +345,7 @@ export function MealsPage() {
                       </td>
                     );
                   })}
-                  <td className="sticky end-0 z-10 border-s border-default-200 bg-surface p-2 text-center font-semibold tabular-nums">{rowTotal(m)}</td>
+                  <td className="sticky end-0 z-10 border-s border-border bg-surface p-2 text-center font-semibold tabular-nums">{rowTotal(m)}</td>
                 </tr>
               ))}
             </tbody>
@@ -354,7 +354,7 @@ export function MealsPage() {
       )}
 
       {anyEditable && !showOff && !loading ? (
-        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center justify-between gap-3 border-t border-default-200 bg-background p-3 md:static md:z-auto md:border-0 md:p-0">
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center justify-between gap-3 border-t border-border bg-background p-3 md:static md:z-auto md:border-0 md:p-0">
           <p className="min-w-0 text-sm text-muted">{dirty ? t("unsaved", { count: formatNumber(Object.keys(drafts).length, locale) }) : t("noChanges")}</p>
           <div className="flex shrink-0 gap-2">
             {dirty ? (

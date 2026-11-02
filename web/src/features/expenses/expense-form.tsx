@@ -174,7 +174,7 @@ export function ExpenseForm({
   const groups = (["fixed", "meals"] as const).map((g) => ({ group: g, items: usable.filter((c) => c.group === g) })).filter((g) => g.items.length > 0);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4 rounded-2xl border border-default-200 bg-surface p-4" aria-labelledby="ef-title">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4" aria-labelledby="ef-title">
       <h2 id="ef-title" ref={titleRef} className="text-lg font-semibold">
         {editing ? t("form.editTitle") : t("form.createTitle")}
       </h2>
