@@ -33,16 +33,12 @@ describe("formatMoney", () => {
     expect(formatMoney(10000000, "en", "two_decimals")).toBe("৳1,00,000.00");
     expect(formatMoney(-52115, "en", "two_decimals")).toBe("-৳521.15");
   });
-  it("whole_taka rounds half away from zero", () => {
+  it("whole-taka modes drop .00 but never round paisa away", () => {
     expect(formatMoney(52100, "en", "whole_taka")).toBe("৳521");
-    expect(formatMoney(52149, "en", "whole_taka")).toBe("৳521");
-    expect(formatMoney(52150, "en", "whole_taka")).toBe("৳522");
-    expect(formatMoney(-52150, "en", "whole_taka")).toBe("-৳522");
-  });
-  it("round_up rounds any remainder up", () => {
-    expect(formatMoney(52115, "en", "round_up")).toBe("৳522");
+    expect(formatMoney(52149, "en", "whole_taka")).toBe("৳521.49");
+    expect(formatMoney(-52150, "en", "whole_taka")).toBe("-৳521.50");
+    expect(formatMoney(52115, "en", "round_up")).toBe("৳521.15");
     expect(formatMoney(52100, "en", "round_up")).toBe("৳521");
-    expect(formatMoney(-52101, "en", "round_up")).toBe("-৳522");
   });
   it("groups lakh and crore", () => {
     expect(formatMoney(10000000, "en", "whole_taka")).toBe("৳1,00,000");
@@ -51,7 +47,8 @@ describe("formatMoney", () => {
     expect(formatMoney(100000, "en", "whole_taka")).toBe("৳1,000");
   });
   it("never shows -0", () => {
-    expect(formatMoney(-20, "en", "whole_taka")).toBe("৳0");
+    expect(formatMoney(-20, "en", "whole_taka")).toBe("-৳0.20");
+    expect(formatMoney(-0, "en", "whole_taka")).toBe("৳0");
     expect(formatMoney(0, "en", "whole_taka")).toBe("৳0");
   });
   it("uses Bangla digits for bn", () => {

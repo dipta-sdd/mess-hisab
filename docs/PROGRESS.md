@@ -16,7 +16,7 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | A1 Engine: split, meals, rounding, charges | 1 | merged | worktree-agent-ae9d05337245e4b3b | gate: LR + Charge tests |
 | A2 Engine: balances, doesn't-pay, close check | 1 | merged (private LR replaced by A1's) | worktree-agent-a901bbf0747fdcdb8 | gate: Balance + Close tests |
 | C Auth & accounts API | 1 | running (commit ab6dcc6 base) | | |
-| D Web foundation | 1 | running (commit ab6dcc6 base) | | |
+| D Web foundation | 1 | merged (formatMoney never rounds paisa away) | worktree-agent-a0a89bd43a2bb0d1e | |
 | M Months & categories API | 2 | blocked by C | | |
 | G Payments & cash API | 2 | blocked by C | | |
 | W1 Web: auth, mess, members, settings | 2 | blocked by C, D | | |
@@ -43,3 +43,4 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 - Engine (A1/A2) choices CONTRACT didn't fix: negative overrides and duplicate category bills throw; min payable skipped when P is null/0 or cost ≤ 0; a debtor with T ≥ 0 gets a 0 split; doesn't-pay with no other active members returns empty shares and mismatch = amount; duplicate debtor requests: first wins.
 - For K: validate manual doesn't-pay shares at the HTTP layer (only other active members, ≥ 0); the engine applies them as typed. `Redistributor::splitFor(debtorId, …)` is an extra public helper used by `BalanceCalculator`.
 - "Payments oldest deadline first" has nothing to act on inside one month (one fixed + one deposit deadline); revisit in J/K if multi-month dues appear.
+- Web (D): `apiClient` paths are absolute (`/api/...`) and return the full JSON body; `useMe()` lives in `src/lib/api-client/auth.ts`. Nav icons known to the shell: dashboard, expenses, meals, payments, members, settings, months, audit, reports. `formatBalance(paisa, locale, mode, t)` with `t = useTranslations("common")`.
