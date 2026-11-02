@@ -7,6 +7,7 @@ import type { AppLocale } from "@/i18n/config";
 import type { Member, SettlementResult } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
 import { formatMoney } from "@/lib/format";
+import { useMessRoles } from "@/features/mess/api";
 import { useMess } from "@/lib/mess/mess-context";
 import { rowFor, useFinalSettlement, useSettlementDashboard } from "./api";
 import { paisaToTakaInput, parseTakaToPaisa } from "./money-input";
@@ -29,7 +30,15 @@ function numberFrom(body: unknown, key: string): number | null {
  * "Final settlement" button for a members row. Renders nothing until the dashboard says the member
  * has credit. Opens an inline dialog (role="dialog") to pay the credit out of the cash pool.
  */
+/** Only the manager can pay out (API route is `mess.role:manager`); an admin who is not the manager sees nothing. */
 export function FinalSettlementAction({ member }: { member: Member }) {
+  const { messId } = useMess();
+  const roles = useMessRoles(messId);
+  if (!roles.isManager || roles.isArchived) return null;
+  return <FinalSettlementControl member={member} />;
+}
+
+function FinalSettlementControl({ member }: { member: Member }) {
   const t = useTranslations("settlement");
   const locale = useLocale() as AppLocale;
   const { messId } = useMess();

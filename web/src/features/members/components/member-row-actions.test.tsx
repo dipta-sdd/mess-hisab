@@ -160,4 +160,21 @@ describe("MemberRowActions final settlement", () => {
     expect(container).toBeEmptyDOMElement();
     expect(dashboardCalls).toBe(0);
   });
+
+  it("is hidden for an admin who is not the manager (the API allows only the manager)", async () => {
+    const admin = member({ id: 7, display_name: "Adil", has_account: true, user_id: 7, is_admin: true });
+    let dashboardCalls = 0;
+    server.use(
+      http.get(BASE, () => HttpResponse.json({ data: { mess: { id: 3, name: "Green" }, me: admin } })),
+      http.get(`${BASE}/dashboard`, () => {
+        dashboardCalls += 1;
+        return HttpResponse.json({ data: dashboard([row(2, 100000)], 500000) });
+      }),
+    );
+    renderWithProviders(<MemberRowActions member={karim} />, { messId: 3 });
+    expect(await screen.findByLabelText("Edit Karim")).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByRole("button", { name: /Final settlement/ })).toBeNull();
+    expect(dashboardCalls).toBe(0);
+  });
 });
