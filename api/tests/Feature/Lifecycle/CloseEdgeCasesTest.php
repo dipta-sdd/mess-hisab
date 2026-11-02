@@ -2,8 +2,7 @@
 
 use App\Models\Month;
 
-require_once __DIR__.'/../Balance/BalanceHelpers.php';
-require_once __DIR__.'/CloseReopenTest.php';
+require_once __DIR__.'/LifecycleHelpers.php';
 
 it('blocks close on unallocated money in a fixed bill', function () {
     [$mess, , $month, $ids] = jSetup('manager', 3);
