@@ -71,7 +71,8 @@ export interface Bill {
   overrides: { member_id: number; amount_paisa: number }[]; shares: Record<string, number>;
   unallocated_paisa: number; unallocated_accepted: boolean;
 }
-export interface MemberMonthSetting { member_id: number; deposit_paisa: number; min_meals_centi: number | null }
+/** deposit_paisa null = no per-member override (the month's deposit applies). */
+export interface MemberMonthSetting { member_id: number; deposit_paisa: number | null; min_meals_centi: number | null }
 export interface Recoverable {
   id: number; month_id: number; debtor_member_id: number; mode: DoesntPayMode; status: RecoverableStatus;
   amount_paisa: number; repaid_paisa: number; shares: { member_id: number; amount_paisa: number; manual_amount_paisa: number | null }[];
