@@ -36,3 +36,11 @@ export function formatMonthLabel(startsOn: string, locale: AppLocale): string {
   if (Number.isNaN(date.getTime())) return startsOn;
   return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD-u-nu-beng" : "en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
 }
+
+/** Short form for chart axes: "Oct 2026" / "অক্টো ২০২৬". Tooltips and tables keep the long label. */
+export function formatMonthTick(startsOn: string, locale: AppLocale): string {
+  const [y, m, d] = startsOn.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if (Number.isNaN(date.getTime())) return startsOn;
+  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD-u-nu-beng" : "en-GB", { month: "short", year: "numeric", timeZone: "UTC" }).format(date);
+}

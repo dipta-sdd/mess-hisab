@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatBalance, formatDate, formatMeals, formatMoney, formatNumber, toBanglaDigits } from "./index";
+import { formatBalance, formatDate, formatMeals, formatMoney, formatMonthTick, formatNumber, toBanglaDigits } from "./index";
 
 describe("toBanglaDigits", () => {
   it("converts digits only", () => {
@@ -100,5 +100,12 @@ describe("formatBalance", () => {
     expect(formatBalance(-40000, "en", "whole_taka", t)).toBe("Due ৳400");
     expect(formatBalance(70000, "en", "whole_taka", t)).toBe("Credit ৳700");
     expect(formatBalance(0, "en", "whole_taka", t)).toBe("Settled");
+  });
+});
+
+describe("formatMonthTick", () => {
+  it("is the short month with the full year", () => {
+    expect(formatMonthTick("2026-10-01", "en")).toBe("Oct 2026");
+    expect(formatMonthTick("2026-10-01", "bn")).toBe("অক্টো ২০২৬");
   });
 });

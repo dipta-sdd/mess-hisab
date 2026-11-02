@@ -1,7 +1,7 @@
 export { toBanglaDigits, localizeDigits, groupSouthAsian } from "./digits";
 export { formatNumber, formatMeals } from "./number";
 export { formatMoney, formatBalance, TAKA_SYMBOL, type BalanceTranslator } from "./money";
-export { formatDate, formatMonthLabel, todayInDhaka, BUSINESS_TIME_ZONE } from "./date";
+export { formatDate, formatMonthLabel, formatMonthTick, todayInDhaka, BUSINESS_TIME_ZONE } from "./date";
 export {
   MAX_PAISA,
   MAX_MEALS_CENTI,

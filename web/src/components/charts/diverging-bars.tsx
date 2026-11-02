@@ -103,7 +103,7 @@ export function VerticalColumns({
     active === null || edge ? undefined : { left: `${((active + 0.5) / n) * 100}%`, transform: "translateX(-50%)" };
 
   return (
-    <div className="flex gap-2" role="group" aria-label={ariaLabel}>
+    <div className="flex gap-2 pt-2" role="group" aria-label={ariaLabel}>
       <div className="relative w-14 shrink-0 text-xs text-muted" style={{ height }} aria-hidden="true">
         {ticks.map((t) => (
           <span key={t} className="absolute right-0 translate-y-1/2 whitespace-nowrap tabular-nums" style={{ bottom: `${pct(t)}%` }}>{fmt(t)}</span>
