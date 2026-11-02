@@ -1,0 +1,56 @@
+{
+  "nav": "Statements",
+  "title": "Statement",
+  "titleFor": "{name}'s statement",
+  "loading": "Loading…",
+  "inactive": "This member was not active in this month.",
+  "links": { "dashboard": "Dashboard", "history": "Month history" },
+  "errors": {
+    "loadFailed": "Could not load the statement. Please try again.",
+    "notFound": "We could not find that member or month."
+  },
+  "member": { "label": "Member", "archived": "archived" },
+  "summary": {
+    "title": "Summary",
+    "total": "Total balance",
+    "fixedBalance": "Fixed balance",
+    "mealsBalance": "Meals balance",
+    "outstanding": "Bills to pay",
+    "depositRequired": "Deposit required",
+    "depositOutstanding": "Deposit to pay"
+  },
+  "lines": { "title": "Details", "empty": "Nothing recorded this month yet." },
+  "groups": { "fixed": "Fixed", "meals": "Meals", "other": "Other" },
+  "kinds": {
+    "carry_in": "Last month due",
+    "fixed_bill": "Fixed bill",
+    "meal_charge": "Meal charge",
+    "rounding": "Rounding",
+    "charge": "Charge",
+    "payment": "Payment",
+    "own_pocket_expense": "Paid from own pocket",
+    "adjustment": "Adjustment",
+    "doesnt_pay_out": "Unpaid share passed to others",
+    "doesnt_pay_in": "Share of another member's unpaid bill",
+    "recoverable_repay": "Repayment received",
+    "final_payout": "Final payout",
+    "opening": "Opening balance"
+  },
+  "history": {
+    "title": "Month history",
+    "loadFailed": "Could not load the history. Please try again.",
+    "empty": "No months yet.",
+    "open": "Open",
+    "closed": "Closed",
+    "month": "Month",
+    "status": "Status",
+    "fixedCharged": "Fixed charged",
+    "mealsCharged": "Meals charged",
+    "expenses": "Expenses",
+    "paid": "Paid in",
+    "totalMeals": "Total meals",
+    "mealRate": "Meal rate",
+    "totalDue": "Total due",
+    "totalCredit": "Total credit"
+  }
+}
