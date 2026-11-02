@@ -4,7 +4,8 @@ import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import HistoryFx from "../../../../docs/contract-fixtures/History.json";
 import StatementFx from "../../../../docs/contract-fixtures/Statement.json";
-import type { HistoryRow, Member, Mess, Statement } from "@/lib/api/contract";
+import MemberHistoryFx from "../../../../docs/contract-fixtures/MemberHistory.json";
+import type { HistoryRow, Member, MemberHistoryRow, Mess, Statement } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
 import { expectBanglaOnly } from "@/test/bangla";
@@ -13,6 +14,7 @@ import { HistoryPage } from "./history-page";
 import { StatementPage } from "./statement-page";
 
 const BASE = `${API_BASE_URL}/api/messes/7`;
+const memberHistRequests: string[] = [];
 const mess = { id: 7, name: "Green House", rounding_mode: "two_decimals" } as Mess;
 const me = { id: 2, display_name: "Karim" } as Member;
 const members = [
@@ -38,9 +40,18 @@ const hist: HistoryRow[] = [
   { ...(HistoryFx as HistoryRow), month_id: 1, starts_on: "2026-10-01", status: "closed", closed_at: "2026-11-01T00:00:00Z" },
 ];
 
-function mockApi(data: Statement = statement) {
+const memberHist: MemberHistoryRow[] = [
+  { ...(MemberHistoryFx as MemberHistoryRow), month_id: 2, starts_on: "2026-11-01", balance_paisa: -110000 },
+  { ...(MemberHistoryFx as MemberHistoryRow), month_id: 1, starts_on: "2026-10-01", status: "closed", balance_paisa: 40000 },
+];
+
+function mockApi(data: Statement = statement, mh: MemberHistoryRow[] = memberHist) {
   const requests: string[] = [];
   server.use(
+    http.get(`${BASE}/statements/:member/history`, ({ params }) => {
+      memberHistRequests.push(String(params.member));
+      return HttpResponse.json({ data: mh });
+    }),
     http.get(BASE, () => HttpResponse.json({ data: { mess, me } })),
     http.get(`${BASE}/members`, () => HttpResponse.json({ data: members })),
     http.get(`${BASE}/history`, () => HttpResponse.json({ data: hist })),
@@ -142,5 +153,116 @@ describe("HistoryPage", () => {
     );
     renderWithProviders(<HistoryPage />, { messId: 7 });
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load the history");
+  });
+});
+
+describe("Statement balance-by-month chart", () => {
+  it("plots the member's monthly balances oldest to newest, credit up and due down", async () => {
+    memberHistRequests.length = 0;
+    mockApi();
+    renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
+    const chart = await screen.findByTestId("chart-balance-by-month");
+    const cols = await within(chart).findAllByTestId(/^col-/);
+    expect(cols.map((c) => c.getAttribute("aria-label"))).toEqual(["October 2026: Credit ৳400.00", "November 2026: Due ৳1,100.00"]);
+    expect(cols[0].querySelector(".bg-success")).not.toBeNull();
+    expect(cols[1].querySelector(".bg-danger")).not.toBeNull();
+    expect(memberHistRequests[0]).toBe("1");
+  });
+
+  it("shows the tooltip on keyboard focus and offers a table", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
+    const chart = await screen.findByTestId("chart-balance-by-month");
+    const col = await within(chart).findByTestId("col-2");
+    col.focus();
+    expect(await within(chart).findByRole("tooltip")).toHaveTextContent("Due ৳1,100.00");
+    await user.click(within(chart).getByRole("button", { name: "Show as table" }));
+    expect(within(chart).getByRole("rowheader", { name: "October 2026" })).toBeInTheDocument();
+    expect(within(chart).getByRole("cell", { name: "Credit ৳400.00" })).toBeInTheDocument();
+  });
+
+  it("shows an empty state, and an error without breaking the page", async () => {
+    mockApi(statement, []);
+    const first = renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
+    expect(await screen.findByText("No months to show yet.")).toBeInTheDocument();
+    first.unmount();
+
+    mockApi();
+    server.use(http.get(`${BASE}/statements/:member/history`, () => HttpResponse.json({ message: "boom" }, { status: 500 })));
+    renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
+    expect(await screen.findByText("Could not load the balance history.")).toBeInTheDocument();
+    expect(screen.getByTestId("stmt-total")).toBeInTheDocument();
+  });
+
+  it("renders in Bangla", async () => {
+    mockApi();
+    renderWithProviders(<StatementPage memberId={1} />, { messId: 7, locale: "bn" });
+    const chart = await screen.findByTestId("chart-balance-by-month");
+    await within(chart).findAllByTestId(/^col-/);
+    expect(within(chart).getByText("মাস অনুযায়ী ব্যালেন্স")).toBeInTheDocument();
+    expectBanglaOnly(["Paid from pocket: rice", "X"]);
+  });
+});
+
+describe("History charts", () => {
+  const rate = (month_id: number, starts_on: string, meal_rate_paisa: number, total_meals_centi: number, expenses_paisa: number): HistoryRow => ({
+    ...(HistoryFx as HistoryRow), month_id, starts_on, meal_rate_paisa, total_meals_centi, expenses_paisa,
+  });
+  const three = [
+    rate(3, "2026-12-01", 4500, 5000, 250000),
+    rate(2, "2026-11-01", 0, 0, 100000),
+    rate(1, "2026-10-01", 4000, 5000, 200000),
+  ];
+
+  it("plots meal rate oldest to newest with a gap for a month without meals, and expenses as columns", async () => {
+    mockApi();
+    server.use(http.get(`${BASE}/history`, () => HttpResponse.json({ data: three })));
+    renderWithProviders(<HistoryPage />, { messId: 7 });
+    const line = await screen.findByTestId("chart-meal-rate");
+    expect(within(line).getByTestId("pt-1")).toHaveAttribute("aria-label", "October 2026: ৳40.00");
+    expect(within(line).getByTestId("pt-3")).toHaveAttribute("aria-label", "December 2026: ৳45.00");
+    expect(within(line).queryByTestId("pt-2")).toBeNull();
+    expect(line.querySelectorAll("path")).toHaveLength(2);
+    expect(within(line).queryByText(/trend will show up/)).toBeNull();
+
+    const cols = within(screen.getByTestId("chart-expenses")).getAllByTestId(/^col-/);
+    expect(cols.map((c) => c.getAttribute("aria-label"))).toEqual([
+      "October 2026: ৳2,000.00", "November 2026: ৳1,000.00", "December 2026: ৳2,500.00",
+    ]);
+  });
+
+  it("shows the point on hover/focus and a table with the gap labelled", async () => {
+    mockApi();
+    server.use(http.get(`${BASE}/history`, () => HttpResponse.json({ data: three })));
+    const user = userEvent.setup();
+    renderWithProviders(<HistoryPage />, { messId: 7 });
+    const line = await screen.findByTestId("chart-meal-rate");
+    within(line).getByTestId("pt-3").focus();
+    expect(await within(line).findByRole("tooltip")).toHaveTextContent("৳45.00");
+    await user.click(within(line).getByRole("button", { name: "Show as table" }));
+    const novRow = within(line).getByRole("rowheader", { name: "November 2026" }).closest("tr")!;
+    expect(novRow).toHaveTextContent("No meals");
+  });
+
+  it("with a single month shows the point and the 'more months' note on both charts", async () => {
+    mockApi();
+    server.use(http.get(`${BASE}/history`, () => HttpResponse.json({ data: [three[0]] })));
+    renderWithProviders(<HistoryPage />, { messId: 7 });
+    const line = await screen.findByTestId("chart-meal-rate");
+    expect(within(line).getByTestId("pt-3")).toBeInTheDocument();
+    expect(within(line).getByText("The trend will show up after a few more months.")).toBeInTheDocument();
+    const bars = screen.getByTestId("chart-expenses");
+    expect(within(bars).getAllByTestId(/^col-/)).toHaveLength(1);
+    expect(within(bars).getByText("The trend will show up after a few more months.")).toBeInTheDocument();
+  });
+
+  it("renders in Bangla", async () => {
+    mockApi();
+    server.use(http.get(`${BASE}/history`, () => HttpResponse.json({ data: three })));
+    renderWithProviders(<HistoryPage />, { messId: 7, locale: "bn" });
+    const line = await screen.findByTestId("chart-meal-rate");
+    expect(within(line).getByText("মাস অনুযায়ী মিল রেট")).toBeInTheDocument();
+    expectBanglaOnly();
   });
 });

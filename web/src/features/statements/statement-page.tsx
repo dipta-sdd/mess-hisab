@@ -10,6 +10,7 @@ import type { StatementLine, StatementLineKind } from "@/lib/api/contract";
 import { formatDate, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { fieldClassInvalid } from "@/components/ui/field";
+import { BalanceByMonth } from "./charts";
 
 /** Kinds whose server `label` is a meaningful name (bill category) and is shown as the main text. */
 const NAMED_KINDS: StatementLineKind[] = ["fixed_bill"];
@@ -137,7 +138,9 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
         ) : null}
       </section>
 
-      <section aria-labelledby="stmt-lines" className="rounded-2xl border border-border bg-surface p-4">
+      {effectiveMember !== null ? <BalanceByMonth messId={messId} memberId={effectiveMember} mode={mode} /> : null}
+
+      <section aria-labelledby="stmt-lines"className="rounded-2xl border border-border bg-surface p-4">
         <h2 id="stmt-lines" className="text-lg font-semibold">{t("lines.title")}</h2>
         <ul className="divide-y divide-border">
           <li className="flex items-start justify-between gap-3 py-2" data-testid="line-carry_in">

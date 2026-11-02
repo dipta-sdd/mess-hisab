@@ -6,6 +6,7 @@ import { useHistory, useMessInfo } from "@/features/dashboard/api";
 import type { AppLocale } from "@/i18n/config";
 import { formatMeals, formatMonthLabel, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
+import { HistoryCharts } from "./charts";
 
 export function HistoryPage() {
   const { messId } = useMess();
@@ -33,6 +34,7 @@ export function HistoryPage() {
         <p className="text-muted">{t("history.empty")}</p>
       ) : (
         <>
+          <HistoryCharts rows={rows} mode={mode} />
           <ul className="flex flex-col gap-3 md:hidden">
             {rows.map((r) => (
               <li key={r.month_id} className="rounded-xl border border-border bg-surface p-3" data-testid={`history-card-${r.month_id}`}>

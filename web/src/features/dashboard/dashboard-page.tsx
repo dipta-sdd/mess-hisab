@@ -8,6 +8,7 @@ import type { DashboardRow } from "@/lib/api/contract";
 import { formatDate, formatMeals, formatMoney, formatNumber } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useDashboard, useHistory, useMessInfo } from "./api";
+import { MemberBalances, SpendingByCategory } from "./charts";
 import { Balance, MonthPicker, OverdueBadge, is404 } from "./shared";
 
 const isOverdue = (r: DashboardRow) => r.fixed_overdue_days > 0 || r.deposit_overdue_days > 0;
@@ -120,6 +121,11 @@ export function DashboardPage({ initialMonthId = null }: { initialMonthId?: numb
           ))}
         </dl>
       </section>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <SpendingByCategory messId={messId} monthId={monthId} mode={mode} />
+        <MemberBalances members={members} mode={mode} />
+      </div>
 
       <section aria-labelledby="members-title" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">

@@ -52,5 +52,20 @@
     "mealRate": "Meal rate",
     "totalDue": "Total due",
     "totalCredit": "Total credit"
+  },
+  "charts": {
+    "showTable": "Show as table",
+    "hideTable": "Hide table",
+    "mealRate": { "title": "Meal rate by month", "subtitle": "What one meal cost each month", "month": "Month", "rate": "Meal rate", "noMeals": "No meals" },
+    "expenses": { "title": "Expenses by month", "subtitle": "Total approved spending each month", "month": "Month", "amount": "Expenses" },
+    "trendNote": "The trend will show up after a few more months.",
+    "balanceByMonth": {
+      "title": "Balance by month",
+      "subtitle": "Credit above the line, due below it",
+      "empty": "No months to show yet.",
+      "loadFailed": "Could not load the balance history.",
+      "month": "Month",
+      "balance": "Balance"
+    }
   }
 }

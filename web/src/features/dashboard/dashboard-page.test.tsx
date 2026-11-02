@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import DashboardFx from "../../../../docs/contract-fixtures/Dashboard.json";
 import HistoryFx from "../../../../docs/contract-fixtures/History.json";
-import type { Dashboard, DashboardRow, HistoryRow, Member, Mess } from "@/lib/api/contract";
+import type { Category, Dashboard, DashboardRow, Expense, HistoryRow, Member, Mess } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
 import { expectBanglaOnly } from "@/test/bangla";
@@ -12,6 +12,7 @@ import { renderWithProviders } from "@/test/render";
 import { DashboardPage } from "./dashboard-page";
 
 const BASE = `${API_BASE_URL}/api/messes/7`;
+const spendRequests: string[] = [];
 
 const fixture = DashboardFx as Dashboard;
 const credit: DashboardRow = {
@@ -30,9 +31,21 @@ const history: HistoryRow[] = [
 const mess = { id: 7, name: "Green House", rounding_mode: "two_decimals" } as Mess;
 const me = { id: 1, display_name: "X" } as Member;
 
-function mockApi(data: Dashboard = dashboard) {
+const categories = [
+  { id: 5, group: "meals", name: "Fish", split_type: "by_meals", sort: 0, is_default: true, archived_at: null },
+  { id: 6, group: "fixed", name: "Gas", split_type: "fixed_per_person", sort: 1, is_default: true, archived_at: null },
+] as Category[];
+const exp = (id: number, category_id: number, amount_paisa: number) => ({ id, month_id: 1, category_id, amount_paisa, status: "approved" }) as Expense;
+const expenses = [exp(1, 6, 20000), exp(2, 5, 100000), exp(3, 5, 50000)];
+
+function mockApi(data: Dashboard = dashboard, spend: Expense[] = expenses) {
   const requests: string[] = [];
   server.use(
+    http.get(`${BASE}/categories`, () => HttpResponse.json({ data: categories })),
+    http.get(`${BASE}/expenses`, ({ request }) => {
+      spendRequests.push(new URL(request.url).search);
+      return HttpResponse.json({ data: spend });
+    }),
     http.get(BASE, () => HttpResponse.json({ data: { mess, me } })),
     http.get(`${BASE}/history`, () => HttpResponse.json({ data: history })),
     http.get(`${BASE}/dashboard`, ({ request }) => {
@@ -142,5 +155,67 @@ describe("DashboardPage", () => {
     );
     render({ initialMonthId: 99 });
     expect(await screen.findByRole("alert")).toHaveTextContent("That month was not found.");
+  });
+});
+
+describe("DashboardPage charts", () => {
+  it("sums approved expenses per category, largest first, for the viewed month", async () => {
+    spendRequests.length = 0;
+    mockApi();
+    render();
+    const chart = await screen.findByTestId("chart-spending");
+    await within(chart).findByTestId("bar-5");
+    const rows = within(chart).getAllByRole("listitem");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent("Fish");
+    expect(rows[0]).toHaveTextContent("৳1,500.00");
+    expect(rows[1]).toHaveTextContent("Gas");
+    expect(rows[1]).toHaveTextContent("৳200.00");
+    const params = new URLSearchParams(spendRequests[0]);
+    expect(params.get("month_id")).toBe("1");
+    expect(params.get("status")).toBe("approved");
+  });
+
+  it("has a table fallback for spending", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    render();
+    const chart = await screen.findByTestId("chart-spending");
+    await within(chart).findByTestId("bar-5");
+    await user.click(within(chart).getByRole("button", { name: "Show as table" }));
+    const table = within(chart).getByRole("table");
+    expect(within(table).getByRole("rowheader", { name: "Gas" })).toBeInTheDocument();
+    expect(within(table).getByRole("cell", { name: "৳1,500.00" })).toBeInTheDocument();
+  });
+
+  it("shows an empty state when nothing is approved", async () => {
+    mockApi(dashboard, []);
+    render();
+    const chart = await screen.findByTestId("chart-spending");
+    expect(await within(chart).findByText("No approved expenses this month.")).toBeInTheDocument();
+  });
+
+  it("charts member balances (most due first) and skips archived members with zero balance", async () => {
+    const archivedZero: DashboardRow = { ...credit, member_id: 9, display_name: "Old Timer", balance_paisa: 0, is_archived: true };
+    mockApi({ ...dashboard, members: [...dashboard.members, archivedZero] });
+    render();
+    const chart = await screen.findByTestId("chart-balances");
+    const rows = within(chart).getAllByRole("listitem");
+    expect(rows.map((r) => r.getAttribute("data-testid"))).toEqual(["dbar-1", "dbar-3", "dbar-2"]);
+    expect(rows[0]).toHaveTextContent("Due ৳1,600.00");
+    expect(rows[2]).toHaveTextContent("Credit ৳700.00");
+    expect(rows[0].querySelector(".bg-danger")).not.toBeNull();
+    expect(rows[2].querySelector(".bg-success")).not.toBeNull();
+    expect(within(chart).queryByText("Old Timer")).toBeNull();
+  });
+
+  it("renders both charts in Bangla", async () => {
+    mockApi();
+    render({}, "bn");
+    const spending = await screen.findByTestId("chart-spending");
+    await within(spending).findByTestId("bar-5");
+    expect(within(spending).getByText("ক্যাটাগরি অনুযায়ী খরচ")).toBeInTheDocument();
+    expect(screen.getByTestId("chart-balances")).toHaveTextContent("পাওনা ৳৭০০");
+    expectBanglaOnly(["X"]);
   });
 });
