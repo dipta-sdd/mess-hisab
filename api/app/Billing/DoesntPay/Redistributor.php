@@ -2,6 +2,8 @@
 
 namespace App\Billing\DoesntPay;
 
+use App\Billing\Split\LargestRemainder;
+
 use App\Billing\Dto\DoesntPaySplit;
 use App\Enums\DoesntPayMode;
 
@@ -51,7 +53,7 @@ final class Redistributor
             $weights = $equal;
         }
 
-        $shares = LargestRemainderSplit::split($amount, $weights);
+        $shares = LargestRemainder::split($amount, $weights);
 
         return new DoesntPaySplit($debtorId, $amount, $shares, $amount - array_sum($shares));
     }

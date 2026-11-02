@@ -2,7 +2,7 @@
 
 use App\Billing\Balance\BalanceCalculator;
 use App\Billing\Balance\CloseCheck;
-use App\Billing\DoesntPay\LargestRemainderSplit;
+use App\Billing\Split\LargestRemainder;
 use App\Billing\DoesntPay\Redistributor;
 use App\Billing\DoesntPay\RepaymentAllocator;
 use App\Billing\Dto\CloseCheckInput;
@@ -17,12 +17,12 @@ function a2Totals($r): array
 }
 
 it('internal largest remainder: CONTRACT 4.1 example, ties, negatives, errors', function () {
-    expect(LargestRemainderSplit::split(800000, [1 => 60, 2 => 50, 3 => 40, 4 => 20]))->toBe([1 => 282353, 2 => 235294, 3 => 188235, 4 => 94118])
-        ->and(LargestRemainderSplit::split(100, [5 => 1, 2 => 1, 9 => 1]))->toBe([5 => 34, 2 => 33, 9 => 33]) // tie -> earlier key
-        ->and(LargestRemainderSplit::split(-100, [1 => 1, 2 => 1, 3 => 1]))->toBe([1 => -34, 2 => -33, 3 => -33])
-        ->and(LargestRemainderSplit::split(0, [1 => 0, 2 => 0]))->toBe([1 => 0, 2 => 0])
-        ->and(LargestRemainderSplit::split(0, []))->toBe([])
-        ->and(fn () => LargestRemainderSplit::split(5, [1 => 0, 2 => 0]))->toThrow(InvalidArgumentException::class);
+    expect(LargestRemainder::split(800000, [1 => 60, 2 => 50, 3 => 40, 4 => 20]))->toBe([1 => 282353, 2 => 235294, 3 => 188235, 4 => 94118])
+        ->and(LargestRemainder::split(100, [5 => 1, 2 => 1, 9 => 1]))->toBe([5 => 34, 2 => 33, 9 => 33]) // tie -> earlier key
+        ->and(LargestRemainder::split(-100, [1 => 1, 2 => 1, 3 => 1]))->toBe([1 => -34, 2 => -33, 3 => -33])
+        ->and(LargestRemainder::split(0, [1 => 0, 2 => 0]))->toBe([1 => 0, 2 => 0])
+        ->and(LargestRemainder::split(0, []))->toBe([])
+        ->and(fn () => LargestRemainder::split(5, [1 => 0, 2 => 0]))->toThrow(InvalidArgumentException::class);
 });
 
 it('Redistributor equal / by_meals / manual', function () {

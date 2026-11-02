@@ -2,6 +2,8 @@
 
 namespace App\Billing\DoesntPay;
 
+use App\Billing\Split\LargestRemainder;
+
 final class RepaymentAllocator
 {
     /**
@@ -12,6 +14,6 @@ final class RepaymentAllocator
      */
     public static function allocate(int $repayment, array $savedShares): array
     {
-        return LargestRemainderSplit::split($repayment, $savedShares);
+        return LargestRemainder::split($repayment, $savedShares);
     }
 }
