@@ -123,3 +123,27 @@ it('returns meals null when meal tracking is off', function () {
 
     $this->getJson(rUrl($mess, $month))->assertOk()->assertJsonPath('data.meals', null);
 });
+
+it('downloads the report as a one-page PDF', function () {
+    [$mess, $month] = rClosed();
+
+    $res = $this->get(rUrl($mess, $month).'/pdf')->assertOk()->assertHeader('Content-Type', 'application/pdf');
+
+    expect($res->headers->get('Content-Disposition'))->toStartWith('attachment; filename="')->toEndWith('-report.pdf"');
+    expect(substr($res->getContent(), 0, 5))->toBe('%PDF-');
+    expect(preg_match_all('#/Type\s*/Page[^s]#', $res->getContent()))->toBe(1);
+});
+
+it('gives the PDF the same 409s and role checks as the report', function () {
+    [$mess, , $month] = kScenario('admin_manager');
+    $this->getJson(rUrl($mess, $month).'/pdf')->assertStatus(409)->assertJsonPath('code', 'month_not_closed');
+
+    [$mess2, , $month2] = kScenario('member');
+    $this->getJson(rUrl($mess2, $month2).'/pdf')->assertForbidden();
+});
+
+it('formats PDF money in English taka', function () {
+    expect(\App\Services\Report\MonthlyReportPdf::money(134401))->toBe('Tk 1,344.01')
+        ->and(\App\Services\Report\MonthlyReportPdf::money(350000))->toBe('Tk 3,500')
+        ->and(\App\Services\Report\MonthlyReportPdf::money(-351100))->toBe('-Tk 3,511');
+});

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ChartCard, DivergingBars } from "@/components/charts";
 import type { AppLocale } from "@/i18n/config";
 import type { Month, RoundingMode } from "@/lib/api/contract";
+import { API_BASE_URL } from "@/lib/api-client/client";
 import { ApiError } from "@/lib/api-client/errors";
 import { formatDate, formatMeals, formatMonthLabel, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
@@ -58,17 +59,21 @@ export function ReportsPage() {
               </select>
             </label>
           ) : null}
-          <button
-            type="button"
-            onClick={() => window.print()}
-            disabled={!reportQ.data}
-            className="min-h-11 rounded-lg bg-accent px-4 font-medium text-accent-foreground disabled:opacity-50"
-          >
-            {t("download")}
-          </button>
+          {reportQ.data && selected !== null ? (
+            <a
+              href={`${API_BASE_URL}/api/messes/${messId}/reports/monthly/${selected}/pdf`}
+              download
+              className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-medium text-accent-foreground"
+            >
+              {t("download")}
+            </a>
+          ) : (
+            <span aria-disabled="true" className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-medium text-accent-foreground opacity-50">
+              {t("download")}
+            </span>
+          )}
         </div>
       </div>
-      <p className="text-sm text-muted" data-print="hide">{t("downloadHint")}</p>
 
       {monthsQ.isError ? (
         <p role="alert" className="text-danger">{err?.isForbidden ? t("forbidden") : t("loadFailed")}</p>
@@ -148,12 +153,6 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
   ];
 
   const nextRows = next.rows.map((r) => ({ row: r, ...splitRow(r) }));
-  const grand = next.rows.reduce((sum, r) => sum + r.total_paisa, 0);
-  const totals = {
-    rent: nextRows.reduce((a, r) => a + r.rent, 0),
-    other: nextRows.reduce((a, r) => a + r.other, 0),
-    due: nextRows.reduce((a, r) => a + r.due, 0),
-  };
 
   return (
     <>
@@ -280,20 +279,12 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
                       </th>
                       <td className="p-2 text-end">{money(r.rent)}</td>
                       <td className="p-2 text-end">{money(r.other)}</td>
-                      <td className="p-2 text-end">{money(r.due)}</td>
+                      {/* A credit shows as a minus: it comes off the total. */}
+                      <td className="p-2 text-end">{money(r.due - r.row.last_month_credit_paisa)}</td>
                       <td className="p-2 text-end font-semibold">{money(r.row.total_paisa)}</td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot>
-                  <tr className="font-semibold" data-testid="next-totals">
-                    <th scope="row" className="p-2 text-start">{t("next.grandTotal")}</th>
-                    <td className="p-2 text-end">{money(totals.rent)}</td>
-                    <td className="p-2 text-end">{money(totals.other)}</td>
-                    <td className="p-2 text-end">{money(totals.due)}</td>
-                    <td className="p-2 text-end" data-testid="next-grand-total">{money(grand)}</td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
           </>

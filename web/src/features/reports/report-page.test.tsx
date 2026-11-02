@@ -1,5 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Mess, Month } from "@/lib/api/contract";
@@ -91,7 +90,8 @@ describe("ReportsPage", () => {
     const rahim = screen.getByTestId("next-row-1");
     expect(within(rahim).getAllByRole("cell").map((c) => c.textContent)).toEqual(["৳1,000.00", "৳200.00", "৳800.00", "৳2,000.00"]);
     expect(screen.getByTestId("next-row-2")).toHaveTextContent("Credit ৳300.00 from last month");
-    expect(screen.getByTestId("next-grand-total")).toHaveTextContent("৳3,100.00");
+    expect(within(screen.getByTestId("next-row-2")).getAllByRole("cell")[2]).toHaveTextContent("-৳300.00");
+    expect(screen.queryByTestId("next-totals")).not.toBeInTheDocument();
 
     expect(screen.getByTestId("expense-11")).toHaveTextContent("Shared cash");
     expect(screen.getByTestId("expense-12")).toHaveTextContent("Karim");
@@ -148,17 +148,13 @@ describe("ReportsPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load the report");
   });
 
-  it("Download PDF calls window.print and the print styles are mounted", async () => {
+  it("Download PDF links to the server-made PDF of the picked month", async () => {
     mock();
-    const print = vi.spyOn(window, "print").mockImplementation(() => {});
-    const user = userEvent.setup();
     renderWithProviders(<ReportsPage />, { messId: 7 });
     await screen.findByTestId("section-summary");
-    expect(screen.getByTestId("report-print-styles").textContent).toContain("@media print");
-    const btn = screen.getByRole("button", { name: "Download PDF" });
-    await waitFor(() => expect(btn).toBeEnabled());
-    await user.click(btn);
-    expect(print).toHaveBeenCalledTimes(1);
+    const link = await screen.findByRole("link", { name: "Download PDF" });
+    expect(link.getAttribute("href")).toMatch(/\/api\/messes\/7\/reports\/monthly\/\d+\/pdf$/);
+    expect(link).toHaveAttribute("download");
   });
 
   it("does not use landmarks that the print CSS hides", async () => {
@@ -175,7 +171,7 @@ describe("ReportsPage", () => {
     await screen.findByTestId("section-summary");
     expect(screen.getByTestId("section-next")).toHaveTextContent("নভেম্বর");
     expect(screen.getByTestId("tile-expenses")).toHaveTextContent("৫,০০০.০০");
-    expect(screen.getByRole("button", { name: "পিডিএফ ডাউনলোড" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "পিডিএফ ডাউনলোড" })).toBeInTheDocument();
     expectBanglaOnly(["Green House"]);
   });
 });

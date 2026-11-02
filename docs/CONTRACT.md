@@ -347,6 +347,8 @@ Removed from the UI (API kept for now): `forgot-password` / `reset-password` by 
 ### v3 — monthly report (task R)
 GET `/api/messes/{mess}/reports/monthly/{month}` (admin, manager; member 403; other mess 404) → `{month, mess, summary, members[], expenses[], meals|null, next_month:{month, fixed_deadline, rows:[{member_id, display_name, by_category:[{category_id, name, amount_paisa}], last_month_due_paisa, total_paisa}]}}`, all money paisa. 409 `month_not_closed`; 409 `next_month_bills_missing` `{next_month_id}` when the following month has no saved Fixed bill. Exact inner shapes: `web/src/features/reports/types.ts` (owned by R).
 
+GET `/api/messes/{mess}/reports/monthly/{month}/pdf` (same roles, 404s and 409 JSON errors) → 200 `application/pdf`, `Content-Disposition: attachment; filename="<mess-slug>-YYYY-MM-report.pdf"`. A one-page A4 summary in English.
+
 ### Resource shapes (TS names in `contract.ts`)
 - `User {id, name, email|null, phone|null, phone_verified, has_verified_contact, locale, has_password, has_google}`
 - `Membership {mess_id, mess_name, member_id, is_admin, is_manager, archived}`

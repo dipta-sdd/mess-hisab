@@ -5,7 +5,6 @@
   "loadFailed": "Could not load the report. Please try again.",
   "forbidden": "Only the admin and the manager can open reports.",
   "download": "Download PDF",
-  "downloadHint": "Opens your browser's print dialog. Choose “Save as PDF”.",
   "monthPicker": { "label": "Month", "none": "There is no closed month yet. Close a month to see its report." },
   "blocked": {
     "month_not_closed": "This month is not closed yet, so it has no report. Close the month first.",
@@ -55,7 +54,6 @@
     "member": "Member",
     "total": "Total to pay",
     "creditNote": "Credit {amount} from last month is already taken off.",
-    "grandTotal": "Everyone together",
     "empty": "Nobody has anything to pay."
   },
   "expenses": {
