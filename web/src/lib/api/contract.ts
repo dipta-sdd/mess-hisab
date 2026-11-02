@@ -138,7 +138,7 @@ export type CloseBlockCode =
 export interface CloseBlock { code: CloseBlockCode; data: Record<string, unknown> }
 /** GET /months/{month}/close-check → {data: CloseCheck}. POST close → 409 `close_blocked` with `blocks`. */
 export interface CloseCheck { can_close: boolean; blocks: CloseBlock[] }
-export type ReopenBlockCode = "month_not_closed" | "not_latest_closed" | "payout_after_close" | "recoverable_repaid";
+export type ReopenBlockCode = "month_not_closed" | "not_latest_closed" | "payout_after_close" | "archive_after_close" | "recoverable_repaid";
 export interface ReopenPreview {
   month_id: number; can_reopen: boolean;
   blocks: { code: ReopenBlockCode; data: Record<string, unknown> }[];
