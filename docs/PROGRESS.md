@@ -22,11 +22,11 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | W1 Web: auth, mess, members, settings | 2 | running | | |
 | E Expenses API | 3 | merged | worktree-agent-abcf81579265b0506 | |
 | F Meals API | 3 | merged | worktree-agent-a9c8aaccf69b58672 | |
-| H Fixed setup & deposits API | 3 | running | | |
+| H Fixed setup & deposits API | 3 | merged (override ids normalised by lead) | worktree-agent-a9018563f6d9dffa0 | |
 | W2 Web: payments | 3 | merged (nav registered) | worktree-agent-ace433c9d51f1cf36 | |
-| J Live balances API | 4 | blocked by A1, A2, E, F, H | | |
-| W3 Web: expenses | 4 | | | |
-| W4 Web: meals & fixed setup | 4 | | | |
+| J Live balances API | 4 | running | | |
+| W3 Web: expenses | 4 | running (started early, E merged) | | |
+| W4 Web: meals & fixed setup | 4 | running | | |
 | K Month lifecycle API | 5 | blocked by J | | |
 | L Excel export | 5 | | | |
 | N Audit API | 5 | | | |
@@ -51,3 +51,5 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 - API (F): meals are multiples of 50 centi (≤1000/day, ≤31000/month; constants in `MealRules`); bld_ticks values are computed and not step-checked. No late entry for meals (closed month → 409). Self-entered guest meals have no confirmation (PROJECT §12 risk). No `DELETE /meals` (PUT 0). A concurrent first write can hit the unique index and return 500 — fix in polish.
 - Web (W2): `features/<x>/nav.ts` exports a single `NavItem`; register as `xNav,` in `nav-registry.ts`. Payments defines `CashPool` and `MessWithMe` locally in `features/payments/api.ts` — promote to `contract.ts` if a second feature needs them. Native form controls + HeroUI Button. 422 `paid_on` text is the server's English message (translate in P1).
 - API (E): short cash converts the WHOLE expense to the manager's own money (PROJECT §4 "500 with 200 in pool"); check + insert under a mess-row lock; re-checked at approve and on edits that change amount/paid_by. Members can only record `paid_by=member` with themselves (422 otherwise). Rejected expenses can't be edited (409 `expense_rejected`), only deleted. Approve/reject a non-pending one → 409 `not_pending`. `ExpensePolicy` is a plain class called by the service (Gate can't see MessMember roles). POST returns `{data: {expense, warnings}}`; DELETE 204 soft delete.
+- Lead fix after E: a non-manager editing an expense not paid from their own pocket (cash, or another member — e.g. recorded while they were manager) gets 422 `paid_by` even when the payer isn't re-sent.
+- API (H): `BillSetup` helpers for J/K: `activeMemberIds($month)`, `billsFor($month)`, `billFor($month, $category)`. Fixed bill: amount + per-person overrides; the rest is shared equally (LR) over the non-overridden members. Spread puts the unallocated amount equally (LR) over the non-overridden members (everyone if all are overridden) and writes the result as overrides; the accept flag resets on PUT and on spread. Errors: 409 `amount_required`, `nothing_to_spread`, `over_allocated`, `category_archived`. A null deadline means no overdue tracking. Lead fix: override `member_id` sent as a numeric string is normalised before the active-member check.
