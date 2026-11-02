@@ -20,7 +20,7 @@ class EnsureMessRole
             default => false,
         });
 
-        abort_unless($allowed, 403, 'Your role cannot do this.');
+        abort_unless($allowed, 403, __('Your role cannot do this.'));
 
         return $next($request);
     }

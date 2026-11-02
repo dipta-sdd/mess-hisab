@@ -68,12 +68,12 @@ class InviteService
         [$mess, $member, $invite] = DB::transaction(function () use ($user, $token, $displayName) {
             $invite = Invite::query()->where('token', $token)->lockForUpdate()->first();
             if ($invite === null) {
-                $this->conflict('invite_invalid', 'This invite link is not valid.');
+                $this->conflict('invite_invalid', __('This invite link is not valid.'));
             }
 
             $already = MessMember::forMess($invite->mess_id)->where('user_id', $user->id)->exists();
             if ($already) {
-                $this->conflict('already_member', 'You are already a member of this mess.');
+                $this->conflict('already_member', __('You are already a member of this mess.'));
             }
 
             if ($invite->member_id !== null) {
@@ -81,7 +81,7 @@ class InviteService
                 MessMember::forMess($invite->mess_id)->whereKey($invite->member_id)->lockForUpdate()->first();
             }
             if ($this->problem($invite) !== null) {
-                $this->conflict('invite_invalid', 'This invite link is no longer valid.');
+                $this->conflict('invite_invalid', __('This invite link is no longer valid.'));
             }
 
             $mess = Mess::findOrFail($invite->mess_id);

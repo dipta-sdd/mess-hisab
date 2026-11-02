@@ -42,12 +42,12 @@ class MonthCloser
             Mess::query()->whereKey($mess->id)->lockForUpdate()->firstOrFail();
             $month = Month::query()->forMess($mess->id)->whereKey($requested->id)->lockForUpdate()->firstOrFail();
             if ($month->status !== MonthStatus::Open) {
-                throw new LifecycleException('This month is already closed.', 'month_closed');
+                throw new LifecycleException(__('This month is already closed.'), 'month_closed');
             }
 
             $ev = $this->checker->evaluate($mess, $month, $choice);
             if (! $ev->canClose()) {
-                throw new LifecycleException('This month cannot be closed yet.', 'close_blocked', ['blocks' => $ev->blocks]);
+                throw new LifecycleException(__('This month cannot be closed yet.'), 'close_blocked', ['blocks' => $ev->blocks]);
             }
             $snap = $ev->snapshot;
 

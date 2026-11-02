@@ -32,11 +32,11 @@ class RecoverableRepayer
             $recoverable = Recoverable::query()->forMess($mess->id)->whereKey($requested->id)->lockForUpdate()->firstOrFail();
 
             if ($recoverable->status !== RecoverableStatus::Open) {
-                throw new LifecycleException('Only an unpaid share that is open can be repaid.', 'recoverable_not_open');
+                throw new LifecycleException(__('Only an unpaid share that is open can be repaid.'), 'recoverable_not_open');
             }
             $outstanding = (int) $recoverable->amount_paisa - (int) $recoverable->repaid_paisa;
             if ($amountPaisa > $outstanding) {
-                throw new LifecycleException('That is more than is still owed.', 'exceeds_outstanding', ['outstanding_paisa' => $outstanding]);
+                throw new LifecycleException(__('That is more than is still owed.'), 'exceeds_outstanding', ['outstanding_paisa' => $outstanding]);
             }
 
             $month = $this->calendar->assignMonth($mess, $paidOn)['month'];

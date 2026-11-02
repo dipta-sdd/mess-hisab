@@ -41,7 +41,7 @@ class BillController extends Controller
     private function assertSplittable(Category $category): void
     {
         if ($category->split_type->value === 'by_meal') {
-            throw ValidationException::withMessages(['category' => ['A by-meal category has no unallocated amount.']]);
+            throw ValidationException::withMessages(['category' => [__('A by-meal category has no unallocated amount.')]]);
         }
     }
 }

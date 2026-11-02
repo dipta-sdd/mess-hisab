@@ -72,7 +72,7 @@ class BillSetup
                 $row->amount_paisa = $amount;
             }
             if ($category->group === Group::Fixed && $row->amount_paisa === null) {
-                throw new SetupException('A fixed bill needs its amount first.', 'amount_required');
+                throw new SetupException(__('A fixed bill needs its amount first.'), 'amount_required');
             }
             // Any change to amount or overrides invalidates an earlier "accept the unallocated amount".
             $row->unallocated_accepted = false;
@@ -102,10 +102,10 @@ class BillSetup
             $unallocated = $bill['unallocated_paisa'];
 
             if ($unallocated === 0) {
-                throw new SetupException('Nothing is unallocated.', 'nothing_to_spread');
+                throw new SetupException(__('Nothing is unallocated.'), 'nothing_to_spread');
             }
             if ($unallocated < 0) {
-                throw new SetupException('The bill is over-allocated; lower someone\'s amount or raise the bill.', 'over_allocated');
+                throw new SetupException(__('The bill is over-allocated; lower someone\'s amount or raise the bill.'), 'over_allocated');
             }
 
             $members = $this->activeMemberIds($month);
@@ -115,7 +115,7 @@ class BillSetup
                 $targets = $members;
             }
             if ($targets === []) {
-                throw new SetupException('There are no members to spread over.', 'nothing_to_spread');
+                throw new SetupException(__('There are no members to spread over.'), 'nothing_to_spread');
             }
 
             foreach (LargestRemainder::split($unallocated, array_fill_keys($targets, 1)) as $memberId => $part) {
@@ -152,7 +152,7 @@ class BillSetup
             $locked = Month::query()->whereKey($month->id)->lockForUpdate()->firstOrFail();
             if (! $locked->isOpen()) {
                 throw new HttpResponseException(response()->json([
-                    'message' => 'This month is closed.', 'code' => 'month_closed',
+                    'message' => __('This month is closed.'), 'code' => 'month_closed',
                 ], 409));
             }
 
@@ -163,7 +163,7 @@ class BillSetup
     private function assertCategoryUsable(Category $category): void
     {
         if ($category->archived_at !== null) {
-            throw new SetupException('This category is archived.', 'category_archived');
+            throw new SetupException(__('This category is archived.'), 'category_archived');
         }
     }
 

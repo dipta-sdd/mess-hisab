@@ -97,7 +97,7 @@ class ExpenseService
             } elseif (! $isManager && ($expense->paid_by !== PaidBy::Member || $expense->paid_by_member_id !== $actor->id)) {
                 // A member may only touch money they paid themselves, even when not re-sending the payer
                 // (e.g. a cash expense they recorded while they were the manager).
-                throw ValidationException::withMessages(['paid_by' => ['Only the manager can change an expense paid from mess cash or by someone else.']]);
+                throw ValidationException::withMessages(['paid_by' => [__('Only the manager can change an expense paid from mess cash or by someone else.')]]);
             }
 
             foreach (['category_id', 'amount_paisa', 'note'] as $field) {
@@ -187,7 +187,7 @@ class ExpenseService
         PaymentMonth::assertOpen($expense->month);
 
         if ($expense->status !== ExpenseStatus::Pending) {
-            throw $this->conflict('not_pending', 'Only a pending expense can be approved or rejected.');
+            throw $this->conflict('not_pending', __('Only a pending expense can be approved or rejected.'));
         }
 
         return $expense;
@@ -210,16 +210,16 @@ class ExpenseService
      */
     private function assertCanModify(Mess $mess, MessMember $actor, Expense $expense, bool $isManager, bool $editing): void
     {
-        abort_unless((new ExpensePolicy)->modify($actor, $expense), 403, 'Only the owner or the manager can change this expense.');
+        abort_unless((new ExpensePolicy)->modify($actor, $expense), 403, __('Only the owner or the manager can change this expense.'));
 
         PaymentMonth::assertOpen($expense->month);
 
         if ($editing && $expense->status === ExpenseStatus::Rejected) {
-            throw $this->conflict('expense_rejected', 'A rejected expense cannot be edited.');
+            throw $this->conflict('expense_rejected', __('A rejected expense cannot be edited.'));
         }
 
         if (! $isManager && $mess->approval_required && $expense->status === ExpenseStatus::Approved) {
-            throw $this->conflict('already_approved', 'This expense is already approved; only the manager can change it.');
+            throw $this->conflict('already_approved', __('This expense is already approved; only the manager can change it.'));
         }
     }
 
@@ -239,10 +239,10 @@ class ExpenseService
     {
         if ($paidBy === PaidBy::Cash) {
             if (! $isManager) {
-                throw ValidationException::withMessages(['paid_by' => ['Only the manager can record an expense paid from mess cash.']]);
+                throw ValidationException::withMessages(['paid_by' => [__('Only the manager can record an expense paid from mess cash.')]]);
             }
             if ($requested !== null && ! $updating) {
-                throw ValidationException::withMessages(['paid_by_member_id' => ['Leave this empty when paid from mess cash.']]);
+                throw ValidationException::withMessages(['paid_by_member_id' => [__('Leave this empty when paid from mess cash.')]]);
             }
 
             return null;
@@ -251,7 +251,7 @@ class ExpenseService
         // Nobody named: the person recording paid (the manager is also a normal member).
         $payer = $requested ?? $actor->id;
         if (! $isManager && $payer !== $actor->id) {
-            throw ValidationException::withMessages(['paid_by_member_id' => ['You can only record expenses you paid yourself.']]);
+            throw ValidationException::withMessages(['paid_by_member_id' => [__('You can only record expenses you paid yourself.')]]);
         }
 
         return $payer;

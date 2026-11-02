@@ -102,7 +102,7 @@ class MonthReopener
             $this->apply($mess, $month, $by);
             $after = $this->totals($mess);
             if ($after !== $before) {
-                throw new LifecycleException('Reopening would change balances; the stored month no longer matches its raw data.', 'balances_changed');
+                throw new LifecycleException(__('Reopening would change balances; the stored month no longer matches its raw data.'), 'balances_changed');
             }
 
             $this->audit->log('month.reopened', $month, ['status' => 'closed'], ['status' => 'open'], ['rows_deleted' => $rows]);
@@ -158,12 +158,12 @@ class MonthReopener
     private function message(string $code): string
     {
         return match ($code) {
-            'month_not_closed' => 'This month is not closed.',
-            'not_latest_closed' => 'Only the latest closed month can be reopened.',
-            'payout_after_close' => 'A final payout was made after this month closed.',
-            'archive_after_close' => 'A member was archived after this month closed.',
-            'recoverable_repaid' => 'A repayment was already recorded against this month\'s unpaid share.',
-            default => 'This month cannot be reopened.',
+            'month_not_closed' => __('This month is not closed.'),
+            'not_latest_closed' => __('Only the latest closed month can be reopened.'),
+            'payout_after_close' => __('A final payout was made after this month closed.'),
+            'archive_after_close' => __('A member was archived after this month closed.'),
+            'recoverable_repaid' => __('A repayment was already recorded against this month\'s unpaid share.'),
+            default => __('This month cannot be reopened.'),
         };
     }
 

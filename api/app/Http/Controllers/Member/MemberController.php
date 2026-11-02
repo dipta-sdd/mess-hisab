@@ -39,7 +39,7 @@ class MemberController extends Controller
                 // Opening balance goes into the latest open month (task M owns months).
                 $month = Month::query()->where('status', MonthStatus::Open)->orderByDesc('starts_on')->first();
                 if ($month === null) {
-                    throw ValidationException::withMessages(['opening_balance_paisa' => ['There is no open month to record an opening balance in.']]);
+                    throw ValidationException::withMessages(['opening_balance_paisa' => [__('There is no open month to record an opening balance in.')]]);
                 }
             }
 
@@ -76,7 +76,7 @@ class MemberController extends Controller
 
         if ($member->isAdmin() || $member->isManager()) {
             return response()->json([
-                'message' => 'The admin and the manager cannot be archived. Hand over the role first.',
+                'message' => __('The admin and the manager cannot be archived. Hand over the role first.'),
                 'code' => 'is_admin_or_manager',
             ], 409);
         }

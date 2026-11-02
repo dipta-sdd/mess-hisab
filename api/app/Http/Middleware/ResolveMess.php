@@ -33,7 +33,7 @@ class ResolveMess
         abort_if($member === null, 404);
 
         if ($member->isArchived() && ! $request->isMethodSafe()) {
-            abort(403, 'Archived members have read-only access.');
+            abort(403, __('Archived members have read-only access.'));
         }
 
         $member->setRelation('mess', $mess);
