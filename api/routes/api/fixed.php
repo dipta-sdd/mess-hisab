@@ -6,7 +6,7 @@ use App\Http\Controllers\Setup\SetupController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'mess'])->prefix('messes/{mess}')->group(function () {
-    Route::get('months/{month}/setup', [SetupController::class, 'show'])->whereNumber('month');
+    Route::get('months/{month}/setup', [SetupController::class, 'show'])->whereNumber('month')->middleware('mess.role:admin,manager');
 
     Route::middleware('mess.role:manager')->group(function () {
         Route::patch('months/{month}/setup', [SetupController::class, 'update'])->whereNumber('month');

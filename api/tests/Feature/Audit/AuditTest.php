@@ -18,8 +18,8 @@ function auLog($mess, string $event, array $over = []): AuditLog
     ]);
 }
 
-it('lets any member read this mess audit log newest first with the contract shape', function () {
-    [$mess, $me] = actingAsMember('member');
+it('lets staff read this mess audit log newest first with the contract shape', function () {
+    [$mess, $me] = actingAsMember('manager');
     auClear();
     auLog($mess, 'expense.created', ['member_id' => $me->id, 'created_at' => '2026-11-01 10:00:00']);
     auLog($mess, 'payment.created', ['created_at' => '2026-11-03 10:00:00']);
@@ -35,7 +35,7 @@ it('lets any member read this mess audit log newest first with the contract shap
 });
 
 it('never shows rows from another mess or with no mess', function () {
-    [$mess] = actingAsMember('member');
+    [$mess] = actingAsMember('manager');
     $foreign = otherMess();
     auClear();
     auLog($mess, 'expense.created');
@@ -48,7 +48,7 @@ it('never shows rows from another mess or with no mess', function () {
 });
 
 it('uses the paginator envelope', function () {
-    [$mess] = actingAsMember('member');
+    [$mess] = actingAsMember('manager');
     auClear();
     foreach (range(1, 5) as $i) {
         auLog($mess, 'expense.created');
@@ -64,7 +64,7 @@ it('uses the paginator envelope', function () {
 });
 
 it('filters by exact event and by prefix', function () {
-    [$mess] = actingAsMember('member');
+    [$mess] = actingAsMember('manager');
     auClear();
     auLog($mess, 'expense.created');
     auLog($mess, 'expense.approved');
@@ -81,7 +81,7 @@ it('filters by exact event and by prefix', function () {
 });
 
 it('filters by member and rejects members of another mess', function () {
-    [$mess, $me] = actingAsMember('member');
+    [$mess, $me] = actingAsMember('manager');
     $gone = MessMember::factory()->for($mess)->archived()->create();
     auClear();
     auLog($mess, 'expense.created', ['member_id' => $me->id]);
@@ -97,7 +97,7 @@ it('filters by member and rejects members of another mess', function () {
 });
 
 it('filters from/to inclusively in Asia/Dhaka', function () {
-    [$mess] = actingAsMember('member');
+    [$mess] = actingAsMember('manager');
     auClear();
     auLog($mess, 'a.before', ['created_at' => '2026-11-09 23:59:59']);
     auLog($mess, 'a.start', ['created_at' => '2026-11-10 00:00:00']);
@@ -113,11 +113,13 @@ it('filters from/to inclusively in Asia/Dhaka', function () {
     $this->getJson(messPath($mess, 'audit?from=nope'))->assertUnprocessable();
 });
 
-it('lets archived members read it', function () {
+it('refuses archived and normal members: the audit log is staff only', function () {
     [$mess] = actingAsMember('archived');
     auClear();
     auLog($mess, 'expense.created');
-    $this->getJson(messPath($mess, 'audit'))->assertOk()->assertJsonCount(1, 'data');
+    $this->getJson(messPath($mess, 'audit'))->assertForbidden();
+    actingAsMember('member', $mess);
+    $this->getJson(messPath($mess, 'audit'))->assertForbidden();
 });
 
 it('requires login', function () {

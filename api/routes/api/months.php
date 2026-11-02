@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Route;
 
 // Task K: month lifecycle (close / reopen), adjustments, doesn't-pay, recoverables, final settlement.
 Route::middleware(['auth:sanctum', 'mess'])->prefix('messes/{mess}')->group(function () {
-    Route::get('adjustments', [AdjustmentController::class, 'index']);
-    Route::get('recoverables', [RecoverableController::class, 'index']);
+    Route::get('adjustments', [AdjustmentController::class, 'index'])->middleware('mess.role:admin,manager');
+    Route::get('recoverables', [RecoverableController::class, 'index'])->middleware('mess.role:admin,manager');
 
     Route::middleware('mess.role:manager')->group(function () {
         Route::get('months/{month}/close-check', [MonthLifecycleController::class, 'closeCheck'])->whereNumber('month');

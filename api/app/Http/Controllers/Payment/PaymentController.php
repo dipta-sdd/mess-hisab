@@ -30,6 +30,7 @@ class PaymentController extends Controller
         $payments = Payment::query()
             ->when(isset($data['month_id']), fn ($q) => $q->where('month_id', $data['month_id']))
             ->when(isset($data['member_id']), fn ($q) => $q->where('member_id', $data['member_id']))
+            ->unless(currentMember()->isStaff(), fn ($q) => $q->where('member_id', currentMember()->id))
             ->orderByDesc('paid_on')->orderByDesc('id')
             ->get();
 

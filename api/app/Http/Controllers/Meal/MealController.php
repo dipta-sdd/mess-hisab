@@ -37,12 +37,14 @@ class MealController extends Controller
         }
 
         $entries = MealEntry::query()->where('month_id', $month->id)
+            ->unless(currentMember()->isStaff(), fn ($q) => $q->where('member_id', currentMember()->id))
             ->orderBy('entry_date')->orderBy('member_id')->get();
 
         // Everyone active in the month gets a row (zeros), so the web can show a full grid.
         $totals = MessMember::query()
             ->where('joined_on', '<=', $month->ends_on->toDateString())
             ->where(fn ($q) => $q->whereNull('left_on')->orWhere('left_on', '>=', $month->starts_on->toDateString()))
+            ->unless(currentMember()->isStaff(), fn ($q) => $q->where('id', currentMember()->id))
             ->pluck('id')
             ->mapWithKeys(fn ($id) => [$id => ['meals_centi' => 0, 'guest_meals_centi' => 0]])
             ->all();

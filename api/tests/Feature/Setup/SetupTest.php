@@ -39,7 +39,7 @@ function hBillPath(Mess $mess, Month $month, Category $cat, string $suffix = '')
 // ---------------------------------------------------------------- GET setup
 
 it('shows the setup to any member with shares from the engine', function () {
-    [$mess, , $month, $ids] = hSetup('member');
+    [$mess, , $month, $ids] = hSetup('manager');
     [$x, $y, $z] = $ids;
 
     // CONTRACT §4.5: bill 90000, Z pinned at 10000, X and Y split 80000.
@@ -108,7 +108,7 @@ it('shows the setup to any member with shares from the engine', function () {
 });
 
 it('shows an unset fixed bill as zero and ignores members who were not active in the month', function () {
-    [$mess, , $month, $ids] = hSetup('member');
+    [$mess, , $month, $ids] = hSetup('manager');
     MessMember::forMess($mess->id)->whereKey($ids[2])->update(['joined_on' => '2026-12-05']); // joins after the month
     hCategory($mess);
 
@@ -119,7 +119,7 @@ it('shows an unset fixed bill as zero and ignores members who were not active in
 });
 
 it('hides another mess month with 404', function () {
-    [$mess] = hSetup('member');
+    [$mess] = hSetup('manager');
     $foreign = otherMess();
     $theirs = Month::factory()->create(['mess_id' => $foreign->id]);
 
@@ -475,7 +475,7 @@ it('rejects every write on a closed month with 409 month_closed', function (stri
 ]);
 
 it('still shows a closed month setup', function () {
-    [$mess, , $month] = hSetup('member', closed: true);
+    [$mess, , $month] = hSetup('manager', closed: true);
 
     $this->getJson(messPath($mess, "months/{$month->id}/setup"))->assertOk();
 });
@@ -484,5 +484,5 @@ it('blocks archived members from writing', function () {
     [$mess, , $month] = hSetup('archived');
 
     $this->patchJson(messPath($mess, "months/{$month->id}/setup"), ['deposit_paisa' => 1])->assertForbidden();
-    $this->getJson(messPath($mess, "months/{$month->id}/setup"))->assertOk();
+    $this->getJson(messPath($mess, "months/{$month->id}/setup"))->assertForbidden();
 });

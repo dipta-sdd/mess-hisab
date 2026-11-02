@@ -55,6 +55,12 @@ class MessMember extends Model
         return $this->mess->manager_member_id === $this->id;
     }
 
+    /** Staff = admin and/or manager. Everyone else is a normal member who only sees their own data. */
+    public function isStaff(): bool
+    {
+        return $this->isAdmin() || $this->isManager();
+    }
+
     public function isArchived(): bool
     {
         return $this->archived_at !== null;

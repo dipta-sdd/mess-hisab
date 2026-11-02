@@ -33,7 +33,7 @@ function lRunJob(Export $export): void
 }
 
 /** Seeded PROJECT example 2 month; returns [mess, me, month, ids]. */
-function lSeeded(string $role = 'member'): array
+function lSeeded(string $role = 'manager'): array
 {
     [$mess, $me, $month, $ids] = jSetup($role);
     jToday('2026-11-12');
@@ -167,9 +167,9 @@ it('serves status and a private download once done', function () {
     Storage::disk('public')->assertMissing(Export::forMess($mess->id)->find($id)->path);
 });
 
-it('lets any member of the mess download, and 409s while not ready', function () {
+it('lets staff download, 409s while not ready, and refuses a normal member', function () {
     Queue::fake();
-    [$mess, , $month] = lSeeded('member');
+    [$mess, , $month] = lSeeded('manager');
     $id = $this->postJson(messPath($mess, 'exports'), ['type' => 'month', 'month_id' => $month->id])->json('data.id');
 
     $this->getJson(messPath($mess, "exports/{$id}/download"))->assertStatus(409)->assertJsonPath('code', 'export_not_ready');
@@ -177,6 +177,11 @@ it('lets any member of the mess download, and 409s while not ready', function ()
     $other = MessMember::factory()->for($mess)->create();
     $this->actingAs($other->user);
     lRunJob(Export::forMess($mess->id)->findOrFail($id));
+    $this->get(messPath($mess, "exports/{$id}/download"))->assertForbidden();
+    $this->getJson(messPath($mess, "exports/{$id}"))->assertForbidden();
+    $this->postJson(messPath($mess, 'exports'), ['type' => 'month', 'month_id' => $month->id])->assertForbidden();
+
+    $this->actingAs($mess->manager->user);
     $this->get(messPath($mess, "exports/{$id}/download"))->assertOk();
 });
 
@@ -221,7 +226,7 @@ it('needs a login', function () {
 
 it('validates the request', function () {
     Queue::fake();
-    [$mess, , $month] = jSetup('member');
+    [$mess, , $month] = jSetup('manager');
 
     $this->postJson(messPath($mess, 'exports'), [])->assertStatus(422)->assertJsonValidationErrors(['type', 'month_id']);
     $this->postJson(messPath($mess, 'exports'), ['type' => 'pdf', 'month_id' => $month->id])->assertStatus(422)->assertJsonValidationErrors(['type']);
@@ -232,7 +237,7 @@ it('validates the request', function () {
 
 it('is 404 across messes on create, show and download', function () {
     Queue::fake();
-    [$mess, , $month] = jSetup('member');
+    [$mess, , $month] = jSetup('manager');
     $foreign = otherMess();
     $foreignMonth = Month::factory()->create(['mess_id' => $foreign->id]);
     $foreignExport = Export::factory()->create([
