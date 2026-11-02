@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->api(append: \App\Http\Middleware\SetLocale::class);
+        $middleware->encryptCookies(except: ['NEXT_LOCALE']); // set by the web app, read in SetLocale
         $middleware->alias([
             'mess' => \App\Http\Middleware\ResolveMess::class,
             'mess.role' => \App\Http\Middleware\EnsureMessRole::class,

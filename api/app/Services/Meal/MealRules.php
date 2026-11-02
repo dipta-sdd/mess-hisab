@@ -37,7 +37,7 @@ final class MealRules
 
         if ($style === MealTracking::Off) {
             throw new HttpResponseException(response()->json([
-                'message' => 'Meal tracking is turned off for this mess.',
+                'message' => __('Meal tracking is turned off for this mess.'),
                 'code' => 'meal_tracking_off',
             ], 409));
         }

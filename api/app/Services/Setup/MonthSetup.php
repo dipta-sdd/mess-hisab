@@ -34,7 +34,7 @@ class MonthSetup
     {
         return $this->bills->locked($month, function (Month $month) use ($member, $data) {
             if (! $member->isActiveIn($month)) {
-                throw ValidationException::withMessages(['member' => ['This member was not active in this month.']]);
+                throw ValidationException::withMessages(['member' => [__('This member was not active in this month.')]]);
             }
 
             $setting = MemberMonthSetting::query()->firstOrNew(

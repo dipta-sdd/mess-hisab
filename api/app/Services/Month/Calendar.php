@@ -104,7 +104,7 @@ class Calendar
     private function firstMonth(int $messId): Month
     {
         return Month::forMess($messId)->orderBy('starts_on')->first()
-            ?? throw new CalendarException('mess_has_no_months', 'This mess has no months yet.');
+            ?? throw new CalendarException('mess_has_no_months', __('This mess has no months yet.'));
     }
 
     /** Creates every missing month after the latest one until $day is covered. Serialised per mess. */
@@ -112,7 +112,7 @@ class Calendar
     {
         $first = $this->firstMonth($messId);
         if ($day->lt($first->starts_on->copy()->startOfDay())) {
-            throw new CalendarException('date_before_first_month', "That date is before the mess's first month.");
+            throw new CalendarException('date_before_first_month', __("That date is before the mess's first month."));
         }
 
         return DB::transaction(function () use ($messId, $day, $allowFuture) {
@@ -129,7 +129,7 @@ class Calendar
             while ($month->ends_on->lt($day)) {
                 $start = $month->ends_on->copy()->startOfDay()->addDay();
                 if (! $allowFuture && $start->gt($today)) {
-                    throw new CalendarException('date_in_future', 'That date is in a month that has not started yet.');
+                    throw new CalendarException('date_in_future', __('That date is in a month that has not started yet.'));
                 }
                 // Only the single follow-on month of a closed current month may start in the future.
                 $allowFuture = false;

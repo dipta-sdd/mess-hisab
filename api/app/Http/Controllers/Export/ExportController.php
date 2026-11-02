@@ -59,7 +59,7 @@ class ExportController extends Controller
     {
         $disk = Storage::disk('local');
         if ($export->status !== ExportStatus::Done || ! $export->path || ! $disk->exists($export->path)) {
-            return response()->json(['message' => 'The export is not ready.', 'code' => 'export_not_ready'], 409);
+            return response()->json(['message' => __('The export is not ready.'), 'code' => 'export_not_ready'], 409);
         }
 
         $name = "mess-{$mess->id}-{$export->type->value}-{$export->id}.xlsx";

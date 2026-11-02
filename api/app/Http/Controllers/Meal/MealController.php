@@ -88,7 +88,7 @@ class MealController extends Controller
             $key = $item['member_id'].'|'.$day;
             if (isset($seen[$key])) {
                 throw ValidationException::withMessages([
-                    "entries.$i.entry_date" => ["Duplicate of entries.{$seen[$key]} (same member and day)."],
+                    "entries.$i.entry_date" => [__('Duplicate of entries.:index (same member and day).', ['index' => $seen[$key]])],
                 ]);
             }
             $seen[$key] = $i;

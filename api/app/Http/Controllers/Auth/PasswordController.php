@@ -23,7 +23,7 @@ class PasswordController extends Controller
             fn (User $user, string $token) => $user->notify(new ResetPasswordNotification($token)),
         );
 
-        return response()->json(['message' => 'If that email has an account, a reset link is on its way.'], 202);
+        return response()->json(['message' => __('If that email has an account, a reset link is on its way.')], 202);
     }
 
     public function reset(ResetPasswordRequest $request): JsonResponse

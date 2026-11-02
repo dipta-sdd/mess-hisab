@@ -39,7 +39,7 @@ class MealWriter
 
         if (! $month->isOpen()) {
             throw new HttpResponseException(response()->json([
-                'message' => 'This month is closed.',
+                'message' => __('This month is closed.'),
                 'code' => 'month_closed',
             ], 409));
         }
@@ -75,10 +75,10 @@ class MealWriter
         $by = $mess->meal_entry_by instanceof MealEntryBy ? $mess->meal_entry_by : MealEntryBy::from($mess->meal_entry_by);
 
         if ($by !== MealEntryBy::Self) {
-            abort(403, 'Only the manager enters meals in this mess.');
+            abort(403, __('Only the manager enters meals in this mess.'));
         }
         if ($memberId !== $actor->id) {
-            abort(403, 'You can only enter your own meals.');
+            abort(403, __('You can only enter your own meals.'));
         }
     }
 
@@ -103,7 +103,7 @@ class MealWriter
 
         if (! $ok) {
             throw ValidationException::withMessages([
-                $prefix.'entry_date' => ['This member was not in the mess on that date.'],
+                $prefix.'entry_date' => [__('This member was not in the mess on that date.')],
             ]);
         }
     }
@@ -162,7 +162,7 @@ class MealWriter
     private function nothingToWrite(string $prefix): never
     {
         throw ValidationException::withMessages([
-            $prefix.'meals_centi' => ['Send the meals (or ticks) and/or guest_meals_centi to record.'],
+            $prefix.'meals_centi' => [__('Send the meals (or ticks) and/or guest_meals_centi to record.')],
         ]);
     }
 }

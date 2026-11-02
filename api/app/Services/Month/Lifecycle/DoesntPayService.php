@@ -33,12 +33,12 @@ class DoesntPayService
 
             $active = MessMember::query()->forMess($mess->id)->activeIn($month)->pluck('id')->map(fn ($id) => (int) $id)->all();
             if (! in_array($debtorId, $active, true)) {
-                throw new LifecycleException('That member is not part of this month.', 'member_not_active');
+                throw new LifecycleException(__('That member is not part of this month.'), 'member_not_active');
             }
             $exists = Recoverable::query()->forMess($mess->id)->where('month_id', $month->id)
                 ->where('debtor_member_id', $debtorId)->where('status', '!=', RecoverableStatus::Undone->value)->exists();
             if ($exists) {
-                throw new LifecycleException('This member already has an unpaid-share request in this month.', 'already_doesnt_pay');
+                throw new LifecycleException(__('This member already has an unpaid-share request in this month.'), 'already_doesnt_pay');
             }
 
             $typed = [];
@@ -46,18 +46,18 @@ class DoesntPayService
                 foreach ($manual as $i => $item) {
                     $id = (int) $item['member_id'];
                     if ($id === $debtorId || ! in_array($id, $active, true)) {
-                        throw ValidationException::withMessages(["manual.{$i}.member_id" => ['Pick another member who is part of this month.']]);
+                        throw ValidationException::withMessages(["manual.{$i}.member_id" => [__('Pick another member who is part of this month.')]]);
                     }
                     if (isset($typed[$id])) {
-                        throw ValidationException::withMessages(["manual.{$i}.member_id" => ['This member is listed twice.']]);
+                        throw ValidationException::withMessages(["manual.{$i}.member_id" => [__('This member is listed twice.')]]);
                     }
                     $typed[$id] = (int) $item['amount_paisa'];
                 }
                 if ($typed === []) {
-                    throw ValidationException::withMessages(['manual' => ['Give the amount each member takes over.']]);
+                    throw ValidationException::withMessages(['manual' => [__('Give the amount each member takes over.')]]);
                 }
             } elseif ($manual !== []) {
-                throw ValidationException::withMessages(['manual' => ['Typed amounts are only for the manual mode.']]);
+                throw ValidationException::withMessages(['manual' => [__('Typed amounts are only for the manual mode.')]]);
             }
 
             $recoverable = Recoverable::create([
@@ -86,7 +86,7 @@ class DoesntPayService
             $locked = Recoverable::query()->forMess($mess->id)->whereKey($recoverable->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->month_id === $month->id, 404);
             if ($locked->status !== RecoverableStatus::Pending) {
-                throw new LifecycleException('Only a request that is still pending can be undone.', 'not_pending');
+                throw new LifecycleException(__('Only a request that is still pending can be undone.'), 'not_pending');
             }
 
             $locked->forceFill(['status' => RecoverableStatus::Undone, 'undone_at' => Carbon::now()])->save();
@@ -98,7 +98,7 @@ class DoesntPayService
     {
         $month = Month::query()->forMess($mess->id)->whereKey($requested->id)->lockForUpdate()->firstOrFail();
         if ($month->status !== MonthStatus::Open) {
-            throw new LifecycleException('This month is closed.', 'month_closed');
+            throw new LifecycleException(__('This month is closed.'), 'month_closed');
         }
 
         return $month;

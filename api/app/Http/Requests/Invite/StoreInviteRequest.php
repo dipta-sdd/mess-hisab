@@ -27,6 +27,6 @@ class StoreInviteRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['member_id.exists' => 'The member must be an unclaimed placeholder of this mess.'];
+        return ['member_id.exists' => __('The member must be an unclaimed placeholder of this mess.')];
     }
 }

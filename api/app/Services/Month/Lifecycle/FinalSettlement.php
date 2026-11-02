@@ -34,11 +34,11 @@ class FinalSettlement
 
             $credit = $this->balances->allSnapshots($mess)[0]->totals()[$member->id] ?? 0;
             if ($amountPaisa > $credit) {
-                throw new LifecycleException('That is more than this member is owed.', 'exceeds_credit', ['credit_paisa' => max(0, $credit)]);
+                throw new LifecycleException(__('That is more than this member is owed.'), 'exceeds_credit', ['credit_paisa' => max(0, $credit)]);
             }
             $cash = CashPool::balance($mess);
             if ($amountPaisa > $cash) {
-                throw new LifecycleException('The cash pool does not have that much.', 'exceeds_cash', ['cash_paisa' => max(0, $cash)]);
+                throw new LifecycleException(__('The cash pool does not have that much.'), 'exceeds_cash', ['cash_paisa' => max(0, $cash)]);
             }
 
             $month = $this->calendar->assignMonth($mess, $paidOn)['month'];

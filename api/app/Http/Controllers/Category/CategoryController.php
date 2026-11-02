@@ -50,7 +50,7 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Mess $mess, Category $category): CategoryResource|JsonResponse
     {
         if ($category->archived_at !== null) {
-            return response()->json(['message' => 'This category is archived.', 'code' => 'category_archived'], 409);
+            return response()->json(['message' => __('This category is archived.'), 'code' => 'category_archived'], 409);
         }
 
         $data = $request->validated();
@@ -81,7 +81,7 @@ class CategoryController extends Controller
     {
         if ($group === Group::Fixed->value && $splitType === SplitType::ByMeal->value) {
             return response()->json([
-                'message' => 'Fixed bills cannot be split by meals.',
+                'message' => __('Fixed bills cannot be split by meals.'),
                 'code' => 'by_meal_not_allowed_in_fixed',
             ], 409);
         }

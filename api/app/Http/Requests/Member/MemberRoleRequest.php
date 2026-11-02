@@ -25,6 +25,6 @@ class MemberRoleRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['member_id.exists' => 'The member must belong to this mess, have an account and not be archived.'];
+        return ['member_id.exists' => __('The member must belong to this mess, have an account and not be archived.')];
     }
 }

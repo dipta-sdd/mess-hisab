@@ -38,7 +38,7 @@ class PaymentMonth
     {
         if (! $month->isOpen()) {
             throw new HttpResponseException(response()->json([
-                'message' => 'This month is closed.',
+                'message' => __('This month is closed.'),
                 'code' => 'month_closed',
             ], 409));
         }
