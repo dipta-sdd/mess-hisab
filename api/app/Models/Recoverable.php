@@ -40,7 +40,7 @@ class Recoverable extends Model
 
     public function shares(): HasMany
     {
-        return $this->hasMany(RecoverableShare::class);
+        return $this->hasMany(RecoverableShare::class)->orderBy('member_id');
     }
 
     public function repayments(): HasMany

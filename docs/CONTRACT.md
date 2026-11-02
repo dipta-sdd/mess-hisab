@@ -335,7 +335,7 @@ GET `/audit?event&member_id&from&to&page` (member) → paginated `AuditLog[]`.
 ---
 
 ## 7. Audit
-`App\Services\Audit\AuditLogger::log(string $event, ?Model $subject, array $before = [], array $after = [], array $meta = [])` — actor and mess taken from the container. Models with the `Auditable` trait log `<model>.created|updated|deleted` automatically. Explicit events: `month.closed`, `month.reopened`, `doesnt_pay.set`, `doesnt_pay.undone`, `settings.updated`, `role.admin_transferred`, `role.manager_assigned`, `member.archived`, `payout.final`, `invite.accepted`, `expense.approved`, `expense.rejected`.
+`App\Services\Audit\AuditLogger::log(string $event, ?Model $subject, array $before = [], array $after = [], array $meta = [])` — actor and mess taken from the container. Models with the `Auditable` trait log `<model>.created|updated|deleted` automatically. Explicit events: `month.closed`, `month.reopened`, `doesnt_pay.set`, `doesnt_pay.undone`, `settings.updated`, `role.admin_transferred`, `role.manager_assigned`, `member.archived`, `payout.final`, `invite.accepted`, `expense.approved`, `expense.rejected`, `export.requested` (after: `{type, params}`; job status changes are not logged).
 
 ---
 

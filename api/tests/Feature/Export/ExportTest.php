@@ -63,6 +63,9 @@ it('queues a month export, returns 202 pending and passes the mess id explicitly
     $export = Export::forMess($mess->id)->findOrFail($json['id']);
     expect($export->requested_by_member_id)->toBe($me->id)->and($export->params)->toBe(['month_id' => $month->id]);
     Queue::assertPushed(GenerateExport::class, fn ($job) => $job->messId === $mess->id && $job->exportId === $export->id);
+
+    $log = \App\Models\AuditLog::query()->where('mess_id', $mess->id)->where('event', 'export.requested')->sole();
+    expect($log->member_id)->toBe($me->id)->and($log->after['type'])->toBe('month');
 });
 
 it('writes a month workbook whose numbers equal the dashboard', function () {
@@ -104,6 +107,13 @@ it('writes a month workbook whose numbers equal the dashboard', function () {
     expect($book->getSheetByName('Expenses')->toArray())->toHaveCount(3)
         ->and($book->getSheetByName('Meals')->toArray())->toHaveCount(4)
         ->and($book->getSheetByName('Payments')->toArray()[1][3])->toBe('500.00');
+
+    // Money cells are numbers (summable in Excel) shown with 2 decimals; text cells stay text.
+    $cell = $book->getSheetByName('Payments')->getCell('D2');
+    expect($cell->getDataType())->toBe(\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC)
+        ->and($cell->getValue())->toEqual(500)
+        ->and($cell->getStyle()->getNumberFormat()->getFormatCode())->toBe('0.00')
+        ->and($book->getSheetByName('Payments')->getCell('A1')->getDataType())->toBe(\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 });
 
 it('writes a statement workbook with the statement lines', function () {

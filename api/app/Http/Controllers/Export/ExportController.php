@@ -12,6 +12,7 @@ use App\Models\Export;
 use App\Models\Mess;
 use App\Models\MessMember;
 use App\Models\Month;
+use App\Services\Audit\AuditLogger;
 use App\Support\MessContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -24,7 +25,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ExportController extends Controller
 {
-    public function store(StoreExportRequest $request, Mess $mess, MessContext $context): JsonResponse
+    public function store(StoreExportRequest $request, Mess $mess, MessContext $context, AuditLogger $audit): JsonResponse
     {
         $type = ExportType::from($request->validated('type'));
         $month = Month::query()->forMess($mess->id)->findOrFail($request->integer('month_id'));
@@ -43,6 +44,7 @@ class ExportController extends Controller
             'status' => ExportStatus::Queued,
         ]);
 
+        $audit->log('export.requested', $export, [], ['type' => $type->value, 'params' => $params]);
         GenerateExport::dispatch($mess->id, $export->id);
 
         return (new ExportResource($export->refresh()))->response()->setStatusCode(202);
