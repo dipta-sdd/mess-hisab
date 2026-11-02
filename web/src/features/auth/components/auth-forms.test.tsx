@@ -20,7 +20,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => search,
 }));
 
-const user = { id: 1, name: "Rina", email: "rina@example.com", locale: "en" };
+const user = { id: 1, name: "Rina", email: "rina@example.com", phone: "01712345678", phone_verified: true, has_verified_contact: true, locale: "en" };
 const me = { data: { user, memberships: [] } };
 
 beforeEach(() => {
@@ -34,7 +34,13 @@ beforeEach(() => {
 });
 
 describe("LoginForm", () => {
-  it("signs in and goes to the landing route", async () => {
+  async function fillAndSubmit(login = "01712345678") {
+    await userEvent.type(screen.getByLabelText("Phone or email"), login);
+    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+  }
+
+  it("signs in with a phone and goes to the landing route", async () => {
     const body = vi.fn();
     server.use(
       http.post(`${API_BASE_URL}/api/auth/login`, async ({ request }) => {
@@ -43,11 +49,34 @@ describe("LoginForm", () => {
       }),
     );
     renderWithProviders(<LoginForm />);
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
-    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await fillAndSubmit("01712345678");
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
-    expect(body).toHaveBeenCalledWith({ email: "rina@example.com", password: "secret-pass", remember: false });
+    expect(body).toHaveBeenCalledWith({ login: "01712345678", password: "secret-pass", remember: false });
+  });
+
+  it("signs in with an email in the same field", async () => {
+    const body = vi.fn();
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/login`, async ({ request }) => {
+        body(await request.json());
+        return HttpResponse.json({ data: user });
+      }),
+    );
+    renderWithProviders(<LoginForm />);
+    await fillAndSubmit("rina@example.com");
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
+    expect(body).toHaveBeenCalledWith({ login: "rina@example.com", password: "secret-pass", remember: false });
+  });
+
+  it("sends a locked account to verify-phone", async () => {
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/login`, () =>
+        HttpResponse.json({ data: { ...user, phone_verified: false, has_verified_contact: false } }),
+      ),
+    );
+    renderWithProviders(<LoginForm />);
+    await fillAndSubmit();
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/verify-phone"));
   });
 
   async function signInAs(accountLocale: string) {
@@ -55,9 +84,7 @@ describe("LoginForm", () => {
       http.post(`${API_BASE_URL}/api/auth/login`, () => HttpResponse.json({ data: { ...user, locale: accountLocale } })),
     );
     renderWithProviders(<LoginForm />);
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
-    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await fillAndSubmit();
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
   }
 
@@ -94,36 +121,30 @@ describe("LoginForm", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
-  it("links to register, forgot password and Google", () => {
+  it("links to register and forgot password, and no longer offers Google or an 'or' divider", () => {
     renderWithProviders(<LoginForm />);
     expect(screen.getByRole("link", { name: "Create one" })).toHaveAttribute("href", "/register");
     expect(screen.getByRole("link", { name: "Forgot your password?" })).toHaveAttribute("href", "/forgot-password");
-    expect(screen.getByRole("link", { name: "Continue with Google" })).toHaveAttribute(
-      "href",
-      `${API_BASE_URL}/api/auth/google/redirect`,
-    );
+    expect(screen.queryByRole("link", { name: "Continue with Google" })).not.toBeInTheDocument();
+    expect(screen.queryByText("or")).not.toBeInTheDocument();
   });
 
   it("follows a safe ?next and ignores an unsafe one", async () => {
     search = new URLSearchParams("next=/invite/abc");
     server.use(http.post(`${API_BASE_URL}/api/auth/login`, () => HttpResponse.json({ data: user })));
     renderWithProviders(<LoginForm />);
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
-    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await fillAndSubmit();
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/invite/abc"));
   });
 
-  it("shows a server 422 on the email input", async () => {
+  it("shows a server 422 on the login input", async () => {
     server.use(
       http.post(`${API_BASE_URL}/api/auth/login`, () =>
-        HttpResponse.json({ message: "bad", errors: { email: ["These credentials do not match."] } }, { status: 422 }),
+        HttpResponse.json({ message: "bad", errors: { login: ["These credentials do not match."] } }, { status: 422 }),
       ),
     );
     renderWithProviders(<LoginForm />);
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.type(screen.getByLabelText("Password"), "wrong");
-    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await fillAndSubmit();
     expect(await screen.findByText("These credentials do not match.")).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
   });
@@ -134,21 +155,45 @@ describe("LoginForm", () => {
     expect(await screen.findAllByText("This field is required.")).not.toHaveLength(0);
   });
 
-  it("shows the Google failure message after a failed callback", () => {
-    search = new URLSearchParams("error=google");
-    renderWithProviders(<LoginForm />);
-    expect(screen.getByText(/Google sign-in did not work/)).toBeInTheDocument();
-  });
-
   it("renders in Bangla", () => {
     renderWithProviders(<LoginForm />, { locale: "bn" });
     expect(screen.getByRole("button", { name: "লগইন" })).toBeInTheDocument();
+    expect(screen.getByLabelText("ফোন বা ইমেইল")).toBeInTheDocument();
     expectBanglaOnly([]);
   });
 });
 
 describe("RegisterForm", () => {
-  it("registers with the chosen language", async () => {
+  async function fill(phone = "01712345678", email = "") {
+    await userEvent.type(screen.getByLabelText("Your name"), "Rina");
+    await userEvent.type(screen.getByLabelText("Mobile number"), phone);
+    if (email) await userEvent.type(screen.getByLabelText("Email (optional)"), email);
+    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
+    await userEvent.type(screen.getByLabelText("Confirm password"), "secret-pass");
+    await userEvent.click(screen.getByRole("button", { name: "Create account" }));
+  }
+
+  it("registers with a phone (email left out) and goes to verify-phone", async () => {
+    const body = vi.fn();
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/register`, async ({ request }) => {
+        body(await request.json());
+        return HttpResponse.json({ data: { ...user, phone_verified: false, has_verified_contact: false } }, { status: 201 });
+      }),
+    );
+    renderWithProviders(<RegisterForm />);
+    await fill("+880 1712-345678");
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/verify-phone"));
+    expect(body).toHaveBeenCalledWith({
+      name: "Rina",
+      phone: "+8801712345678",
+      password: "secret-pass",
+      password_confirmation: "secret-pass",
+      locale: "en",
+    });
+  });
+
+  it("sends the optional email when given", async () => {
     const body = vi.fn();
     server.use(
       http.post(`${API_BASE_URL}/api/auth/register`, async ({ request }) => {
@@ -157,25 +202,30 @@ describe("RegisterForm", () => {
       }),
     );
     renderWithProviders(<RegisterForm />);
-    await userEvent.type(screen.getByLabelText("Your name"), "Rina");
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
-    await userEvent.type(screen.getByLabelText("Confirm password"), "secret-pass");
-    await userEvent.click(screen.getByRole("button", { name: "Create account" }));
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
-    expect(body).toHaveBeenCalledWith({
-      name: "Rina",
-      email: "rina@example.com",
-      password: "secret-pass",
-      password_confirmation: "secret-pass",
-      locale: "en",
-    });
+    await fill("01712345678", "rina@example.com");
+    await waitFor(() => expect(replace).toHaveBeenCalled());
+    expect(body).toHaveBeenCalledWith(expect.objectContaining({ email: "rina@example.com", phone: "01712345678" }));
+  });
+
+  it("keeps ?next through to verify-phone", async () => {
+    search = new URLSearchParams("next=/invite/abc");
+    server.use(http.post(`${API_BASE_URL}/api/auth/register`, () => HttpResponse.json({ data: user }, { status: 201 })));
+    renderWithProviders(<RegisterForm />);
+    await fill();
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/verify-phone?next=%2Finvite%2Fabc"));
+  });
+
+  it("rejects a non-Bangladeshi number without calling the API", async () => {
+    renderWithProviders(<RegisterForm />);
+    await fill("12345");
+    expect(await screen.findByText("Enter a valid Bangladesh mobile number.")).toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
   });
 
   it("flags a password mismatch without calling the API", async () => {
     renderWithProviders(<RegisterForm />);
     await userEvent.type(screen.getByLabelText("Your name"), "Rina");
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
+    await userEvent.type(screen.getByLabelText("Mobile number"), "01712345678");
     await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
     await userEvent.type(screen.getByLabelText("Confirm password"), "different");
     await userEvent.click(screen.getByRole("button", { name: "Create account" }));
@@ -183,37 +233,120 @@ describe("RegisterForm", () => {
     expect(replace).not.toHaveBeenCalled();
   });
 
-  it("puts a taken-email 422 on the email input", async () => {
+  it("puts a taken-phone 422 on the phone input", async () => {
     server.use(
       http.post(`${API_BASE_URL}/api/auth/register`, () =>
-        HttpResponse.json({ message: "x", errors: { email: ["The email has already been taken."] } }, { status: 422 }),
+        HttpResponse.json({ message: "x", errors: { phone: ["The phone has already been taken."] } }, { status: 422 }),
       ),
     );
     renderWithProviders(<RegisterForm />);
-    await userEvent.type(screen.getByLabelText("Your name"), "Rina");
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.type(screen.getByLabelText("Password"), "secret-pass");
-    await userEvent.type(screen.getByLabelText("Confirm password"), "secret-pass");
-    await userEvent.click(screen.getByRole("button", { name: "Create account" }));
-    expect(await screen.findByText("The email has already been taken.")).toBeInTheDocument();
+    await fill();
+    expect(await screen.findByText("The phone has already been taken.")).toBeInTheDocument();
+  });
+
+  it("renders in Bangla", () => {
+    renderWithProviders(<RegisterForm />, { locale: "bn" });
+    expect(screen.getByLabelText("মোবাইল নম্বর")).toBeInTheDocument();
+    expectBanglaOnly(["English", "বাংলা"]);
   });
 });
 
 describe("ForgotPasswordForm", () => {
-  it("confirms that a link was sent", async () => {
-    server.use(http.post(`${API_BASE_URL}/api/auth/forgot-password`, () => HttpResponse.json({ message: "ok" })));
+  it("runs phone -> code -> new password -> done", async () => {
+    const sendBody = vi.fn();
+    const verifyBody = vi.fn();
+    const resetBody = vi.fn();
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/password/phone`, async ({ request }) => {
+        sendBody(await request.json());
+        return HttpResponse.json({ message: "ok" }, { status: 202 });
+      }),
+      http.post(`${API_BASE_URL}/api/auth/password/phone/verify`, async ({ request }) => {
+        verifyBody(await request.json());
+        return HttpResponse.json({ reset_token: "tok-1" });
+      }),
+      http.post(`${API_BASE_URL}/api/auth/password/phone/reset`, async ({ request }) => {
+        resetBody(await request.json());
+        return HttpResponse.json({ message: "ok" });
+      }),
+    );
     renderWithProviders(<ForgotPasswordForm />);
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.click(screen.getByRole("button", { name: "Send reset link" }));
-    expect(await screen.findByText(/reset link is on its way/)).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Mobile number"), "01712345678");
+    await userEvent.click(screen.getByRole("button", { name: "Send code" }));
+    await userEvent.type(await screen.findByLabelText("6-digit code"), "123456");
+    await userEvent.click(screen.getByRole("button", { name: "Check code" }));
+    await userEvent.type(await screen.findByLabelText("New password"), "brand-new-pass");
+    await userEvent.type(screen.getByLabelText("Confirm password"), "brand-new-pass");
+    await userEvent.click(screen.getByRole("button", { name: "Save new password" }));
+    expect(await screen.findByText(/password was changed/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute("href", "/login");
+    expect(sendBody).toHaveBeenCalledWith({ phone: "01712345678" });
+    expect(verifyBody).toHaveBeenCalledWith({ phone: "01712345678", code: "123456" });
+    expect(resetBody).toHaveBeenCalledWith({
+      phone: "01712345678",
+      reset_token: "tok-1",
+      password: "brand-new-pass",
+      password_confirmation: "brand-new-pass",
+    });
   });
 
-  it("shows an alert when the server fails", async () => {
-    server.use(http.post(`${API_BASE_URL}/api/auth/forgot-password`, () => HttpResponse.json({ message: "boom" }, { status: 500 })));
+  it("shows a wrong-code message and stays on the code step", async () => {
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/password/phone`, () => HttpResponse.json({}, { status: 202 })),
+      http.post(`${API_BASE_URL}/api/auth/password/phone/verify`, () =>
+        HttpResponse.json({ message: "x", code: "otp_invalid", errors: { code: ["otp_invalid"] } }, { status: 422 }),
+      ),
+    );
     renderWithProviders(<ForgotPasswordForm />);
-    await userEvent.type(screen.getByLabelText("Email"), "rina@example.com");
-    await userEvent.click(screen.getByRole("button", { name: "Send reset link" }));
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Mobile number"), "01712345678");
+    await userEvent.click(screen.getByRole("button", { name: "Send code" }));
+    await userEvent.type(await screen.findByLabelText("6-digit code"), "000000");
+    await userEvent.click(screen.getByRole("button", { name: "Check code" }));
+    expect(await screen.findByText(/That code is not correct/)).toBeInTheDocument();
+  });
+
+  it("shows an invalid reset token in the alert", async () => {
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/password/phone`, () => HttpResponse.json({}, { status: 202 })),
+      http.post(`${API_BASE_URL}/api/auth/password/phone/verify`, () => HttpResponse.json({ reset_token: "t" })),
+      http.post(`${API_BASE_URL}/api/auth/password/phone/reset`, () =>
+        HttpResponse.json({ message: "x", errors: { reset_token: ["The reset token is invalid."] } }, { status: 422 }),
+      ),
+    );
+    renderWithProviders(<ForgotPasswordForm />);
+    await userEvent.type(screen.getByLabelText("Mobile number"), "01712345678");
+    await userEvent.click(screen.getByRole("button", { name: "Send code" }));
+    await userEvent.type(await screen.findByLabelText("6-digit code"), "123456");
+    await userEvent.click(screen.getByRole("button", { name: "Check code" }));
+    await userEvent.type(await screen.findByLabelText("New password"), "brand-new-pass");
+    await userEvent.type(screen.getByLabelText("Confirm password"), "brand-new-pass");
+    await userEvent.click(screen.getByRole("button", { name: "Save new password" }));
+    expect(await screen.findByText("The reset token is invalid.")).toBeInTheDocument();
+  });
+
+  it("validates the phone before calling the API", async () => {
+    renderWithProviders(<ForgotPasswordForm />);
+    await userEvent.type(screen.getByLabelText("Mobile number"), "abc");
+    await userEvent.click(screen.getByRole("button", { name: "Send code" }));
+    expect(await screen.findByText("Enter a valid Bangladesh mobile number.")).toBeInTheDocument();
+  });
+
+  it("shows an alert when sending fails", async () => {
+    server.use(
+      http.post(`${API_BASE_URL}/api/auth/password/phone`, () =>
+        HttpResponse.json({ message: "x", code: "sms_failed" }, { status: 502 }),
+      ),
+    );
+    renderWithProviders(<ForgotPasswordForm />);
+    await userEvent.type(screen.getByLabelText("Mobile number"), "01712345678");
+    await userEvent.click(screen.getByRole("button", { name: "Send code" }));
+    expect(await screen.findByText(/could not send the SMS/)).toBeInTheDocument();
+  });
+
+  it("renders the first step in Bangla", () => {
+    renderWithProviders(<ForgotPasswordForm />, { locale: "bn" });
+    expect(screen.getByRole("button", { name: "কোড পাঠান" })).toBeInTheDocument();
+    expectBanglaOnly([]);
   });
 });
 
