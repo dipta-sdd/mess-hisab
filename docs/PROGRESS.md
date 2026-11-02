@@ -37,7 +37,7 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 | P1 Bangla pass | 7 | merged | worktree-agent-aa7030bbe3cdab1da | |
 | P1b API messages in user language | 7 | running | | api only |
 | P2 responsive pass | 7 | running | | |
-| P3 PWA | 7 | | | lead |
+| P3 PWA | 7 | done | main | lead: manifest + icons + viewport; no service worker on purpose (no stale balances offline) |
 
 ## Test commands
 - API: `cd api && DB_DATABASE=mh_test_<task> php artisan test` (DBs mh_test_{a1,a2,c,m,g,e,f,h,j,k,l,n} exist; create others via `php artisan tinker --execute 'DB::statement("CREATE DATABASE mh_test_x")'`)
