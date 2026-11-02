@@ -7,23 +7,23 @@
 <html>
 <head>
 <style>
-    body { font-family: dejavusans; font-size: 9pt; color: #1f2933; }
-    h1 { font-size: 17pt; margin: 0; color: #0f3d5c; }
-    h2 { font-size: 10.5pt; margin: 12pt 0 4pt; color: #0f3d5c; border-bottom: 1px solid #0f3d5c; padding-bottom: 2pt; }
+    body { font-family: dejavusans; font-size: 10pt; color: #1f2933; }
+    h1 { font-size: 20pt; margin: 2pt 0 0; color: #0f3d5c; }
+    h2 { font-size: 12pt; margin: 22pt 0 8pt; color: #0f3d5c; border-bottom: 1px solid #0f3d5c; padding-bottom: 4pt; }
     .muted { color: #6b7785; }
-    .head td { vertical-align: bottom; }
+    .head td { vertical-align: bottom; line-height: 1.5; }
     table { border-collapse: collapse; width: 100%; }
-    .tiles td { border: 1px solid #d5dbe1; padding: 5pt 6pt; width: 16%; }
-    .tlabel { font-size: 7pt; color: #6b7785; text-transform: uppercase; }
-    .tvalue { font-size: 12pt; font-weight: bold; }
-    .grid th { background: #eef2f6; font-size: 7.5pt; text-align: right; padding: 4pt 5pt; color: #3d4852; }
+    /* Cards: labels in one row and values in the next, so every label and number sits on the same line. */
+    .tiles td { width: 16.6%; border-left: 1px solid #d5dbe1; border-right: 1px solid #d5dbe1; padding: 0 9pt; vertical-align: top; }
+    .tiles td.tlabel { border-top: 1px solid #d5dbe1; padding-top: 9pt; padding-bottom: 3pt; font-size: 7.5pt; color: #6b7785; text-transform: uppercase; }
+    .tiles td.tvalue { border-bottom: 1px solid #d5dbe1; padding-bottom: 10pt; font-size: 12pt; font-weight: bold; }
+    .grid th { background: #eef2f6; font-size: 8.5pt; text-align: right; padding: 7pt 8pt; color: #3d4852; vertical-align: bottom; }
     .grid th.l, .grid td.l { text-align: left; }
-    .grid td { text-align: right; padding: 4pt 5pt; border-bottom: 1px solid #e3e8ed; }
-    .grid tr.total td { font-weight: bold; border-top: 1.5px solid #1f2933; border-bottom: none; }
+    .grid td { text-align: right; padding: 8pt 7pt; white-space: nowrap; border-bottom: 1px solid #e3e8ed; }
     .due { color: #b42318; font-weight: bold; }
     .credit { color: #067647; font-weight: bold; }
-    .note { font-size: 7pt; color: #6b7785; }
-    .foot { margin-top: 14pt; font-size: 7pt; color: #8a94a0; border-top: 1px solid #e3e8ed; padding-top: 4pt; }
+    .note { margin-top: 6pt; font-size: 8pt; color: #6b7785; }
+    .foot { margin-top: 26pt; font-size: 8pt; color: #8a94a0; border-top: 1px solid #e3e8ed; padding-top: 6pt; }
 </style>
 </head>
 <body>
@@ -43,15 +43,19 @@
 </table>
 
 <h2>Summary</h2>
+@php
+    $tiles = [
+        ['Total spent', $tk($s['expenses_paisa']), ''],
+        ['Charged', $tk($s['charged_paisa']), ''],
+        ['Paid in', $tk($s['paid_paisa']), ''],
+        ['Own pocket', $tk($s['spent_paisa']), ''],
+        ['Left to pay', $tk($s['total_due_paisa']), 'due'],
+        $meals ? ['Meal rate', $tk($meals['meal_rate_paisa']), ''] : ['Credit left', $tk($s['total_credit_paisa']), 'credit'],
+    ];
+@endphp
 <table class="tiles">
-    <tr>
-        <td><div class="tlabel">Total spent</div><div class="tvalue">{{ $tk($s['expenses_paisa']) }}</div></td>
-        <td><div class="tlabel">Charged to members</div><div class="tvalue">{{ $tk($s['charged_paisa']) }}</div></td>
-        <td><div class="tlabel">Paid in</div><div class="tvalue">{{ $tk($s['paid_paisa']) }}</div></td>
-        <td><div class="tlabel">Spent from own pocket</div><div class="tvalue">{{ $tk($s['spent_paisa']) }}</div></td>
-        <td><div class="tlabel">Left to pay</div><div class="tvalue due">{{ $tk($s['total_due_paisa']) }}</div></td>
-        <td><div class="tlabel">{{ $meals ? 'Meal rate' : 'Left as credit' }}</div><div class="tvalue">{{ $meals ? $tk($meals['meal_rate_paisa']) : $tk($s['total_credit_paisa']) }}</div></td>
-    </tr>
+    <tr>@foreach ($tiles as [$label]) <td class="tlabel" style="width: 16.66%;">{{ $label }}</td> @endforeach</tr>
+    <tr>@foreach ($tiles as [, $value, $tone]) <td class="tvalue" style="width: 16.66%;"><span class="{{ $tone }}">{{ $value }}</span></td> @endforeach</tr>
 </table>
 
 <h2>Each person this month</h2>
@@ -64,7 +68,7 @@
         <th>Charged</th>
         <th>Paid in</th>
         <th>Spent from pocket</th>
-        <th>Result</th>
+        <th style="width: 20%; white-space: nowrap;">Result</th>
     </tr>
     @foreach ($r['members'] as $m)
         <tr>
@@ -76,8 +80,8 @@
             <td>{{ $tk($m['paid_paisa']) }}</td>
             <td>{{ $tk($m['spent_paisa']) }}</td>
             <td>
-                @if ($m['balance_paisa'] < 0) <span class="due">Due {{ $tk(-$m['balance_paisa']) }}</span>
-                @elseif ($m['balance_paisa'] > 0) <span class="credit">Credit {{ $tk($m['balance_paisa']) }}</span>
+                @if ($m['balance_paisa'] < 0) <span class="due">Due&nbsp;{{ $tk(-$m['balance_paisa']) }}</span>
+                @elseif ($m['balance_paisa'] > 0) <span class="credit">Credit&nbsp;{{ $tk($m['balance_paisa']) }}</span>
                 @else Settled @endif
             </td>
         </tr>
