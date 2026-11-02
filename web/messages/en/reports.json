@@ -1,0 +1,84 @@
+{
+  "nav": "Reports",
+  "title": "Monthly report",
+  "loading": "Loading the report…",
+  "loadFailed": "Could not load the report. Please try again.",
+  "forbidden": "Only the admin and the manager can open reports.",
+  "download": "Download PDF",
+  "downloadHint": "Opens your browser's print dialog. Choose “Save as PDF”.",
+  "monthPicker": { "label": "Month", "none": "There is no closed month yet. Close a month to see its report." },
+  "blocked": {
+    "month_not_closed": "This month is not closed yet, so it has no report. Close the month first.",
+    "next_month_bills_missing": "{month} has no Fixed bills yet, so we cannot show what everyone pays. Save its Fixed bills first.",
+    "openFixed": "Open Fixed bills for {month}"
+  },
+  "header": {
+    "kicker": "Monthly report",
+    "period": "{from} to {to}",
+    "closedOn": "Closed on {date}",
+    "members": "{count, plural, one {# member} other {# members}}"
+  },
+  "summary": {
+    "title": "At a glance",
+    "expenses": "Total expenses",
+    "charged": "Charged to members",
+    "paid": "Paid in",
+    "due": "Still due",
+    "credit": "In credit",
+    "mealRate": "Meal rate",
+    "expensesHint": "{count, plural, one {# expense} other {# expenses}}"
+  },
+  "people": {
+    "title": "Each person this month",
+    "subtitle": "What each member was charged and what they paid.",
+    "share": "Charged",
+    "paid": "Paid",
+    "empty": "No members were active this month."
+  },
+  "balances": {
+    "title": "Left over after the month",
+    "subtitle": "Credit to the right, due to the left.",
+    "tableMember": "Member",
+    "tableBalance": "Balance"
+  },
+  "next": {
+    "title": "To pay for {month}",
+    "subtitle": "Each person's Fixed bills plus last month's leftover due.",
+    "deadline": "Pay by {date}",
+    "noDeadline": "No deadline set",
+    "chartTitle": "Who pays what",
+    "rent": "Rent",
+    "otherFixed": "Other fixed bills",
+    "lastDue": "Last month due",
+    "member": "Member",
+    "total": "Total to pay",
+    "creditNote": "Credit {amount} from last month is already taken off.",
+    "grandTotal": "Everyone together",
+    "empty": "Nobody has anything to pay."
+  },
+  "expenses": {
+    "title": "All expenses",
+    "subtitle": "Every approved expense, by date.",
+    "date": "Date",
+    "category": "Category",
+    "paidBy": "Paid by",
+    "note": "Note",
+    "amount": "Amount",
+    "cashPool": "Shared cash",
+    "total": "Total",
+    "empty": "No expenses this month."
+  },
+  "meals": {
+    "title": "Meals",
+    "subtitle": "How many meals each member had and what a meal cost.",
+    "totalMeals": "Total meals",
+    "rate": "Meal rate",
+    "foodCost": "Food cost",
+    "member": "Member",
+    "own": "Meals",
+    "counted": "Counted",
+    "bill": "Meal bill",
+    "chartTitle": "Meals by member"
+  },
+  "charts": { "showTable": "Show as table", "hideTable": "Show chart" }
+}
