@@ -11,6 +11,7 @@ import { useMe } from "@/lib/api-client/auth";
 import { LanguageSwitcher } from "@/lib/i18n/language-switcher";
 import { ThemeToggle } from "@/lib/theme";
 import { useMess } from "@/lib/mess/mess-context";
+import { ProfileIconLink, SidebarAccount } from "./account-links";
 import { NavIcon } from "./nav-icon";
 import { rolesOf, visibleNavItems } from "./nav-items";
 
@@ -115,9 +116,12 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
           </nav>
         ) : null}
         {canQuickAdd ? <QuickAddButton variant="side" onPress={() => setQuickAddOpen(true)} /> : null}
-        <div className="mt-auto flex items-center gap-2">
-          <LanguageSwitcher />
-          <ThemeToggle />
+        <div className="mt-auto flex flex-col gap-3">
+          <SidebarAccount messId={messId} />
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 
@@ -132,6 +136,7 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
             ) : null}
             <LanguageSwitcher />
             <ThemeToggle />
+            <ProfileIconLink messId={messId} />
           </div>
         </header>
         <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${visible.length > 0 ? "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6" : ""}`}>

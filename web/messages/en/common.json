@@ -12,7 +12,10 @@
     "archived": "Archived member (read-only)",
     "skipToContent": "Skip to content",
     "sidebarNav": "Main navigation",
-    "bottomNav": "Main navigation (bottom bar)"
+    "bottomNav": "Main navigation (bottom bar)",
+    "profile": "Profile",
+    "logout": "Log out",
+    "account": "Your account"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -24,5 +27,16 @@
     "dark": "Dark mode",
     "switchToLight": "Switch to light mode",
     "switchToDark": "Switch to dark mode"
+  },
+  "profile": {
+    "title": "Your profile",
+    "nameTitle": "Your name",
+    "nameLabel": "Name",
+    "save": "Save name",
+    "saved": "Your name was saved.",
+    "logoutTitle": "Log out",
+    "logoutHint": "Sign out of Mess Hisab on this device.",
+    "logout": "Log out",
+    "logoutFailed": "Could not log out. Please try again."
   }
 }

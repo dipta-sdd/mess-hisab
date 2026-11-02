@@ -8,6 +8,8 @@ const PATHS: Record<string, string> = {
   months: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
   audit: "M9 4h6l4 4v12H5V4h4zM8 13h8M8 17h5",
   reports: "M5 20V10M12 20V4M19 20v-7",
+  profile: "M20 21v-1a5 5 0 00-5-5H9a5 5 0 00-5 5v1M12 11a4 4 0 100-8 4 4 0 000 8z",
+  logout: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10",
 };
 const FALLBACK = "M12 6a6 6 0 100 12 6 6 0 000-12z";
 

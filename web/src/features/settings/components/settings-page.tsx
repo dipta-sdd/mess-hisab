@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useMessDetail, useMessRoles } from "@/features/mess/api";
 import { ErrorAlert } from "@/features/mess/ui/errors";
 import { useMess } from "@/lib/mess/mess-context";
-import { PhoneCard } from "../phone-card";
 import { SettingsForm } from "./settings-form";
 
 export function SettingsPage() {
@@ -28,7 +27,6 @@ export function SettingsPage() {
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
       {/* key resets the form when the server copy changes identity (e.g. switching mess) */}
       <SettingsForm key={messId} mess={detail.data.mess} messId={messId} readOnly={!roles.canAdmin} />
-      <PhoneCard />
     </div>
   );
 }

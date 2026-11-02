@@ -46,7 +46,6 @@ const user = { id: 1, name: "Rina", email: null, phone: "01712345678", phone_ver
 const serve = (me: Member) =>
   server.use(
     http.get(`${API_BASE_URL}/api/messes/3`, () => HttpResponse.json({ data: { mess, me } })),
-    // The phone card under the mess settings reads the signed-in user.
     http.get(`${API_BASE_URL}/api/auth/me`, () => HttpResponse.json({ data: { user, memberships: [] } })),
   );
 
