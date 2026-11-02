@@ -10,11 +10,12 @@ import { nav as membersNav } from "./members/nav";
 import { paymentsNav } from "./payments/nav";
 import { reportsNav } from "./reports/nav";
 import { nav as settingsNav } from "./settings/nav";
-import { statementsNav } from "./statements/nav";
+import { myStatementNav, statementsNav } from "./statements/nav";
 
 const items: NavItem[] = [
   dashboardNav,
   statementsNav,
+  myStatementNav,
   mealsNav,
   fixedNav,
   expensesNav,

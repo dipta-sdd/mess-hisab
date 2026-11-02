@@ -5,5 +5,7 @@ export const monthsNav: NavItem = {
   href: (messId) => `/${messId}/months`,
   labelKey: "months.nav",
   icon: "months",
+  place: "admin",
+  roles: ["admin", "manager"],
   order: 70,
 };

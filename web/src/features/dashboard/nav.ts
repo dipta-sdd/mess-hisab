@@ -5,5 +5,6 @@ export const dashboardNav: NavItem = {
   href: (messId) => `/${messId}`,
   labelKey: "dashboard.nav",
   icon: "dashboard",
+  place: "bar",
   order: 10,
 };
