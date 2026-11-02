@@ -1,13 +1,17 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Bill, Member, Mess, Month } from "@/lib/api/contract";
 import { API_BASE_URL } from "@/lib/api-client/client";
 import { server } from "@/test/msw/server";
 import { expectBanglaOnly } from "@/test/bangla";
 import { renderWithProviders } from "@/test/render";
 import { FixedPage } from "./fixed-page";
+
+let search = new URLSearchParams();
+vi.mock("next/navigation", () => ({ useSearchParams: () => search }));
+afterEach(() => { search = new URLSearchParams(); });
 
 const BASE = `${API_BASE_URL}/api/messes/7`;
 
@@ -209,5 +213,16 @@ describe("FixedPage (read-only)", () => {
     expect(await screen.findByRole("heading", { name: "ফিক্সড বিল সেটআপ" })).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: "বিল সেভ করুন: Rent" })).toBeInTheDocument();
     expectBanglaOnly([]);
+  });
+
+  it("opens the month named in the link from the report", async () => {
+    mockApi({ current: oct });
+    let asked = false;
+    server.use(http.get(`${BASE}/months/11/setup`, () => { asked = true; return HttpResponse.json({ data: { month: nov, bills: [rent()], member_settings: [] } }); }));
+    search = new URLSearchParams("month=11");
+    renderPage();
+    expect(await screen.findByLabelText("Bill amount (taka)")).toBeInTheDocument();
+    expect(asked).toBe(true);
+    expect(screen.queryByTestId("closed-note")).toBeNull();
   });
 });

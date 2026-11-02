@@ -41,8 +41,14 @@ const mess = {
   deposit_due_day_offset: 5,
 };
 
+const user = { id: 1, name: "Rina", email: null, phone: "01712345678", phone_verified: true, has_verified_contact: true, locale: "en", has_password: true, has_google: false };
+
 const serve = (me: Member) =>
-  server.use(http.get(`${API_BASE_URL}/api/messes/3`, () => HttpResponse.json({ data: { mess, me } })));
+  server.use(
+    http.get(`${API_BASE_URL}/api/messes/3`, () => HttpResponse.json({ data: { mess, me } })),
+    // The phone card under the mess settings reads the signed-in user.
+    http.get(`${API_BASE_URL}/api/auth/me`, () => HttpResponse.json({ data: { user, memberships: [] } })),
+  );
 
 const render = (locale?: "en" | "bn") => renderWithProviders(<SettingsPage />, { messId: 3, locale });
 const save = () => userEvent.click(screen.getByRole("button", { name: "Save settings" }));
@@ -177,6 +183,7 @@ describe("SettingsPage as admin", () => {
     serve(admin);
     render("bn");
     expect(await screen.findByRole("heading", { name: "সেটিংস" })).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole("status")).toBeNull());
     expectBanglaOnly([]);
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
@@ -22,7 +23,9 @@ export function FixedPage() {
   const currentQ = useCurrentMonth(messId);
   const categoriesQ = useCategories(messId);
 
-  const [pickedMonth, setPickedMonth] = useState<number | null>(null);
+  // The report's "set next month's bills" link opens a given month with `?month=<id>`.
+  const linkedMonth = Number(useSearchParams()?.get("month")) || null;
+  const [pickedMonth, setPickedMonth] = useState<number | null>(linkedMonth);
   const months = monthsQ.data ?? [];
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const setupQ = useSetup(messId, monthId);
