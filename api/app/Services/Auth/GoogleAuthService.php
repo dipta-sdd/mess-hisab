@@ -50,6 +50,10 @@ class GoogleAuthService
                     'password' => null,
                     'remember_token' => Str::random(60),
                 ]);
+                if (! $user->hasVerifiedPhone()) {
+                    // An unproven phone would let the squatter reset the password by SMS later.
+                    $user->forceFill(['phone' => null, 'phone_verified_at' => null]);
+                }
                 $user->tokens()->delete();
                 DB::table('sessions')->where('user_id', $user->id)->delete();
             }

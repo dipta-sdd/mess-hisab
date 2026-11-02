@@ -248,7 +248,7 @@ it('refuses a wrong reset code and one for an unknown phone', function () {
 });
 
 it('lets the real owner of an unverified phone in through a reset', function () {
-    $squatted = pLocked();
+    $squatted = pLocked(['email_verified_at' => null]); // signups leave the email unproven
     $this->postJson('/api/auth/password/phone', ['phone' => '01712345678']);
     $token = $this->postJson('/api/auth/password/phone/verify', ['phone' => '01712345678', 'code' => $this->sms->lastCode('01712345678')])->json('reset_token');
     $this->postJson('/api/auth/password/phone/reset', [

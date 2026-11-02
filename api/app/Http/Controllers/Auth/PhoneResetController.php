@@ -28,7 +28,7 @@ class PhoneResetController extends Controller
     public function forgot(PhoneNumberRequest $request): JsonResponse
     {
         $user = User::where('phone', $request->validated('phone'))->first();
-        if ($user) {
+        if ($user && $this->phoneMayReset($user)) {
             try {
                 $this->otps->send($user, $user->phone, OtpPurpose::Reset);
             } catch (OtpException) {
@@ -58,7 +58,7 @@ class PhoneResetController extends Controller
         $user = Cache::pull($this->cacheKey($request->validated('reset_token'))) === $phone
             ? User::where('phone', $phone)->first()
             : null;
-        if (! $user) {
+        if (! $user || ! $this->phoneMayReset($user)) {
             throw ValidationException::withMessages(['reset_token' => [__('otp.reset_token_invalid')]]);
         }
 
@@ -77,6 +77,15 @@ class PhoneResetController extends Controller
         event(new PasswordReset($user));
 
         return response()->json(['message' => __('otp.password_reset')]);
+    }
+
+    /**
+     * An unproven phone can't claim an account that already belongs to a proven email or a Google
+     * login: whoever typed that number at signup may not be the account's owner.
+     */
+    private function phoneMayReset(User $user): bool
+    {
+        return $user->phone_verified_at !== null || ($user->email_verified_at === null && $user->google_id === null);
     }
 
     /** Only a hash of the token is kept server-side. */

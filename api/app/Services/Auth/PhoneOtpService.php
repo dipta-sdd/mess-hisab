@@ -84,7 +84,9 @@ class PhoneOtpService
     {
         $phone = BdMobile::normalize($phone);
 
-        $failKey = "otp-fails:{$purpose->value}:{$phone}";
+        // Per number and IP: strangers' wrong guesses can't lock the owner out, and each code still dies
+        // after MAX_ATTEMPTS, so guesses per number stay capped by MAX_SENDS_PER_HOUR codes an hour.
+        $failKey = "otp-fails:{$purpose->value}:{$phone}:".request()->ip();
         if (RateLimiter::tooManyAttempts($failKey, self::MAX_FAILS_PER_HOUR)) {
             throw OtpException::tooMany();
         }
