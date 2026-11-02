@@ -1,9 +1,10 @@
 "use client";
 
+import { Button, Drawer } from "@heroui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { QuickAddButton, QuickAddExpense, QuickAddFab } from "@/features/expenses/quick-add";
 import { navRegistry } from "@/features/nav-registry";
 import type { NavItem } from "@/features/types";
@@ -23,32 +24,33 @@ function isActive(pathname: string | null, href: string) {
   return !isMessRoot && pathname.startsWith(`${href}/`);
 }
 
-function NavLinks({ items, messId, variant }: { items: NavItem[]; messId: number; variant: "side" | "bottom" }) {
+/** Pages kept in the phone bottom bar; every page (these included) is in the ☰ side menu. */
+const BOTTOM_TABS = ["dashboard", "meals", "expenses", "payments"];
+
+function NavLinks({
+  items,
+  messId,
+  variant,
+  onNavigate,
+}: {
+  items: NavItem[];
+  messId: number;
+  variant: "side" | "bottom";
+  onNavigate?: () => void;
+}) {
   const t = useTranslations();
   const pathname = usePathname();
-  const activeRef = useRef<HTMLAnchorElement | null>(null);
-
-  // With many items the bottom bar scrolls sideways; keep the current page's tab on screen.
-  useEffect(() => {
-    if (variant === "bottom") activeRef.current?.scrollIntoView?.({ inline: "center", block: "nearest" });
-  }, [variant, pathname]);
 
   return (
-    <ul
-      className={
-        variant === "side"
-          ? "flex flex-col gap-1"
-          : "flex h-full items-stretch gap-1 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      }
-    >
+    <ul className={variant === "side" ? "flex flex-col gap-1" : "flex h-full items-stretch"}>
       {items.map((item) => {
         const href = item.href(messId);
         const active = isActive(pathname, href);
         return (
-          <li key={item.key} className={variant === "bottom" ? "min-w-[4.5rem] flex-1" : undefined}>
+          <li key={item.key} className={variant === "bottom" ? "min-w-0 flex-1" : undefined}>
             <Link
               href={href}
-              ref={active ? activeRef : undefined}
+              onClick={onNavigate}
               title={variant === "bottom" ? t(item.labelKey) : undefined}
               aria-current={active ? "page" : undefined}
               className={
@@ -72,7 +74,8 @@ function NavLinks({ items, messId, variant }: { items: NavItem[]; messId: number
 }
 
 /**
- * Responsive shell: sidebar from md up, bottom nav on phones. Items come from the nav registry,
+ * Responsive shell: sidebar from md up. On phones a ☰ button opens the same list as a side menu,
+ * and a short bottom bar keeps the everyday pages one tap away. Items come from the nav registry,
  * filtered by the current member's roles. Works with zero items.
  */
 export function AppShell({ children, items = navRegistry }: { children: React.ReactNode; items?: NavItem[] }) {
@@ -91,6 +94,9 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
   const canQuickAdd = visible.length > 0 && Boolean(membership) && !membership?.archived && !underPage("expenses");
   const showFab = canQuickAdd && !underPage("meals");
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  // The shell stays mounted between pages, so the side menu closes itself when a link is followed.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const bottomTabs = visible.filter((item) => BOTTOM_TABS.includes(item.key));
 
   const header = (
     <div className="min-w-0">
@@ -127,7 +133,26 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 md:hidden">
-          {header}
+          <div className="flex min-w-0 items-center gap-2">
+            {visible.length > 0 ? (
+              <Drawer isOpen={menuOpen} onOpenChange={setMenuOpen}>
+                <Button isIconOnly variant="ghost" aria-label={t("shell.openMenu")} className="size-11 shrink-0">
+                  <NavIcon name="menu" />
+                </Button>
+                <Drawer.Backdrop>
+                  <Drawer.Content placement="left" className="w-72 max-w-[85vw]">
+                    <Drawer.Dialog aria-label={t("shell.menu")} className="flex h-full flex-col gap-4 overflow-y-auto p-4">
+                      {header}
+                      <nav aria-label={t("shell.sidebarNav")}>
+                        <NavLinks items={visible} messId={messId} variant="side" onNavigate={() => setMenuOpen(false)} />
+                      </nav>
+                    </Drawer.Dialog>
+                  </Drawer.Content>
+                </Drawer.Backdrop>
+              </Drawer>
+            ) : null}
+            {header}
+          </div>
           <div className="flex shrink-0 items-center gap-2">
             {canQuickAdd ? (
               <span className="md:hidden">
@@ -138,17 +163,17 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
             <AccountMenu messId={messId} />
           </div>
         </header>
-        <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${visible.length > 0 ? "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6" : ""}`}>
+        <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${bottomTabs.length > 0 ? "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6" : ""}`}>
           {children}
         </main>
       </div>
 
-      {visible.length > 0 ? (
+      {bottomTabs.length > 0 ? (
         <nav
           aria-label={t("shell.bottomNav")}
           className="fixed inset-x-0 bottom-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
         >
-          <NavLinks items={visible} messId={messId} variant="bottom" />
+          <NavLinks items={bottomTabs} messId={messId} variant="bottom" />
         </nav>
       ) : null}
       {showFab ? <QuickAddFab onPress={() => setQuickAddOpen(true)} /> : null}

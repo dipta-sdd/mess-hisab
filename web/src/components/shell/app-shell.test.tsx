@@ -78,14 +78,26 @@ describe("AppShell", () => {
     expectBanglaOnly(["English", "EN", "hello", "A"]);
   });
 
-  it("keeps content clear of the fixed bottom nav (safe area) and scrolls many tabs sideways", async () => {
+  it("keeps content clear of the fixed bottom nav (safe area), which only holds the everyday pages", async () => {
     me({ is_admin: true, is_manager: true });
     renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
     await screen.findAllByText("Green House");
     expect(screen.getByRole("main").className).toContain("env(safe-area-inset-bottom)");
     const bottom = screen.getAllByRole("navigation").find((n) => n.className.includes("fixed"));
     expect(bottom?.className).toContain("env(safe-area-inset-bottom)");
-    expect(bottom?.querySelector("ul")?.className).toContain("overflow-x-auto");
+    expect([...bottom!.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/7/expenses"]);
+  });
+
+  it("opens a phone side menu with every page and closes it when a page is picked", async () => {
+    me({ is_admin: true, is_manager: true });
+    renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Open menu" }));
+    const menu = await screen.findByRole("dialog", { name: "Menu" });
+    expect([...menu.querySelectorAll("nav a")].map((a) => a.getAttribute("href"))).toEqual(["/7", "/7/expenses", "/7/settings", "/7/close"]);
+
+    await user.click(menu.querySelector('a[href="/7/settings"]')!);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
   it("puts the account in one sidebar row: profile link and a log out icon", async () => {

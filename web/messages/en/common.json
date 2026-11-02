@@ -15,7 +15,9 @@
     "bottomNav": "Main navigation (bottom bar)",
     "profile": "Profile",
     "logout": "Log out",
-    "account": "Your account"
+    "account": "Your account",
+    "openMenu": "Open menu",
+    "menu": "Menu"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

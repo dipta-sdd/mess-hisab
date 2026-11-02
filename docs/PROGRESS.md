@@ -107,3 +107,7 @@ Plan: `/home/sdd/.claude/plans/you-are-the-lead-orchestrator-golden-goblet.md`. 
 
 ## Report PDF: summary section removed (lead, 2026-11-03)
 - Removed the whole "Summary" card row from the one-page PDF (`api/resources/views/reports/monthly-pdf.blade.php`); the per-person table already carries those figures. For meal messes the meal rate moved into the header line. Report tests pass (12).
+
+## Phone side menu (lead, 2026-11-03)
+- Phones (all roles): a ☰ button in the top bar opens a left HeroUI `Drawer` with every page the member can see; it closes when a page is picked. The fixed bottom bar no longer scrolls sideways and keeps only Dashboard, Meals, Expenses and Payments (`BOTTOM_TABS` in `app-shell.tsx`). Desktop sidebar unchanged.
+- Tests: bottom bar holds only the everyday pages; side menu lists every page and closes on navigation. Web: build ok, 553 tests pass. (Pre-existing lint error in `theme-toggle.tsx` untouched.)
