@@ -1,15 +1,12 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { AuditLog, Member } from "@/lib/api/contract";
+import type {
+  AuditLog,
+  Member,
+  Paginated,
+} from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
-
-/** Laravel length-aware paginator envelope (only the fields we use). Local type: promote to contract.ts. */
-export interface Paginated<T> {
-  data: T[];
-  links: { first: string | null; last: string | null; prev: string | null; next: string | null };
-  meta: { current_page: number; last_page: number; per_page: number; total: number; from: number | null; to: number | null };
-}
 
 export interface AuditFilters {
   event: string;

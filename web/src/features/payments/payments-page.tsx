@@ -9,8 +9,9 @@ import { isApiError } from "@/lib/api-client";
 import { formatDate, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useCash, useCurrentMonth, useDeletePayment, useMembers, useMessInfo, useMonths, usePayments } from "./api";
-import { formatMonthLabel } from "./dates";
-import { PaymentForm, fieldClass } from "./payment-form";
+import { formatMonthLabel } from "@/lib/format/date";
+import { PaymentForm } from "./payment-form";
+import { fieldClass } from "@/components/ui/field";
 
 type FormState = { mode: "closed" } | { mode: "create" } | { mode: "edit"; payment: Payment };
 

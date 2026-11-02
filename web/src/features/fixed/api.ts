@@ -1,17 +1,25 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Bill, Category, ItemResponse, ListResponse, Member, Mess, Month, MemberMonthSetting } from "@/lib/api/contract";
+import type {
+  Bill,
+  BillInput,
+  Category,
+  ItemResponse,
+  ListResponse,
+  Member,
+  MemberMonthSetting,
+  MemberSettingInput,
+  MessWithMe,
+  Month,
+  MonthSetupInput,
+} from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
+import { invalidateMoney } from "@/lib/api/query-keys";
 
-/** Local until promoted to contract.ts. */
-export interface MessWithMe { mess: Mess; me: Member }
 export interface MonthSetupData { month: Month; bills: Bill[]; member_settings: MemberMonthSettingRow[] }
 /** The API sends null for "no override for this member"; contract.ts types it as a number. */
 export interface MemberMonthSettingRow extends Omit<MemberMonthSetting, "deposit_paisa"> { deposit_paisa: number | null }
-export interface BillInput { amount_paisa?: number; overrides: { member_id: number; amount_paisa: number }[] }
-export interface MonthSetupInput { fixed_deadline?: string | null; deposit_deadline?: string | null; deposit_paisa?: number }
-export interface MemberSettingInput { deposit_paisa: number | null; min_meals_centi: number | null }
 
 export const fixedKeys = {
   all: (messId: number) => ["fixed", messId] as const,
@@ -68,10 +76,10 @@ export function useSetup(messId: number, monthId: number | null) {
   });
 }
 
-/** Every write changes the setup (and a month's deposit shows in the month list), so refresh the whole feature. */
+/** Every write changes the setup (and a month's deposit shows in the month list), so refresh every money cache. */
 function useRefresh(messId: number) {
   const client = useQueryClient();
-  return () => client.invalidateQueries({ queryKey: fixedKeys.all(messId) });
+  return () => invalidateMoney(client, messId);
 }
 
 export function useSaveBill(messId: number, monthId: number) {

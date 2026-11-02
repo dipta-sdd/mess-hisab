@@ -3,9 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { ExportButton } from "./export-button";
-
-const fieldClass =
-  "w-full min-h-11 rounded-lg border border-default-300 bg-background px-3 py-2 text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent";
+import { fieldClass } from "@/components/ui/field";
 
 /** Member picker + "Export statement" for one month. */
 export function StatementExport({ monthId, members, pollMs }: { monthId: number; members: { id: number; display_name: string }[]; pollMs?: number }) {

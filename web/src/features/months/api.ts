@@ -2,16 +2,24 @@
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
-  Adjustment, CloseCheck, Dashboard, DoesntPayMode, Group, ItemResponse, ListResponse, Member, Mess, Month,
-  Recoverable, RecoverableStatus, ReopenPreview, ZeroMealResolution,
+  Adjustment,
+  AdjustmentInput,
+  CloseCheck,
+  Dashboard,
+  DoesntPayInput,
+  ItemResponse,
+  ListResponse,
+  Member,
+  MessWithMe,
+  Month,
+  Recoverable,
+  RecoverableStatus,
+  ReopenPreview,
+  RepaymentInput,
+  ZeroMealResolution,
 } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
-
-/** Local copy of the `GET /messes/{id}` payload (promote to contract.ts). */
-export interface MessWithMe { mess: Mess; me: Member }
-export interface DoesntPayInput { member_id: number; mode: DoesntPayMode; manual?: { member_id: number; amount_paisa: number }[] }
-export interface RepaymentInput { amount_paisa: number; paid_on: string }
-export interface AdjustmentInput { member_id: number; group: Group; amount_paisa: number; note: string }
+import { invalidateMoney } from "@/lib/api/query-keys";
 
 export const monthsKeys = {
   all: (messId: number) => ["months", messId] as const,
@@ -58,15 +66,10 @@ export function useDashboard(messId: number, monthId: number | null) {
   });
 }
 
-/** Everything a write can change: this feature, plus the dashboard/statement caches of other features. */
+/** Close/reopen/doesn't-pay/repay/adjust change balances everywhere: refresh every money cache. */
 function useRefreshAfterWrite(messId: number) {
   const client = useQueryClient();
-  return async () => {
-    await Promise.all([
-      client.invalidateQueries({ queryKey: monthsKeys.all(messId) }),
-      client.invalidateQueries({ queryKey: ["balance", messId] }),
-    ]);
-  };
+  return () => invalidateMoney(client, messId);
 }
 
 export function useCloseCheck(messId: number, monthId: number, resolution: ZeroMealResolution | null, enabled: boolean) {

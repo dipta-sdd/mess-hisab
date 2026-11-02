@@ -6,15 +6,10 @@ import type { AppLocale } from "@/i18n/config";
 import { formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useCategories, useCurrentMonth, useMembers, useMessInfo, useMonths, useSetup } from "./api";
-import { BillCard, fieldClass } from "./bill-card";
+import { BillCard } from "./bill-card";
 import { MemberSettingRow, MonthSetupForm } from "./month-forms";
-
-function formatMonthLabel(startsOn: string, locale: AppLocale): string {
-  const [y, m, d] = startsOn.split("-").map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  if (Number.isNaN(date.getTime())) return startsOn;
-  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD-u-nu-beng" : "en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
-}
+import { fieldClassInvalid as fieldClass } from "@/components/ui/field";
+import { formatMonthLabel } from "@/lib/format/date";
 
 export function FixedPage() {
   const { messId } = useMess();

@@ -4,18 +4,8 @@ import { useLocale, useTranslations } from "next-intl";
 import type { AppLocale } from "@/i18n/config";
 import type { HistoryRow, MonthInfo, RoundingMode } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
-import { formatBalance, formatNumber } from "@/lib/format";
-
-export const fieldClass =
-  "w-full min-h-11 rounded-lg border border-default-300 bg-background px-3 py-2 text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent";
-
-/** "November 2026" / "নভেম্বর ২০২৬" for a YYYY-MM-DD month start. */
-export function formatMonthLabel(startsOn: string, locale: AppLocale): string {
-  const [y, m, d] = startsOn.split("-").map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  if (Number.isNaN(date.getTime())) return startsOn;
-  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD-u-nu-beng" : "en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
-}
+import { formatBalance, formatMonthLabel, formatNumber } from "@/lib/format";
+import { fieldClass } from "@/components/ui/field";
 
 export function is404(error: unknown): boolean {
   return isApiError(error) && error.status === 404;

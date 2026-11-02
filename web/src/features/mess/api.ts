@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Member, Mess } from "@/lib/api/contract";
+import type { Member, Mess, MessWithMe } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client/client";
 import { meQueryKey } from "@/lib/api-client/auth";
 
@@ -14,18 +14,13 @@ export function messHomePath(messId: number): string {
   return `/${messId}/members`;
 }
 
-export interface MessDetail {
-  mess: Mess;
-  me: Member;
-}
-
 export const messDetailKey = (messId: number) => ["mess", messId, "detail"] as const;
 
 /** GET /api/messes/{id} -> {mess, me}. */
 export function useMessDetail(messId: number) {
   return useQuery({
     queryKey: messDetailKey(messId),
-    queryFn: async () => unwrap<MessDetail>(await apiClient.get(`/api/messes/${messId}`)),
+    queryFn: async () => unwrap<MessWithMe>(await apiClient.get(`/api/messes/${messId}`)),
   });
 }
 

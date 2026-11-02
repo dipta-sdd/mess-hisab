@@ -10,10 +10,11 @@ import { formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useCategories, useCurrentMonth, useDeleteExpense, useExpenses, useMembers, useMessInfo, useMonths, usePendingExpenses, type CreateResult } from "./api";
 import { ApprovalQueue } from "./approval-queue";
-import { formatMonthLabel } from "./dates";
-import { ExpenseForm, fieldClass } from "./expense-form";
+import { formatMonthLabel } from "@/lib/format/date";
+import { ExpenseForm } from "./expense-form";
 import { ExpenseRow } from "./expense-row";
 import { errorKey, expenseAbilities } from "./rules";
+import { fieldClass } from "@/components/ui/field";
 
 const STATUSES: ExpenseStatus[] = ["pending", "approved", "rejected"];
 

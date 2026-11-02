@@ -8,12 +8,10 @@ import { useForm } from "react-hook-form";
 import type { Member, Payment } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
 import { useCreatePayment, useUpdatePayment } from "./api";
-import { todayInDhaka } from "./dates";
-import { paisaToTakaInput, parseTakaToPaisa } from "./money-input";
+import { todayInDhaka } from "@/lib/format/date";
+import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
 import { paymentFormSchema, type PaymentFormValues } from "./schema";
-
-export const fieldClass =
-  "w-full min-h-11 rounded-lg border border-default-300 bg-background px-3 py-2 text-base text-foreground focus:outline-2 focus:outline-offset-1 focus:outline-accent";
+import { fieldClass } from "@/components/ui/field";
 
 /** Maps API field names to form field names. */
 const SERVER_FIELDS: Record<string, keyof PaymentFormValues> = {

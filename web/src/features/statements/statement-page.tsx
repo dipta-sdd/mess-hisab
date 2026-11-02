@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useHistory, useMembers, useMessInfo, useStatement } from "@/features/dashboard/api";
-import { Balance, MonthPicker, OverdueBadge, fieldClass, is404 } from "@/features/dashboard/shared";
+import { Balance, MonthPicker, OverdueBadge, is404 } from "@/features/dashboard/shared";
 import type { AppLocale } from "@/i18n/config";
 import type { StatementLine, StatementLineKind } from "@/lib/api/contract";
 import { formatDate, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
+import { fieldClass } from "@/components/ui/field";
 
 /** Kinds whose server `label` is a meaningful name (bill category) and is shown as the main text. */
 const NAMED_KINDS: StatementLineKind[] = ["fixed_bill"];

@@ -5,8 +5,9 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { DoesntPayMode, Month } from "@/lib/api/contract";
 import { useCreateDoesntPay, useDashboard, useRecoverables, useUndoDoesntPay } from "./api";
-import { parseTakaToPaisa } from "./money-input";
-import { Banner, fieldClass, useErrorText } from "./ui";
+import { parseTakaToPaisa } from "@/lib/format/money-input";
+import { Banner, useErrorText } from "./ui";
+import { fieldClass } from "@/components/ui/field";
 
 const MODES: DoesntPayMode[] = ["equal", "by_meals", "manual"];
 

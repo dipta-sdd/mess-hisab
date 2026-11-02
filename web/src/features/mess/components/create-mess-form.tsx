@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { messHomePath, useCreateMess, type CreateMessPayload } from "../api";
-import { parseTakaToPaisa, signedPaisa, todayInDhaka } from "../money";
+import { todayInDhaka } from "@/lib/format";
+import { parseTakaOrNull, signedPaisa } from "../money";
 import { balanceDirection, integerInRange, isoDate, optionalTaka, requiredName } from "../schemas";
 import { ErrorAlert, useFormError } from "../ui/errors";
 import { BalanceInput, TextInputField } from "../ui/fields";
@@ -24,7 +25,7 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 function openingOf(amount: string, direction: "owes" | "credit"): number | undefined {
-  const paisa = amount.trim() === "" ? 0 : parseTakaToPaisa(amount);
+  const paisa = amount.trim() === "" ? 0 : parseTakaOrNull(amount);
   if (!paisa) return undefined;
   return signedPaisa(paisa, direction);
 }

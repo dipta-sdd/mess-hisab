@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { Mess } from "@/lib/api/contract";
 import { MEAL_ENTRY_BY, MEAL_TRACKINGS, ROUNDING_MODES } from "@/lib/api/contract";
-import { parseMealsToCenti, parseTakaToPaisa, scaledToInput } from "@/features/mess/money";
+import { parseMealsOrNull, parseTakaOrNull, scaledToInput } from "@/features/mess/money";
 import { integerInRange, requiredMeals, requiredName, requiredTaka } from "@/features/mess/schemas";
 import { ErrorAlert, SuccessAlert, useFormError } from "@/features/mess/ui/errors";
 import { CheckboxField, SelectField, TextInputField } from "@/features/mess/ui/fields";
@@ -99,8 +99,8 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
   const onSubmit = handleSubmit(async (v) => {
     form.clear();
     setSaved(false);
-    const minMeals = v.min_meals.trim() === "" ? null : parseMealsToCenti(v.min_meals);
-    const minPayable = v.min_payable.trim() === "" ? null : parseTakaToPaisa(v.min_payable);
+    const minMeals = v.min_meals.trim() === "" ? null : parseMealsOrNull(v.min_meals);
+    const minPayable = v.min_payable.trim() === "" ? null : parseTakaOrNull(v.min_payable);
     if (v.min_meals_enabled && minMeals === null) {
       setError("min_meals", { message: "v:invalidMeals" });
       return;
@@ -116,15 +116,15 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
       approval_required: v.approval_required,
       meal_tracking: v.meal_tracking,
       meal_entry_by: v.meal_entry_by,
-      breakfast_weight_centi: parseMealsToCenti(v.breakfast_weight) ?? 0,
-      lunch_weight_centi: parseMealsToCenti(v.lunch_weight) ?? 0,
-      dinner_weight_centi: parseMealsToCenti(v.dinner_weight) ?? 0,
+      breakfast_weight_centi: parseMealsOrNull(v.breakfast_weight) ?? 0,
+      lunch_weight_centi: parseMealsOrNull(v.lunch_weight) ?? 0,
+      dinner_weight_centi: parseMealsOrNull(v.dinner_weight) ?? 0,
       rounding_mode: v.rounding_mode,
       min_meals_enabled: v.min_meals_enabled,
       min_meals_centi: v.min_meals_enabled ? minMeals : null,
       min_payable_enabled: v.min_payable_enabled,
       min_payable_paisa: v.min_payable_enabled ? minPayable : null,
-      deposit_paisa: parseTakaToPaisa(v.deposit) ?? 0,
+      deposit_paisa: parseTakaOrNull(v.deposit) ?? 0,
       fixed_due_day_offset: Number(v.fixed_due_day_offset),
       deposit_due_day_offset: Number(v.deposit_due_day_offset),
     };

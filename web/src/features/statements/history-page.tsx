@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useHistory, useMessInfo } from "@/features/dashboard/api";
-import { formatMonthLabel } from "@/features/dashboard/shared";
 import type { AppLocale } from "@/i18n/config";
-import { formatMeals, formatMoney } from "@/lib/format";
+import { formatMeals, formatMonthLabel, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 
 export function HistoryPage() {

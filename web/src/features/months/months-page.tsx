@@ -11,7 +11,7 @@ import { useMembers, useMessInfo, useMonths } from "./api";
 import { AdjustmentsPanel } from "./adjustments-panel";
 import type { BlockContext } from "./blocks";
 import { ClosePanel } from "./close-panel";
-import { formatMonthLabel } from "./dates";
+import { formatMonthLabel } from "@/lib/format/date";
 import { DoesntPayPanel } from "./doesnt-pay-panel";
 import { RecoverablesPanel } from "./recoverables-panel";
 import { ReopenPanel } from "./reopen-panel";
