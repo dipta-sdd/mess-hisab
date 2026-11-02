@@ -54,5 +54,25 @@
     "outstanding": "Bills to pay",
     "depositOutstanding": "Deposit to pay",
     "overdueCol": "Overdue"
+  },
+  "charts": {
+    "showTable": "Show as table",
+    "hideTable": "Hide table",
+    "spending": {
+      "title": "Spending by category",
+      "subtitle": "Approved expenses this month",
+      "empty": "No approved expenses this month.",
+      "loadFailed": "Could not load spending.",
+      "category": "Category",
+      "amount": "Amount",
+      "unknownCategory": "Other"
+    },
+    "balances": {
+      "title": "Who owes, who is owed",
+      "subtitle": "Each member's balance this month. Green is credit, red is due.",
+      "empty": "No balances to show.",
+      "member": "Member",
+      "balance": "Balance"
+    }
   }
 }

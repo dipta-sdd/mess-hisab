@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { Dashboard, HistoryRow, ItemResponse, ListResponse, Member, MessWithMe, Statement } from "@/lib/api/contract";
+import type { Dashboard, HistoryRow, ItemResponse, ListResponse, Member, MemberHistoryRow, MessWithMe, Statement } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
 
 export const balanceKeys = {
@@ -10,6 +10,7 @@ export const balanceKeys = {
   dashboard: (messId: number, monthId: number | null) => ["balance", messId, "dashboard", monthId] as const,
   statement: (messId: number, memberId: number, monthId: number | null) => ["balance", messId, "statement", memberId, monthId] as const,
   history: (messId: number) => ["balance", messId, "history"] as const,
+  memberHistory: (messId: number, memberId: number) => ["balance", messId, "member-history", memberId] as const,
 };
 
 const base = (messId: number) => `/api/messes/${messId}`;
@@ -45,6 +46,16 @@ export function useStatement(messId: number, memberId: number | null, monthId: n
       (
         await apiClient.get<ItemResponse<Statement>>(`${base(messId)}/statements/${memberId}`, { query: { month_id: monthId } })
       ).data,
+  });
+}
+
+/** GET /statements/{member}/history: one row per month the member was in, newest first. */
+export function useMemberHistory(messId: number, memberId: number | null) {
+  return useQuery({
+    queryKey: balanceKeys.memberHistory(messId, memberId ?? 0),
+    enabled: memberId !== null,
+    queryFn: async () =>
+      (await apiClient.get<ListResponse<MemberHistoryRow>>(`${base(messId)}/statements/${memberId}/history`)).data,
   });
 }
 
