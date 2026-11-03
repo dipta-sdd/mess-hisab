@@ -1,3 +1,4 @@
+import { clearOfflineCopies } from "@/lib/offline/cached";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Locale, OtpSent, User } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client/client";
@@ -127,7 +128,10 @@ export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => apiClient.post("/api/auth/logout"),
-    onSuccess: () => queryClient.clear(),
+    onSuccess: () => {
+      queryClient.clear();
+      clearOfflineCopies();
+    },
   });
 }
 
