@@ -124,7 +124,7 @@ it('carries "last month due" from a closed earlier month and from opening rows',
     $d = $this->getJson(messPath($mess, "dashboard?month_id={$month->id}"))->json('data');
 
     expect(jRow($d, $x))->toMatchArray(['carry_in_paisa' => -70000, 'fixed_balance_paisa' => -100000, 'balance_paisa' => -100000])
-        ->and(jRow($d, $y))->toMatchArray(['carry_in_paisa' => 35000, 'fixed_balance_paisa' => 5000, 'balance_paisa' => 5000]);
+        ->and(jRow($d, $y))->toMatchArray(['carry_in_paisa' => 35000, 'fixed_balance_paisa' => 0, 'meals_balance_paisa' => 5000, 'balance_paisa' => 5000]);
 
     $s = $this->getJson(messPath($mess, "statements/{$x}?month_id={$month->id}"))->json('data');
     expect($s['carry_in_paisa'])->toBe(-70000)
@@ -277,4 +277,19 @@ it('writes nothing', function () {
     $this->getJson(messPath($mess, 'history'))->assertOk();
 
     expect($counts())->toBe($before);
+});
+
+it('never lets a meals credit reduce a fixed due, but lets a fixed credit cover a meals due', function () {
+    [$mess, , $month, $ids] = jSetup('manager');
+    [$x, $y] = $ids;
+    // X: fixed due 1000, meals credit 400 (paid into meals). Y: fixed credit 500, meals due 300.
+    LedgerEntry::factory()->create(['mess_id' => $mess->id, 'month_id' => $month->id, 'member_id' => $x, 'type' => LedgerType::Opening, 'group' => 'fixed', 'amount_paisa' => -100000]);
+    jPay($mess, $month, $x, 'meals', 40000, '2026-11-02');
+    jPay($mess, $month, $y, 'fixed', 50000, '2026-11-02');
+    LedgerEntry::factory()->create(['mess_id' => $mess->id, 'month_id' => $month->id, 'member_id' => $y, 'type' => LedgerType::Opening, 'group' => 'meals', 'amount_paisa' => -30000]);
+
+    $d = $this->getJson(messPath($mess, "dashboard?month_id={$month->id}"))->json('data');
+
+    expect(jRow($d, $x))->toMatchArray(['fixed_balance_paisa' => -100000, 'meals_balance_paisa' => 40000, 'fixed_outstanding_paisa' => 100000])
+        ->and(jRow($d, $y))->toMatchArray(['fixed_balance_paisa' => 0, 'meals_balance_paisa' => 20000, 'balance_paisa' => 20000]);
 });

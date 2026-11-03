@@ -93,7 +93,7 @@ describe("ExpensesPage entry form", () => {
     await user.click(screen.getByRole("button", { name: "Save expense" }));
 
     await waitFor(() =>
-      expect(body).toEqual({ category_id: 3, amount_paisa: 25050, spent_on: "2026-11-03", note: "market", paid_by: "member", paid_by_member_id: 1 }),
+      expect(body).toEqual({ category_id: 3, amount_paisa: 25050, spent_on: "2026-11-03", note: "market", paid_by: "member", paid_by_member_id: 1, client_uuid: expect.any(String) }),
     );
     expect(await screen.findByText(/Saved: Fish/)).toBeInTheDocument();
     // The modal closes after a save.

@@ -3,12 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useLogout } from "@/features/auth";
+import { useGuardedLogout } from "@/components/shell/guarded-logout";
 import { ErrorAlert, SuccessAlert, useFormError } from "@/features/mess/ui/errors";
 import { TextInputField } from "@/features/mess/ui/fields";
 import { EmailCard, PasswordCard } from "./account-cards";
@@ -80,8 +79,7 @@ function Identity({ name, email }: { name: string; email: string | null }) {
 export function ProfilePage() {
   const t = useTranslations("common.profile");
   const me = useMe();
-  const logout = useLogout();
-  const router = useRouter();
+  const logout = useGuardedLogout();
   const user = me.data?.user;
 
   return (
@@ -106,11 +104,12 @@ export function ProfilePage() {
             <Button
               variant="danger"
               isPending={logout.isPending}
-              onPress={() => logout.mutate(undefined, { onSuccess: () => router.replace("/login") })}
+              onPress={logout.run}
             >
               {t("logout")}
             </Button>
           </div>
+          {logout.dialog}
         </Card.Content>
       </Card.Root>
     </div>

@@ -2,19 +2,14 @@
 
 import { Button, Popover } from "@heroui/react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useLogout } from "@/features/auth";
 import { useMe } from "@/lib/api-client/auth";
 import { LanguageSwitcher } from "@/lib/i18n/language-switcher";
+import { useInstall } from "@/components/pwa/install-context";
+import { useGuardedLogout } from "./guarded-logout";
 import { NavIcon } from "./nav-icon";
-
-function useLogoutAndLeave() {
-  const logout = useLogout();
-  const router = useRouter();
-  return { isPending: logout.isPending, run: () => logout.mutate(undefined, { onSuccess: () => router.replace("/login") }) };
-}
 
 function Initial({ name }: { name?: string }) {
   return (
@@ -31,7 +26,7 @@ function Initial({ name }: { name?: string }) {
 export function SidebarAccount({ messId }: { messId: number }) {
   const t = useTranslations("common.shell");
   const me = useMe();
-  const logout = useLogoutAndLeave();
+  const logout = useGuardedLogout();
   const pathname = usePathname();
   const href = `/${messId}/profile`;
   const active = pathname === href;
@@ -62,6 +57,7 @@ export function SidebarAccount({ messId }: { messId: number }) {
       >
         <NavIcon name="logout" />
       </Button>
+      {logout.dialog}
     </div>
   );
 }
@@ -69,13 +65,17 @@ export function SidebarAccount({ messId }: { messId: number }) {
 /** Phone top bar: the user's initial opens a small menu with profile, language and log out. */
 export function AccountMenu({ messId }: { messId: number }) {
   const t = useTranslations("common");
+  const ti = useTranslations("app.install");
   const me = useMe();
-  const logout = useLogoutAndLeave();
+  const logout = useGuardedLogout();
+  const install = useInstall();
+  const [showSteps, setShowSteps] = useState(false);
   const name = me.data?.user.name;
   // The shell stays mounted between pages, so close the menu when its profile link is followed.
   const [open, setOpen] = useState(false);
 
   return (
+    <>
     <Popover isOpen={open} onOpenChange={setOpen}>
       <Button isIconOnly variant="ghost" aria-label={t("shell.account")} className="size-11 rounded-full">
         <Initial name={name} />
@@ -105,6 +105,26 @@ export function AccountMenu({ messId }: { messId: number }) {
             <LanguageSwitcher />
           </div>
           <div className="my-1 border-t border-border" />
+          {install.canPrompt || install.needsManualSteps ? (
+            <>
+              <Button
+                variant="ghost"
+                className="min-h-11 justify-start gap-3 px-3"
+                onPress={() => {
+                  if (install.canPrompt) {
+                    setOpen(false);
+                    void install.prompt();
+                  } else {
+                    setShowSteps((v) => !v);
+                  }
+                }}
+              >
+                <NavIcon name="install" />
+                {ti("menu")}
+              </Button>
+              {showSteps && !install.canPrompt ? <p className="px-3 pb-2 text-sm text-muted">{ti("iosSteps")}</p> : null}
+            </>
+          ) : null}
           <Button
             variant="ghost"
             className="min-h-11 justify-start gap-3 px-3 text-danger"
@@ -117,5 +137,7 @@ export function AccountMenu({ messId }: { messId: number }) {
         </Popover.Dialog>
       </Popover.Content>
     </Popover>
+    {logout.dialog}
+    </>
   );
 }

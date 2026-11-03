@@ -23,7 +23,8 @@
     "mealsBalance": "মিলের ব্যালেন্স",
     "outstanding": "বিল বাকি",
     "depositRequired": "নির্ধারিত ডিপোজিট",
-    "depositOutstanding": "ডিপোজিট বাকি"
+    "depositOutstanding": "ডিপোজিট বাকি",
+    "totalOpen": "নির্ধারিত হিসাব (মাস বন্ধ হলে মিলের হিসাব যোগ হবে)"
   },
   "lines": {
     "title": "বিস্তারিত",

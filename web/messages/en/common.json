@@ -75,5 +75,11 @@
   "staffOnly": {
     "message": "Only the manager can see this page",
     "back": "Back to dashboard"
+  },
+  "logoutWarning": {
+    "title": "Some expenses haven't synced",
+    "body": "{count, plural, one {# expense is} other {# expenses are}} still waiting to sync and will stay on this phone. They are sent only after you log in again with this account and are online. Log out anyway?",
+    "stay": "Stay logged in",
+    "leave": "Log out anyway"
   }
 }

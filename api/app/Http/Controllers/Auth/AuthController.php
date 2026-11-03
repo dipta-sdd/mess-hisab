@@ -57,7 +57,7 @@ class AuthController extends Controller
             : ['phone' => BdMobile::normalize($login)];
         $credentials['password'] = $request->validated('password');
 
-        if (! Auth::guard('web')->attempt($credentials, (bool) $request->boolean('remember'))) {
+        if (! Auth::guard('web')->attempt($credentials)) {
             throw ValidationException::withMessages(['login' => [trans('auth.failed')]]);
         }
 

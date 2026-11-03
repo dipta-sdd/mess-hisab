@@ -497,3 +497,55 @@ function exForeignExpense(?Mess $mess = null): Expense
 
     return exRecord($mess, $month, MessMember::factory()->for($mess)->create());
 }
+
+// ---------------------------------------------------------------- offline retry
+
+it('records an expense once when the same client_uuid is sent twice', function () {
+    [$mess, $me] = actingAsMember('member');
+    exMonth($mess);
+    $cat = exCategory($mess);
+    $uuid = (string) \Illuminate\Support\Str::uuid();
+
+    $first = $this->postJson(messPath($mess, 'expenses'), exPayload($cat, ['client_uuid' => $uuid]))->assertCreated();
+    $second = $this->postJson(messPath($mess, 'expenses'), exPayload($cat, ['client_uuid' => $uuid]))->assertOk();
+
+    expect($second->json('data.expense.id'))->toBe($first->json('data.expense.id'))
+        ->and(Expense::where('client_uuid', $uuid)->count())->toBe(1);
+});
+
+it('does not hand one member another member\'s expense for the same client_uuid', function () {
+    [$mess, $me] = actingAsMember('member');
+    $month = exMonth($mess);
+    $cat = exCategory($mess);
+    $other = MessMember::factory()->for($mess)->create();
+    $uuid = (string) \Illuminate\Support\Str::uuid();
+    exRecord($mess, $month, $other, ['client_uuid' => $uuid]);
+
+    $this->postJson(messPath($mess, 'expenses'), exPayload($cat, ['client_uuid' => $uuid]))->assertStatus(422)->assertJsonValidationErrors('client_uuid');
+});
+
+it('rejects a client_uuid that is not a uuid', function () {
+    [$mess] = actingAsMember('member');
+    exMonth($mess);
+    $cat = exCategory($mess);
+
+    $this->postJson(messPath($mess, 'expenses'), exPayload($cat, ['client_uuid' => 'nope']))->assertStatus(422);
+});
+
+it('accepts a queued expense whose month closed in the meantime as a late entry, once', function () {
+    [$mess] = actingAsMember('member');
+    exMonth($mess, ['starts_on' => '2026-10-01', 'ends_on' => '2026-10-31'])->update(['status' => 'closed', 'closed_at' => now()]);
+    $nov = exMonth($mess);
+    $cat = exCategory($mess);
+    $uuid = (string) \Illuminate\Support\Str::uuid();
+    $payload = exPayload($cat, ['client_uuid' => $uuid, 'spent_on' => '2026-10-28']);
+
+    $first = $this->postJson(messPath($mess, 'expenses'), $payload)->assertCreated();
+    $retry = $this->postJson(messPath($mess, 'expenses'), $payload)->assertOk();
+
+    expect($first->json('data.expense.month_id'))->toBe($nov->id)
+        ->and($first->json('data.expense.is_late'))->toBeTrue()
+        ->and($first->json('data.expense.spent_on'))->toBe('2026-10-28')
+        ->and($retry->json('data.expense.id'))->toBe($first->json('data.expense.id'))
+        ->and(Expense::where('client_uuid', $uuid)->count())->toBe(1);
+});

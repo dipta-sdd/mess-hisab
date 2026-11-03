@@ -55,7 +55,7 @@ class ExpenseController extends Controller
                 'expense' => (new ExpenseResource($result['expense']))->resolve($request),
                 'warnings' => $result['warnings'],
             ],
-        ], 201);
+        ], ($result['duplicate'] ?? false) ? 200 : 201);
     }
 
     public function update(ExpenseRequest $request, Mess $mess, Expense $expense): ExpenseResource

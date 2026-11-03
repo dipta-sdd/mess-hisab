@@ -31,11 +31,22 @@ class ExpenseService
 {
     public const WARNING_SHORT_CASH = 'short_cash_converted';
 
-    /** @return array{expense: Expense, warnings: list<string>} */
+    /** @return array{expense: Expense, warnings: list<string>, duplicate?: bool} */
     public function create(Mess $mess, MessMember $actor, array $data): array
     {
         return DB::transaction(function () use ($mess, $actor, $data) {
             $mess = $this->lockMess($mess);
+
+            // A retried offline sync carries the same client_uuid: answer with the expense already saved.
+            if (! empty($data['client_uuid'])) {
+                $existing = Expense::where('mess_id', $mess->id)->where('client_uuid', $data['client_uuid'])->first();
+                if ($existing && $existing->created_by_member_id !== $actor->id) {
+                    throw ValidationException::withMessages(['client_uuid' => [trans('validation.unique', ['attribute' => 'client uuid'])]]);
+                }
+                if ($existing) {
+                    return ['expense' => $existing, 'warnings' => [], 'duplicate' => true];
+                }
+            }
             $isManager = $actor->isStaff(); // admin has the manager's edit powers; cash stays the manager's
 
             $paidBy = PaidBy::from($data['paid_by']);
@@ -60,6 +71,7 @@ class ExpenseService
                 'short_cash_converted' => false,
                 'is_self_recorded' => $isManager,
                 'created_by_member_id' => $actor->id,
+                'client_uuid' => $data['client_uuid'] ?? null,
             ]);
 
             $warnings = [];

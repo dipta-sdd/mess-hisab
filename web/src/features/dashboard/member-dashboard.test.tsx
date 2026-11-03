@@ -11,9 +11,9 @@ import { MemberDashboard } from "./member-dashboard";
 
 const BASE = `${API_BASE_URL}/api/messes/7`;
 const fixture = DashboardFx as Dashboard;
-const owing: DashboardRow = { ...fixture.members[0], member_id: 2, display_name: "Karim", carry_in_paisa: 0 };
+const owing: DashboardRow = { ...fixture.members[0], member_id: 2, display_name: "Karim", carry_in_paisa: 0, fixed_balance_paisa: -160000, meals_balance_paisa: 0 };
 const credit: DashboardRow = {
-  ...owing, balance_paisa: 70000, fixed_outstanding_paisa: 0, carry_in_paisa: 20000, paid_paisa: 50000,
+  ...owing, balance_paisa: 70000, fixed_balance_paisa: 70000, fixed_outstanding_paisa: 0, carry_in_paisa: 20000, paid_paisa: 50000,
 };
 const mess = { id: 7, name: "Green House", rounding_mode: "two_decimals" } as Mess;
 
@@ -47,6 +47,13 @@ describe("MemberDashboard", () => {
     expect(screen.queryByRole("table")).toBeNull();
   });
 
+  it("does not subtract the meals balance from what is owed while the month is open", async () => {
+    mockApi({ ...owing, meals_balance_paisa: 33300, balance_paisa: -126700 });
+    render();
+    expect(await screen.findByTestId("balance-headline")).toHaveTextContent("You owe ৳1,600.00");
+    expect(screen.getByTestId("meals-pending")).toHaveTextContent("৳333.00 credit, added when the month closes");
+  });
+
   it("labels a negative carry-in as last month's due", async () => {
     mockApi({ ...owing, carry_in_paisa: -141100 });
     render();
@@ -66,7 +73,7 @@ describe("MemberDashboard", () => {
   });
 
   it("says all settled at zero", async () => {
-    mockApi({ ...credit, balance_paisa: 0 });
+    mockApi({ ...credit, balance_paisa: 0, fixed_balance_paisa: 0 });
     render();
     expect(await screen.findByTestId("balance-headline")).toHaveTextContent("All settled");
   });

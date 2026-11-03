@@ -15,8 +15,14 @@ import type {
 } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client";
 import { invalidateMoney } from "@/lib/api/query-keys";
+import { isApiError } from "@/lib/api-client/errors";
+import { withOfflineCopy } from "@/lib/offline/cached";
+import { enqueueExpense } from "@/lib/offline/queue";
+import { isNetworkError } from "@/lib/offline/sync";
 
 export interface CreateResult { expense: Expense; warnings: string[] }
+/** The expense could not be sent (no connection) and now waits in the offline queue. */
+export interface QueuedResult { queued: true }
 export interface ExpenseFilters { monthId: number | null; status: ExpenseStatus | null; memberId: number | null; categoryId: number | null }
 
 export const expensesKeys = {
@@ -35,7 +41,8 @@ const base = (messId: number) => `/api/messes/${messId}`;
 export function useMessInfo(messId: number) {
   return useQuery({
     queryKey: expensesKeys.mess(messId),
-    queryFn: async () => (await apiClient.get<ItemResponse<MessWithMe>>(base(messId))).data,
+    networkMode: "always",
+    queryFn: () => withOfflineCopy(`mess:${messId}`, async () => (await apiClient.get<ItemResponse<MessWithMe>>(base(messId))).data),
   });
 }
 
@@ -57,14 +64,16 @@ export function useMonths(messId: number) {
 export function useCurrentMonth(messId: number) {
   return useQuery({
     queryKey: expensesKeys.currentMonth(messId),
-    queryFn: async () => (await apiClient.get<ItemResponse<Month>>(`${base(messId)}/months/current`)).data,
+    networkMode: "always",
+    queryFn: () => withOfflineCopy(`month-current:${messId}`, async () => (await apiClient.get<ItemResponse<Month>>(`${base(messId)}/months/current`)).data),
   });
 }
 
 export function useCategories(messId: number) {
   return useQuery({
     queryKey: expensesKeys.categories(messId),
-    queryFn: async () => (await apiClient.get<ListResponse<Category>>(`${base(messId)}/categories`)).data,
+    networkMode: "always",
+    queryFn: () => withOfflineCopy(`categories:${messId}`, async () => (await apiClient.get<ListResponse<Category>>(`${base(messId)}/categories`)).data),
   });
 }
 
@@ -96,11 +105,22 @@ function useRefreshAfterWrite(messId: number) {
   return () => invalidateMoney(client, messId);
 }
 
-export function useCreateExpense(messId: number) {
+export function useCreateExpense(messId: number, memberId: number) {
   const refresh = useRefreshAfterWrite(messId);
   return useMutation({
-    mutationFn: async (input: ExpenseInput) => (await apiClient.post<ItemResponse<CreateResult>>(`${base(messId)}/expenses`, input)).data,
-    onSuccess: refresh,
+    networkMode: "always",
+    mutationFn: async (input: ExpenseInput): Promise<CreateResult | QueuedResult> => {
+      // Same id on the first try and on any later sync, so the server records it once.
+      const clientUuid = crypto.randomUUID();
+      try {
+        return (await apiClient.post<ItemResponse<CreateResult>>(`${base(messId)}/expenses`, { ...input, client_uuid: clientUuid })).data;
+      } catch (error) {
+        if (isApiError(error) || !isNetworkError(error)) throw error;
+        await enqueueExpense(messId, memberId, input, clientUuid);
+        return { queued: true };
+      }
+    },
+    onSuccess: (result) => ("queued" in result ? undefined : refresh()),
   });
 }
 

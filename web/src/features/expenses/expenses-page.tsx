@@ -13,6 +13,9 @@ import { useCategories, useCurrentMonth, useDeleteExpense, useExpenses, useMembe
 import { ApprovalQueue } from "./approval-queue";
 import { formatMonthLabel } from "@/lib/format/date";
 import { ExpenseForm } from "./expense-form";
+import { QueuedExpenses } from "./queued-expenses";
+import { InstallBanner } from "@/components/pwa/install-banner";
+import type { ExpenseInput } from "@/lib/api/contract";
 import { ExpenseRow } from "./expense-row";
 import { SavedPanel } from "./quick-add/saved-panel";
 import { errorKey, expenseAbilities } from "./rules";
@@ -52,6 +55,7 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const [saved, setSaved] = useState<(CreateResult & { edited: boolean }) | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [prefill, setPrefill] = useState<ExpenseInput | null>(null);
 
   // Newest first, so "older" is the next index.
   const months = [...(monthsQ.data ?? [])].sort((a, b) => b.starts_on.localeCompare(a.starts_on));
@@ -95,6 +99,7 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const closeForm = () => {
     setAdding(false);
     setEditing(null);
+    setPrefill(null);
   };
   const activeCategories = categories.filter((c) => !c.archived_at || c.id === categoryFilter);
 
@@ -109,6 +114,7 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
             onPress={() => {
               setSaved(null);
               setNotice(null);
+              setPrefill(null);
               setAdding(true);
             }}
           >
@@ -116,6 +122,23 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
           </Button>
         ) : null}
       </div>
+
+      <InstallBanner />
+
+      {me && mess ? (
+        <QueuedExpenses
+          messId={messId}
+          memberId={me.id}
+          categoryName={categoryName}
+          money={money}
+          onEdit={(input) => {
+            setSaved(null);
+            setNotice(null);
+            setPrefill(input);
+            setAdding(true);
+          }}
+        />
+      ) : null}
 
       {saved ? <SavedPanel saved={saved} categoryName={categoryName} money={money} onDismiss={() => setSaved(null)} /> : null}
 
@@ -141,8 +164,9 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
                   />
                 ) : (
                   <ExpenseForm
-                    key="new"
+                    key={prefill ? "prefill" : "new"}
                     bare
+                    prefill={prefill ?? undefined}
                     messId={messId}
                     me={me}
                     members={members}

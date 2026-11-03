@@ -98,7 +98,7 @@ describe("StatementPage", () => {
   it("shows totals, outstanding, deposit and overdue from the server", async () => {
     mockApi();
     renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
-    expect(await screen.findByTestId("stmt-total")).toHaveTextContent("Due ৳1,600.00");
+    expect(await screen.findByTestId("stmt-total")).toHaveTextContent("Due ৳2,300.00");
     expect(screen.getByTestId("stmt-fixed-balance")).toHaveTextContent("Due ৳2,300.00");
     expect(screen.getByTestId("stmt-meals-balance")).toHaveTextContent("Credit ৳700.00");
     expect(screen.getByTestId("stmt-outstanding")).toHaveTextContent("৳1,600.00");
@@ -148,11 +148,17 @@ describe("StatementPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("We could not find that member or month.");
   });
 
+  it("shows the full balance, meals included, once the month is closed", async () => {
+    mockApi({ ...statement, month: { ...statement.month, status: "closed" } });
+    renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
+    expect(await screen.findByTestId("stmt-total")).toHaveTextContent("Due ৳1,600.00");
+  });
+
   it("renders in Bangla", async () => {
     mockApi();
     renderWithProviders(<StatementPage memberId={1} />, { messId: 7, locale: "bn" });
     expect(await screen.findByText("গত মাসের বাকি")).toBeInTheDocument();
-    expect(screen.getByTestId("stmt-total")).toHaveTextContent("১,৬০০");
+    expect(screen.getByTestId("stmt-total")).toHaveTextContent("২,৩০০");
     expect(screen.getByText("মিলের বিল")).toBeInTheDocument();
     expectBanglaOnly(["Paid from pocket: rice", "X"]);
   });

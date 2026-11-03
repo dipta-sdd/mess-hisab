@@ -160,8 +160,8 @@ function StatementTab({ memberId, pickedMonth, setPickedMonth }: { memberId: num
         <h2 id="stmt-summary" className="sr-only">{t("summary.title")}</h2>
         <dl className="grid grid-cols-2 divide-border md:grid-cols-4 md:divide-x rtl:md:divide-x-reverse">
           <div className="col-span-2 flex flex-col gap-1 border-b border-border p-4 md:col-span-1 md:border-b-0">
-            <dt className="text-sm text-muted">{t("summary.total")}</dt>
-            <dd className="break-words text-2xl font-semibold" data-testid="stmt-total"><Balance paisa={s.total_paisa} mode={mode} /></dd>
+            <dt className="text-sm text-muted">{s.month.status === "open" ? t("summary.totalOpen") : t("summary.total")}</dt>
+            <dd className="break-words text-2xl font-semibold" data-testid="stmt-total"><Balance paisa={s.month.status === "open" ? s.fixed_balance_paisa : s.total_paisa} mode={mode} /></dd>
             {s.fixed_overdue_days > 0 || s.deposit_overdue_days > 0 ? (
               <div className="mt-1 flex flex-wrap gap-2">
                 <OverdueBadge days={s.fixed_overdue_days} kind="fixed" />

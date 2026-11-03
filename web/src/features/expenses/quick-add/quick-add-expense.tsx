@@ -149,6 +149,10 @@ function QuickAddBody({ messId, onClose, onQuietSave }: { messId: number; onClos
       members={members}
       categories={categories}
       onCancel={onClose}
+      onQueued={() => {
+        onQuietSave();
+        onClose();
+      }}
       onSaved={(result: CreateResult) => {
         const next = { ...result, edited: false };
         if (hasSavedNotes(next)) return setSaved(next);

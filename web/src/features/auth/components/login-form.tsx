@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CheckboxField, TextInputField } from "@/features/mess/ui/fields";
+import { TextInputField } from "@/features/mess/ui/fields";
 import { ErrorAlert, useFormError } from "@/features/mess/ui/errors";
 import { useLogin } from "../api";
 import { GOOGLE_SIGN_IN_ENABLED } from "../config";
@@ -19,7 +19,6 @@ import { GoogleButton } from "./google-button";
 const schema = z.object({
   login: z.string().trim().min(1, "v:required"),
   password: z.string().min(1, "v:required"),
-  remember: z.boolean(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -35,7 +34,7 @@ export function LoginForm() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { login: "", password: "", remember: false } });
+  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { login: "", password: "" } });
   const form = useFormError<Values>(setError);
 
   const nextQuery = next ? `?next=${encodeURIComponent(next)}` : "";
@@ -86,7 +85,6 @@ export function LoginForm() {
           {...register("password")}
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <CheckboxField label={t("fields.remember")} {...register("remember")} />
           <Link href="/forgot-password" className={`${linkClass} inline-flex min-h-11 items-center text-sm`}>
             {t("login.forgot")}
           </Link>

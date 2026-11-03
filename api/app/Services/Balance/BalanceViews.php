@@ -76,8 +76,8 @@ final class BalanceViews
             'today' => $s->today,
             'carry_in_paisa' => $b->fixed->carryInPaisa,
             'lines' => $lines,
-            'fixed_balance_paisa' => $b->fixed->balancePaisa,
-            'meals_balance_paisa' => $b->meals->balancePaisa,
+            'fixed_balance_paisa' => self::splitBalances($b)[0],
+            'meals_balance_paisa' => self::splitBalances($b)[1],
             'total_paisa' => $b->totalPaisa,
             'fixed_outstanding_paisa' => $b->fixedOutstandingPaisa,
             'deposit_required_paisa' => $b->depositRequiredPaisa,
@@ -156,6 +156,20 @@ final class BalanceViews
         ];
     }
 
+    /**
+     * The fixed/meals split as shown to people. A fixed due is never reduced by a meals credit (it is
+     * owed by the fixed deadline; meals settle at month close), but a fixed credit goes to the meals
+     * side, so it can cover a meals due. The two still add up to the total.
+     *
+     * @return array{0:int,1:int} [fixed, meals]
+     */
+    private static function splitBalances(MemberBalance $b): array
+    {
+        $fixed = $b->fixed->balancePaisa;
+
+        return [min(0, $fixed), $b->meals->balancePaisa + max(0, $fixed)];
+    }
+
     /** @return array<string,mixed> */
     private static function row(MonthSnapshot $s, MessMember $member, MemberBalance $b): array
     {
@@ -172,8 +186,8 @@ final class BalanceViews
             'fixed_bill_paisa' => $b->fixed->chargesPaisa,
             'meals_bill_paisa' => $b->meals->chargesPaisa,
             'paid_paisa' => $b->fixed->paymentsPaisa + $b->meals->paymentsPaisa,
-            'fixed_balance_paisa' => $b->fixed->balancePaisa,
-            'meals_balance_paisa' => $b->meals->balancePaisa,
+            'fixed_balance_paisa' => self::splitBalances($b)[0],
+            'meals_balance_paisa' => self::splitBalances($b)[1],
             'balance_paisa' => $b->totalPaisa,
             'fixed_outstanding_paisa' => $b->fixedOutstandingPaisa,
             'deposit_required_paisa' => $b->depositRequiredPaisa,

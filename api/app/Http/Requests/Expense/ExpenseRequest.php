@@ -25,6 +25,7 @@ class ExpenseRequest extends FormRequest
             'spent_on' => [$req, 'date_format:Y-m-d'],
             'note' => ['sometimes', 'nullable', 'string', 'max:500'],
             'paid_by' => [$req, Rule::in(PaidBy::values())],
+            'client_uuid' => $this->isMethod('POST') ? ['sometimes', 'nullable', 'uuid'] : ['prohibited'],
             'paid_by_member_id' => ['sometimes', 'nullable', 'integer', Rule::exists('mess_members', 'id')->where('mess_id', $messId)->whereNull('archived_at')],
         ];
     }

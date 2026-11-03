@@ -123,5 +123,14 @@
     "savedToast": "Expense saved",
     "loading": "Loading…",
     "loadFailed": "Could not load the form. Please try again."
+  },
+  "offline": {
+    "title": "Waiting to sync",
+    "hint": "Saved on this phone. They are sent when you are back online.",
+    "waiting": "Waiting",
+    "needsAttention": "Needs attention",
+    "edit": "Edit",
+    "retry": "Try again",
+    "delete": "Delete"
   }
 }

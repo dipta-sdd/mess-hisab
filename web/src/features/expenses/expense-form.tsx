@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type { Category, Expense, Member } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
-import type { ExpensePatch } from "@/lib/api/contract";
+import type { ExpenseInput, ExpensePatch } from "@/lib/api/contract";
 import { useCreateExpense, useUpdateExpense, type CreateResult } from "./api";
 import { todayInDhaka } from "@/lib/format/date";
 import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
@@ -34,7 +34,9 @@ export function ExpenseForm({
   members,
   categories,
   expense,
+  prefill,
   onSaved,
+  onQueued,
   onCancel,
   bare = false,
 }: {
@@ -44,13 +46,17 @@ export function ExpenseForm({
   categories: Category[];
   /** When set, the form edits this expense. */
   expense?: Expense;
+  /** Start a new expense from these values (a queued one being fixed). */
+  prefill?: ExpenseInput;
   onSaved: (result: CreateResult) => void;
+  /** The expense was kept offline and will sync later. */
+  onQueued?: () => void;
   onCancel?: () => void;
   /** Drop the card chrome when the form already sits in a drawer. */
   bare?: boolean;
 }) {
   const t = useTranslations("expenses");
-  const create = useCreateExpense(messId);
+  const create = useCreateExpense(messId, me.id);
   const update = useUpdateExpense(messId);
   const [banner, setBanner] = useState<string | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -79,10 +85,10 @@ export function ExpenseForm({
   } = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: {
-      category_id: expense ? String(expense.category_id) : "",
-      amount: expense ? paisaToTakaInput(expense.amount_paisa) : "",
-      spent_on: expense?.spent_on ?? todayInDhaka(),
-      note: expense?.note ?? "",
+      category_id: expense ? String(expense.category_id) : prefill ? String(prefill.category_id) : "",
+      amount: expense ? paisaToTakaInput(expense.amount_paisa) : prefill ? paisaToTakaInput(prefill.amount_paisa) : "",
+      spent_on: expense?.spent_on ?? prefill?.spent_on ?? todayInDhaka(),
+      note: expense?.note ?? prefill?.note ?? "",
       payer: initialPayer,
       payer_member_id: initialPayer === "other" && expense?.paid_by_member_id ? String(expense.paid_by_member_id) : "",
     },
@@ -128,6 +134,10 @@ export function ExpenseForm({
           paid_by: paidBy,
           ...(paidBy === "member" ? { paid_by_member_id: payerId } : {}),
         });
+        if ("queued" in result) {
+          reset({ ...values, amount: "", note: "" });
+          return (onQueued ?? onCancel)?.();
+        }
         onSaved(result);
         // Ready for the next receipt: keep category, date and payer.
         reset({ ...values, amount: "", note: "" });

@@ -39,7 +39,7 @@ class OtpException extends RuntimeException
 
     public static function smsFailed(): self
     {
-        return new self('sms_failed', 502, null);
+        return new self('sms_failed', 503, null);
     }
 
     public function render(): JsonResponse

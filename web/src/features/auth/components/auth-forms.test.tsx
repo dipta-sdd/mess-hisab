@@ -51,7 +51,7 @@ describe("LoginForm", () => {
     renderWithProviders(<LoginForm />);
     await fillAndSubmit("01712345678");
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
-    expect(body).toHaveBeenCalledWith({ login: "01712345678", password: "secret-pass", remember: false });
+    expect(body).toHaveBeenCalledWith({ login: "01712345678", password: "secret-pass" });
   });
 
   it("signs in with an email in the same field", async () => {
@@ -65,7 +65,7 @@ describe("LoginForm", () => {
     renderWithProviders(<LoginForm />);
     await fillAndSubmit("rina@example.com");
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
-    expect(body).toHaveBeenCalledWith({ login: "rina@example.com", password: "secret-pass", remember: false });
+    expect(body).toHaveBeenCalledWith({ login: "rina@example.com", password: "secret-pass" });
   });
 
   it("sends a locked account to verify-phone", async () => {
@@ -334,7 +334,7 @@ describe("ForgotPasswordForm", () => {
   it("shows an alert when sending fails", async () => {
     server.use(
       http.post(`${API_BASE_URL}/api/auth/password/phone`, () =>
-        HttpResponse.json({ message: "x", code: "sms_failed" }, { status: 502 }),
+        HttpResponse.json({ message: "x", code: "sms_failed" }, { status: 503 }),
       ),
     );
     renderWithProviders(<ForgotPasswordForm />);

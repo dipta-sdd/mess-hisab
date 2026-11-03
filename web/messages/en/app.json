@@ -1,1 +1,12 @@
-{ "name": "Mess Hisab", "description": "Shared-house accounts" }
+{
+  "name": "Mess Hisab",
+  "description": "Shared-house accounts",
+  "install": {
+    "title": "Install Mess Hisab",
+    "body": "Add it to your home screen to open it like an app and save expenses offline.",
+    "install": "Install",
+    "later": "Not now",
+    "menu": "Install app",
+    "iosSteps": "Tap the Share button in Safari, then choose “Add to Home Screen”."
+  }
+}

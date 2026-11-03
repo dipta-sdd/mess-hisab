@@ -28,7 +28,7 @@ class GoogleController extends Controller
             $profile = Socialite::driver('google')->user();
             $user = $google->resolveUser($profile);
 
-            Auth::guard('web')->login($user, true);
+            Auth::guard('web')->login($user);
             if ($request->hasSession()) {
                 $request->session()->regenerate();
             }

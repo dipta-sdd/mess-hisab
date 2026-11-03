@@ -108,7 +108,9 @@
       "totalBazar": "Total bazar",
       "cash": "Cash in manager's hand"
     },
-    "noRow": "No balance to show for this month."
+    "noRow": "No balance to show for this month.",
+    "mealsPendingDue": "Meals so far: {amount} to pay, added when the month closes.",
+    "mealsPendingCredit": "Meals so far: {amount} credit, added when the month closes."
   },
   "adminTitle": "Mess overview",
   "alerts": {

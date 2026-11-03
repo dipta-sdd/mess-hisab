@@ -60,7 +60,9 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
   const statusLabel = month.status === "open" ? t("month.open") : t("month.closed");
   const statementHref = `/${messId}/statements/${memberId}?month=${month.id}`;
 
-  const balance = row?.balance_paisa ?? 0;
+  // Meal costs are only settled when the month closes, so until then the headline is the fixed balance alone.
+  const settledAtClose = month.status === "open";
+  const balance = (settledAtClose ? row?.fixed_balance_paisa : row?.balance_paisa) ?? 0;
   const tone = balance < 0 ? "text-danger" : balance > 0 ? "text-success" : "text-muted";
   const headline =
     balance < 0 ? t("member.owe", { amount: money(-balance) })
@@ -108,6 +110,11 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
           <section aria-labelledby="my-balance" className="rounded-2xl border border-border bg-surface p-5" data-testid="balance-card">
             <h2 id="my-balance" className="sr-only">{t("member.title")}</h2>
             <p className={`text-3xl font-bold tabular-nums ${tone}`} data-testid="balance-headline">{headline}</p>
+            {settledAtClose && row.meals_balance_paisa !== 0 ? (
+              <p className="mt-1 text-sm text-muted" data-testid="meals-pending">
+                {t(row.meals_balance_paisa < 0 ? "member.mealsPendingDue" : "member.mealsPendingCredit", { amount: money(Math.abs(row.meals_balance_paisa)) })}
+              </p>
+            ) : null}
             {row.fixed_outstanding_paisa > 0 && month.fixed_deadline ? (
               <p className="mt-2 text-sm text-muted" data-testid="pay-fixed">
                 {t("member.payByDeadline", { amount: money(row.fixed_outstanding_paisa), date: formatDate(month.fixed_deadline, locale) })}

@@ -80,11 +80,21 @@ describe("StaffDashboard", () => {
     mockApi();
     render();
     const row = await screen.findByTestId("member-row-1");
-    expect(within(row).getByText("Due ৳1,600.00")).toBeInTheDocument();
+    // Open month: the fixed due is not reduced by the meals credit, which is shown apart.
+    expect(within(row).getByText("Due ৳2,300.00")).toBeInTheDocument();
+    expect(within(row).getByText("Credit ৳700.00")).toBeInTheDocument();
     expect(within(row).getByRole("link", { name: "X" })).toHaveAttribute("href", "/7/statements/1?month=1");
     const credited = screen.getByTestId("member-row-2");
     expect(within(credited).getAllByText("Credit ৳700.00").length).toBe(1);
     expect(within(screen.getByTestId("member-card-2")).getByRole("link")).toHaveAttribute("href", "/7/statements/2?month=1");
+  });
+
+  it("combines fixed and meals into one balance once the month is closed", async () => {
+    mockApi({ ...dashboard, month: { ...dashboard.month, status: "closed" } });
+    render();
+    const row = await screen.findByTestId("member-row-1");
+    expect(within(row).getByText("Due ৳1,600.00")).toBeInTheDocument();
+    expect(within(row).queryByText("Credit ৳700.00")).toBeNull();
   });
 
   it("shows overdue badges and filters to overdue members only", async () => {

@@ -123,11 +123,11 @@ it('consumes a code after 5 wrong tries', function () {
     expect(User::first()->phone_verified_at)->toBeNull();
 });
 
-it('deletes the code and answers 502 sms_failed when the SMS cannot be sent', function () {
+it('deletes the code and answers 503 sms_failed when the SMS cannot be sent', function () {
     $this->actingAs(pLocked());
     $this->sms->failNext();
 
-    $this->postJson('/api/auth/phone/send')->assertStatus(502)->assertJsonPath('code', 'sms_failed');
+    $this->postJson('/api/auth/phone/send')->assertStatus(503)->assertJsonPath('code', 'sms_failed');
 
     expect(PhoneOtp::count())->toBe(0);
 

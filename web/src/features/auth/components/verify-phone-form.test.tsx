@@ -78,7 +78,7 @@ describe("VerifyPhoneForm", () => {
     serveMe(locked);
     server.use(
       http.post(`${API_BASE_URL}/api/auth/phone/verify`, () =>
-        HttpResponse.json({ message: "x", code, errors: { code: [code] } }, { status: code === "sms_failed" ? 502 : 422 }),
+        HttpResponse.json({ message: "x", code, errors: { code: [code] } }, { status: code === "sms_failed" ? 503 : 422 }),
       ),
     );
     renderWithProviders(<VerifyPhoneForm />);

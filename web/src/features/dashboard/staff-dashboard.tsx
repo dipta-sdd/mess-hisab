@@ -90,6 +90,8 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
   const newer = at > 0 ? months[at - 1] : undefined;
 
   const statusLabel = data.month.status === "open" ? t("month.open") : t("month.closed");
+  // Meal costs are only settled when the month closes, so until then fixed and meals are shown apart.
+  const splitBalances = data.month.status === "open";
 
   const alerts: React.ReactNode[] = [];
   if (overdueCount > 0) {
@@ -215,8 +217,11 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
                         {r.display_name}
                         {r.is_archived ? <span className="ms-2 text-sm text-muted">{t("members.archived")}</span> : null}
                       </span>
-                      <Balance paisa={r.balance_paisa} mode={mode} />
+                      <Balance paisa={splitBalances ? r.fixed_balance_paisa : r.balance_paisa} mode={mode} />
                     </div>
+                    {splitBalances ? (
+                      <p className="text-sm text-muted tabular-nums">{t("members.mealsBalance")}: {money(r.meals_balance_paisa)}</p>
+                    ) : null}
                     <p className="text-sm text-muted tabular-nums">
                       {t("members.bill")} {money(r.fixed_bill_paisa + r.meals_bill_paisa)} · {t("members.toPay")} {money(r.fixed_outstanding_paisa + r.deposit_outstanding_paisa)}
                     </p>
@@ -238,7 +243,8 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
                     <th scope="col" className="px-4 py-3 text-start font-medium">{t("members.member")}</th>
                     <th scope="col" className="px-4 py-3 text-end font-medium">{t("members.bill")}</th>
                     <th scope="col" className="px-4 py-3 text-end font-medium">{t("members.toPay")}</th>
-                    <th scope="col" className="px-4 py-3 text-end font-medium">{t("members.balance")}</th>
+                    <th scope="col" className="px-4 py-3 text-end font-medium">{splitBalances ? t("members.fixedBalance") : t("members.balance")}</th>
+                    {splitBalances ? <th scope="col" className="px-4 py-3 text-end font-medium">{t("members.mealsBalance")}</th> : null}
                     <th scope="col" className="px-4 py-3 text-start font-medium">{t("members.overdueCol")}</th>
                   </tr>
                 </thead>
@@ -251,7 +257,8 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
                       </th>
                       <td className="px-4 py-3 text-end">{money(r.fixed_bill_paisa + r.meals_bill_paisa)}</td>
                       <td className="px-4 py-3 text-end">{money(r.fixed_outstanding_paisa + r.deposit_outstanding_paisa)}</td>
-                      <td className="px-4 py-3 text-end"><Balance paisa={r.balance_paisa} mode={mode} /></td>
+                      <td className="px-4 py-3 text-end"><Balance paisa={splitBalances ? r.fixed_balance_paisa : r.balance_paisa} mode={mode} /></td>
+                      {splitBalances ? <td className="px-4 py-3 text-end"><Balance paisa={r.meals_balance_paisa} mode={mode} /></td> : null}
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
                           <OverdueBadge days={r.fixed_overdue_days} kind="fixed" />

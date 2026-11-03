@@ -13,6 +13,7 @@ const PATHS: Record<string, string> = {
   lock: "M6 11h12v9H6zM8 11V8a4 4 0 018 0v3",
   mail: "M4 6h16v12H4zM4 7l8 6 8-6",
   logout: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10",
+  install: "M12 4v11M7 11l5 5 5-5M5 20h14",
   menu: "M4 6h16M4 12h16M4 18h16",
 };
 const FALLBACK = "M12 6a6 6 0 100 12 6 6 0 000-12z";

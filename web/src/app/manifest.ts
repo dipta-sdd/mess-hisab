@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-// Installable only: no service worker, so balances are never served stale from an offline cache.
+// Installable. The service worker (public/sw.js) caches only the app shell, never API data, so balances are never served stale.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Mess Hisab — মেসের হিসাব",

@@ -38,7 +38,6 @@ export interface LoginPayload {
   /** A phone (any accepted form) or an email. */
   login: string;
   password: string;
-  remember?: boolean;
 }
 
 export function useLogin() {

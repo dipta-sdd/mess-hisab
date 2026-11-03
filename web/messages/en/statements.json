@@ -23,7 +23,8 @@
     "mealsBalance": "Meals balance",
     "outstanding": "Bills to pay",
     "depositRequired": "Deposit required",
-    "depositOutstanding": "Deposit to pay"
+    "depositOutstanding": "Deposit to pay",
+    "totalOpen": "Fixed balance (meals are added when the month closes)"
   },
   "lines": {
     "title": "Details",
