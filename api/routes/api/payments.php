@@ -8,7 +8,7 @@ Route::middleware(['auth:sanctum', 'mess'])->prefix('messes/{mess}')->group(func
     Route::get('payments', [PaymentController::class, 'index']);
     Route::get('cash', [CashController::class, 'show']);
 
-    Route::middleware('mess.role:manager')->group(function () {
+    Route::middleware('mess.role:admin,manager')->group(function () {
         Route::post('payments', [PaymentController::class, 'store']);
         Route::patch('payments/{payment}', [PaymentController::class, 'update']);
         Route::delete('payments/{payment}', [PaymentController::class, 'destroy']);

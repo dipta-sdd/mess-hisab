@@ -69,9 +69,9 @@ function InviteRow({ invite, members }: { invite: Invite; members: Member[] }) {
         <span className="min-w-0 break-all text-sm font-medium">
           {forMember ? t("invites.forMember", { name: forMember.display_name }) : t("invites.forAnyone")}
         </span>
-        <span className="text-xs text-muted">{t(`invites.status.${status}`)}</span>
+        <span className="text-sm text-muted">{t(`invites.status.${status}`)}</span>
       </div>
-      <p className="text-xs text-muted">
+      <p className="text-sm text-muted">
         {t("invites.uses", { uses: formatNumber(invite.uses, locale), max: invite.max_uses == null ? t("invites.unlimited") : formatNumber(invite.max_uses, locale) })}
         {invite.expires_at ? ` · ${t("invites.expires", { date: formatDate(invite.expires_at.slice(0, 10), locale) })}` : ""}
       </p>

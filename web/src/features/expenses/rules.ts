@@ -4,13 +4,13 @@ import type { ApiError } from "@/lib/api-client";
 /**
  * What the UI offers; the server decides for real (403/409 are still handled).
  * Mirrors ExpenseService::assertCanModify:
- *  - manager: any time the expense's month is open (a rejected expense can be deleted, not edited);
+ *  - manager or admin: any time the expense's month is open (a rejected expense can be deleted, not edited);
  *  - owner: while pending, or (approval off) while the month is open;
  *  - the month must be open for everyone.
  */
 export function expenseAbilities(expense: Expense, month: Month | undefined, mess: Mess, me: Member): { canEdit: boolean; canDelete: boolean } {
   if (!month || month.status !== "open") return { canEdit: false, canDelete: false };
-  const isManager = me.is_manager;
+  const isManager = me.is_manager || me.is_admin;
   const isOwner = expense.created_by_member_id === me.id;
   if (!isManager && !isOwner) return { canEdit: false, canDelete: false };
   if (!isManager && mess.approval_required && expense.status === "approved") return { canEdit: false, canDelete: false };

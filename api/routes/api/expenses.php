@@ -10,7 +10,7 @@ Route::middleware(['auth:sanctum', 'mess'])->prefix('messes/{mess}')->group(func
     Route::patch('expenses/{expense}', [ExpenseController::class, 'update']);
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy']);
 
-    Route::middleware('mess.role:manager')->group(function () {
+    Route::middleware('mess.role:admin,manager')->group(function () {
         Route::post('expenses/{expense}/approve', [ExpenseController::class, 'approve']);
         Route::post('expenses/{expense}/reject', [ExpenseController::class, 'reject']);
     });

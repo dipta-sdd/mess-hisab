@@ -40,7 +40,7 @@ function CloseBlockBody({ block, ctx }: { block: CloseBlock; ctx: BlockContext }
       return (
         <>
           <p>{t("pending_expenses", { count: num(d.count) })}</p>
-          <Link className={linkClass} href={`/${ctx.messId}/expenses`}>{t("pending_expenses_link")}</Link>
+          <Link className={linkClass} href={`/${ctx.messId}/admin/expenses`}>{t("pending_expenses_link")}</Link>
         </>
       );
     case "unallocated": {
@@ -53,7 +53,7 @@ function CloseBlockBody({ block, ctx }: { block: CloseBlock; ctx: BlockContext }
               <li key={b.category_id}>{t("unallocated_item", { name: b.name, amount: ctx.money(b.unallocated_paisa) })}</li>
             ))}
           </ul>
-          <Link className={linkClass} href={`/${ctx.messId}/fixed`}>{t("unallocated_link")}</Link>
+          <Link className={linkClass} href={`/${ctx.messId}/admin/fixed`}>{t("unallocated_link")}</Link>
         </>
       );
     }

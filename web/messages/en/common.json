@@ -17,7 +17,9 @@
     "logout": "Log out",
     "account": "Your account",
     "openMenu": "Open menu",
-    "menu": "Menu"
+    "menu": "Menu",
+    "topNav": "Main navigation (top bar)",
+    "adminNav": "Admin navigation"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -39,10 +41,36 @@
     "logoutTitle": "Log out",
     "logoutHint": "Sign out of Mess Hisab on this device.",
     "logout": "Log out",
-    "logoutFailed": "Could not log out. Please try again."
+    "logoutFailed": "Could not log out. Please try again.",
+    "emailTitle": "Email",
+    "emailHint": "You can log in with this address. Changing it needs your password.",
+    "emailNone": "No email on this account yet. Add one to log in with it.",
+    "emailLabel": "Email address",
+    "emailSave": "Save email",
+    "emailSaved": "Your email was saved.",
+    "emailNeedsPassword": "Set a password below first. Then you can add or change your email.",
+    "currentPassword": "Current password",
+    "passwordTitle": "Password",
+    "passwordHint": "Choose a new password for logging in.",
+    "passwordSetTitle": "Set a password",
+    "passwordSetHint": "You signed up with Google. Set a password to log in with your phone or email too.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "passwordRule": "Use at least 8 characters.",
+    "passwordSave": "Change password",
+    "passwordSetSave": "Set password",
+    "passwordSaved": "Your password was saved.",
+    "identityPhone": "Phone",
+    "identityEmail": "Email",
+    "menuEmail": "Change email",
+    "menuPassword": "Change password"
   },
   "nav": {
-    "myStatement": "My statement"
+    "myStatement": "My statement",
+    "adminDashboard": "Admin overview",
+    "adminMeals": "All meals",
+    "adminExpenses": "All expenses",
+    "adminPayments": "All payments"
   },
   "staffOnly": {
     "message": "Only the manager can see this page",

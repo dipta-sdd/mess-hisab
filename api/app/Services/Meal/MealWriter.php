@@ -68,7 +68,7 @@ class MealWriter
     /** meal_entry_by = manager: only the manager. self: a member only for their own row. Manager always. */
     private function authorize(Mess $mess, MessMember $actor, int $memberId): void
     {
-        if ($actor->isManager()) {
+        if ($actor->isStaff()) {
             return;
         }
 

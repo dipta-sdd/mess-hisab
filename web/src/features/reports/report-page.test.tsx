@@ -131,7 +131,7 @@ describe("ReportsPage", () => {
     renderWithProviders(<ReportsPage />, { messId: 7 });
     const box = await screen.findByTestId("blocked-month_not_closed");
     expect(box).toHaveTextContent("not closed yet");
-    expect(within(box).getByRole("link")).toHaveAttribute("href", "/7/fixed?month=1");
+    expect(within(box).getByRole("link")).toHaveAttribute("href", "/7/admin/fixed?month=1");
   });
 
   it("explains next_month_bills_missing with a link to the next month's Fixed page", async () => {
@@ -139,7 +139,7 @@ describe("ReportsPage", () => {
     renderWithProviders(<ReportsPage />, { messId: 7 });
     const box = await screen.findByTestId("blocked-next_month_bills_missing");
     expect(box).toHaveTextContent("November 2026 has no Fixed bills yet");
-    expect(within(box).getByRole("link")).toHaveAttribute("href", "/7/fixed?month=2");
+    expect(within(box).getByRole("link")).toHaveAttribute("href", "/7/admin/fixed?month=2");
   });
 
   it("shows a generic message for other failures", async () => {

@@ -19,7 +19,7 @@ export const mealsKeys = {
   members: (messId: number) => ["meals", messId, "members"] as const,
   months: (messId: number) => ["meals", messId, "months"] as const,
   currentMonth: (messId: number) => ["meals", messId, "month-current"] as const,
-  entries: (messId: number, monthId: number | null) => ["meals", messId, "entries", monthId] as const,
+  entries: (messId: number, monthId: number | null, memberId: number | null = null) => ["meals", messId, "entries", monthId, memberId] as const,
 };
 
 const base = (messId: number) => `/api/messes/${messId}`;
@@ -31,9 +31,10 @@ export function useMessInfo(messId: number) {
   });
 }
 
-export function useMembers(messId: number) {
+export function useMembers(messId: number, enabled = true) {
   return useQuery({
     queryKey: mealsKeys.members(messId),
+    enabled,
     queryFn: async () => (await apiClient.get<ListResponse<Member>>(`${base(messId)}/members`)).data,
   });
 }
@@ -52,12 +53,13 @@ export function useCurrentMonth(messId: number) {
   });
 }
 
-export function useMeals(messId: number, monthId: number | null) {
+/** `memberId` narrows the grid to one member (the signed-in member's own page); omit it for everyone. */
+export function useMeals(messId: number, monthId: number | null, memberId: number | null = null) {
   return useQuery({
-    queryKey: mealsKeys.entries(messId, monthId),
+    queryKey: mealsKeys.entries(messId, monthId, memberId),
     enabled: monthId !== null,
     queryFn: async () =>
-      (await apiClient.get<ItemResponse<MealsResponse>>(`${base(messId)}/meals`, { query: { month_id: monthId } })).data,
+      (await apiClient.get<ItemResponse<MealsResponse>>(`${base(messId)}/meals`, { query: { month_id: monthId, member_id: memberId ?? undefined } })).data,
   });
 }
 

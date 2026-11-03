@@ -10,6 +10,8 @@ const PATHS: Record<string, string> = {
   statement: "M7 3h10a1 1 0 011 1v16l-3-2-3 2-3-2-3 2V4a1 1 0 011-1zM9 8h6M9 12h4",
   reports: "M5 20V10M12 20V4M19 20v-7",
   profile: "M20 21v-1a5 5 0 00-5-5H9a5 5 0 00-5 5v1M12 11a4 4 0 100-8 4 4 0 000 8z",
+  lock: "M6 11h12v9H6zM8 11V8a4 4 0 018 0v3",
+  mail: "M4 6h16v12H4zM4 7l8 6 8-6",
   logout: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10",
   menu: "M4 6h16M4 12h16M4 18h16",
 };

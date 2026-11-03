@@ -18,7 +18,7 @@ export const PRINT_CSS = `
   main { padding: 0 !important; }
   .report-root {
     --background: #fff; --foreground: #111; --surface: #fff; --muted: #555; --border: #cfcfd4;
-    --accent: #1d6fd8; --success: #1a7f45; --danger: #c62828;
+    --accent: #0f766e; --success: #1a7f45; --danger: #c62828;
     max-width: none !important; padding: 0 !important; gap: 12px !important;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
     font-size: 11px;

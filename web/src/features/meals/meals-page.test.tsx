@@ -65,7 +65,7 @@ function mockApi({ tracking = "daily_number", by = "manager", manager = true, cu
   return calls;
 }
 
-const renderPage = () => renderWithProviders(<MealsPage />, { messId: 7 });
+const renderPage = () => renderWithProviders(<MealsPage scope="all" />, { messId: 7 });
 const cell = (kind: string, who: string, day = "3 Nov 2026") => screen.getByLabelText(`${kind}: ${who}, ${day}`);
 
 describe("MealsPage", () => {
@@ -297,7 +297,7 @@ describe("MealsPage", () => {
 
   it("renders Bangla", async () => {
     mockApi({ totals: { "1": { meals_centi: 250, guest_meals_centi: 0 }, "2": { meals_centi: 0, guest_meals_centi: 0 } } });
-    renderWithProviders(<MealsPage />, { messId: 7, locale: "bn" });
+    renderWithProviders(<MealsPage scope="all" />, { messId: 7, locale: "bn" });
     expect(await screen.findByRole("heading", { name: "মিল" })).toBeInTheDocument();
     await waitFor(() => expect(screen.getByTestId("total-1")).toHaveTextContent("২.৫"));
     expect(screen.getByRole("button", { name: "একদিন" })).toBeInTheDocument();

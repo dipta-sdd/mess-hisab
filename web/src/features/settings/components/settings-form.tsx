@@ -197,7 +197,7 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
                 error={e("dinner_weight")}
                 {...register("dinner_weight")}
               />
-              <p className="text-xs text-muted sm:col-span-3">{t("meals.weightsHint")}</p>
+              <p className="text-sm text-muted sm:col-span-3">{t("meals.weightsHint")}</p>
             </div>
           ) : null}
         </Section>
@@ -269,7 +269,7 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
               {...register("deposit_due_day_offset")}
             />
           </div>
-          <p className="text-xs text-muted">{t("deposit.offsetHint")}</p>
+          <p className="text-sm text-muted">{t("deposit.offsetHint")}</p>
         </Section>
       </fieldset>
 

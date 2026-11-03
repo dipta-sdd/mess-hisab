@@ -99,7 +99,7 @@ it('refuses payments in a closed month with 409', function () {
     expect(Payment::forMess($mess->id)->count())->toBe(0);
 });
 
-it('lets a plain member and the admin-only role not write', function (string $role) {
+it('does not let a plain member write', function (string $role) {
     [$mess] = actingAsMember($role);
     gpOpenMonth($mess);
     $payer = MessMember::factory()->for($mess)->create();
@@ -108,7 +108,19 @@ it('lets a plain member and the admin-only role not write', function (string $ro
     $this->postJson(messPath($mess, 'payments'), gpValidPayment($payer))->assertForbidden();
     $this->patchJson(messPath($mess, "payments/{$payment->id}"), ['amount_paisa' => 1])->assertForbidden();
     $this->deleteJson(messPath($mess, "payments/{$payment->id}"))->assertForbidden();
-})->with(['member', 'admin']);
+})->with(['member']);
+
+it('lets the admin record, edit and delete payments like the manager', function () {
+    [$mess] = actingAsMember('admin');
+    gpOpenMonth($mess);
+    $payer = MessMember::factory()->for($mess)->create();
+
+    $this->postJson(messPath($mess, 'payments'), gpValidPayment($payer))->assertCreated();
+    $payment = Payment::forMess($mess->id)->firstOrFail();
+    expect($payment->received_by_member_id)->toBe($mess->manager_member_id);
+    $this->patchJson(messPath($mess, "payments/{$payment->id}"), ['amount_paisa' => 1])->assertOk();
+    $this->deleteJson(messPath($mess, "payments/{$payment->id}"))->assertSuccessful();
+});
 
 it('blocks archived managers from writing', function () {
     [$mess] = actingAsMember('archived');

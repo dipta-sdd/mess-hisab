@@ -206,11 +206,11 @@ function AuditRow({ entry, who }: { entry: AuditLog; who: string }) {
         <time dateTime={entry.created_at} title={entry.created_at}>
           {formatDate(entry.created_at, locale)} {timeOfDay(entry.created_at, locale)}
         </time>
-        {relative ? <span className="block text-xs">{relative}</span> : null}
+        {relative ? <span className="block text-sm">{relative}</span> : null}
       </div>
       <div className="flex min-w-0 flex-col gap-2">
         <p className="break-words font-medium">{summary}</p>
-        {summary !== entry.event ? <p className="break-all text-xs text-muted">{entry.event}</p> : null}
+        {summary !== entry.event ? <p className="break-all text-sm text-muted">{entry.event}</p> : null}
         {rows.length > 0 ? (
           <>
             <button

@@ -103,12 +103,12 @@ describe("MonthsPage: close flow", () => {
 
     const pendingBlock = await screen.findByTestId("block-pending_expenses");
     expect(pendingBlock).toHaveTextContent("3 expenses are still waiting for approval");
-    expect(within(pendingBlock).getByRole("link", { name: "Go to expenses" })).toHaveAttribute("href", "/7/expenses");
+    expect(within(pendingBlock).getByRole("link", { name: "Go to expenses" })).toHaveAttribute("href", "/7/admin/expenses");
 
     const unallocated = screen.getByTestId("block-unallocated");
     expect(unallocated).toHaveTextContent("Rent");
     expect(unallocated).toHaveTextContent("100");
-    expect(within(unallocated).getByRole("link", { name: "Go to fixed bills" })).toHaveAttribute("href", "/7/fixed");
+    expect(within(unallocated).getByRole("link", { name: "Go to fixed bills" })).toHaveAttribute("href", "/7/admin/fixed");
 
     const mismatch = screen.getByTestId("block-doesnt_pay_mismatch");
     expect(mismatch).toHaveTextContent("Salam owes");

@@ -57,7 +57,7 @@ function mockApi({
   return requests;
 }
 
-const renderPage = () => renderWithProviders(<ExpensesPage />, { messId: 7 });
+const renderPage = () => renderWithProviders(<ExpensesPage scope="all" />, { messId: 7 });
 const form = () => screen.findByRole("form", { name: "Add an expense" });
 const queue = () => screen.findByRole("region", { name: /Waiting for approval/ });
 
@@ -376,7 +376,7 @@ describe("ExpensesPage approval queue", () => {
 describe("ExpensesPage Bangla", () => {
   it("renders Bangla", async () => {
     mockApi();
-    renderWithProviders(<ExpensesPage />, { messId: 7, locale: "bn" });
+    renderWithProviders(<ExpensesPage scope="all" />, { messId: 7, locale: "bn" });
     expect(await screen.findByText("খরচ যোগ করুন")).toBeInTheDocument();
     await waitFor(() => expect(within(screen.getByTestId("total-fixed")).getByText("৳১,৫০০.০০")).toBeInTheDocument());
     expectBanglaOnly([]);

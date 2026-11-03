@@ -81,7 +81,7 @@ export function LineChart({
 
   return (
     <div ref={ref} className="relative w-full" style={{ height }}>
-      <svg width={width} height={height} role="group" aria-label={ariaLabel} className="block overflow-visible" onPointerLeave={() => setActive(null)}>
+      <svg width={width} height={height} role="group" aria-label={ariaLabel} className="block overflow-visible" onPointerLeave={(e) => { if (e.pointerType !== "touch") setActive(null); }}>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={left} x2={left + plotW} y1={y(t)} y2={y(t)} stroke="var(--border)" strokeWidth={1} />
@@ -104,6 +104,9 @@ export function LineChart({
         {a && a.value !== null ? <line x1={ax} x2={ax} y1={TOP} y2={TOP + plotH} stroke="var(--muted)" strokeWidth={1} opacity={0.5} /> : null}
         <rect
           x={left} y={TOP} width={plotW} height={plotH} fill="transparent"
+          // pan-y: a horizontal drag scrubs the line, a vertical swipe still scrolls the page.
+          style={{ touchAction: "pan-y" }}
+          onPointerDown={(e) => setActive(nearest(e.clientX, e.currentTarget.ownerSVGElement!.getBoundingClientRect()))}
           onPointerMove={(e) => setActive(nearest(e.clientX, e.currentTarget.ownerSVGElement!.getBoundingClientRect()))}
         />
         {segments.map((d, i) => (

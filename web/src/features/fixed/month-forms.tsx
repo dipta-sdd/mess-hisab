@@ -98,7 +98,7 @@ export function MonthSetupForm({
           />
         </div>
       </div>
-      <p className="text-xs text-muted">{t("month.hint")}</p>
+      <p className="text-sm text-muted">{t("month.hint")}</p>
       {notice ? <p role="alert" className="rounded-lg border border-danger bg-danger/10 p-2 text-sm text-danger">{notice}</p> : null}
       {ok && !dirty ? <p role="status" className="text-sm text-success">{t("saved")}</p> : null}
       <div>

@@ -93,7 +93,7 @@ export function BillCard({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="min-w-0 break-words text-lg font-semibold">{name}</h3>
-          <p className="text-xs text-muted">
+          <p className="text-sm text-muted">
             {t(`groups.${bill.group}`)} · {t(`split.${bill.split_type}`)}
           </p>
         </div>
@@ -117,7 +117,7 @@ export function BillCard({
           />
         </div>
       ) : null}
-      {!isFixedGroup ? <p className="mt-2 text-xs text-muted">{t("bill.fromExpenses")}</p> : null}
+      {!isFixedGroup ? <p className="mt-2 text-sm text-muted">{t("bill.fromExpenses")}</p> : null}
 
       <ul className="mt-3 flex flex-col divide-y divide-border" aria-label={t("bill.shares")}>
         {members.map((m) => {
@@ -142,7 +142,7 @@ export function BillCard({
                     />
                   </span>
                 ) : hasOverride ? (
-                  <span className="text-xs text-muted">{t("bill.setByHand")}</span>
+                  <span className="text-sm text-muted">{t("bill.setByHand")}</span>
                 ) : null}
                 <span className="min-w-24 text-end font-semibold tabular-nums" data-testid={`share-${bill.category_id}-${m.id}`}>{money(share)}</span>
               </span>
@@ -159,7 +159,7 @@ export function BillCard({
           </p>
           {canEdit ? (
             <>
-              {dirty ? <p className="mt-1 text-xs text-muted">{t("unallocated.saveFirst")}</p> : null}
+              {dirty ? <p className="mt-1 text-sm text-muted">{t("unallocated.saveFirst")}</p> : null}
               <div className="mt-2 flex flex-wrap gap-2">
                 {unallocated > 0 ? (
                   <Button size="sm" variant="secondary" isDisabled={dirty || busy} onPress={() => run("spread")} aria-label={`${t("actions.spread")}: ${name}`}>

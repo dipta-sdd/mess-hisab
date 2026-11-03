@@ -37,10 +37,10 @@ describe("DashboardPage role switch", () => {
     expect(screen.queryByRole("table")).toBeNull();
   });
 
-  it.each([{ is_manager: true }, { is_admin: true }])("shows the staff dashboard for %o", async (flags) => {
+  it.each([{ is_manager: true }, { is_admin: true }])("shows staff the member dashboard here too for %o", async (flags) => {
     mockApi(flags);
     render();
-    expect(await screen.findByTestId("cash-card")).toBeInTheDocument();
-    expect(screen.queryByTestId("balance-card")).toBeNull();
+    expect(await screen.findByTestId("balance-card")).toBeInTheDocument();
+    expect(screen.queryByTestId("cash-card")).toBeNull();
   });
 });

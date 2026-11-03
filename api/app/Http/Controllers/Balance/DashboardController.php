@@ -16,6 +16,6 @@ class DashboardController extends BalanceController
     {
         $snapshot = $balances->snapshot($this->month($request, $mess, $calendar));
 
-        return new DashboardResource(BalanceViews::dashboard($snapshot, CashPool::balance($mess), $mess->manager_member_id, currentMember()->isStaff() ? null : currentMember()->id));
+        return new DashboardResource(BalanceViews::dashboard($snapshot, CashPool::balance($mess), $mess->manager_member_id, currentMember()->isStaff() && $request->input('scope') !== 'own' ? null : currentMember()->id));
     }
 }

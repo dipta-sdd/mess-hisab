@@ -39,9 +39,10 @@ export function useMessInfo(messId: number) {
   });
 }
 
-export function useMembers(messId: number) {
+export function useMembers(messId: number, enabled = true) {
   return useQuery({
     queryKey: expensesKeys.members(messId),
+    enabled,
     queryFn: async () => (await apiClient.get<ListResponse<Member>>(`${base(messId)}/members`)).data,
   });
 }

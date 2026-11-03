@@ -100,8 +100,8 @@ export function StatementPage({ memberId = null, initialMonthId = null }: { memb
     <li key={`${l.kind}-${i}`} className="flex items-start justify-between gap-3 py-2" data-testid={`line-${l.kind}`}>
       <div className="min-w-0">
         <p className="break-words font-medium">{kindLabel(l)}</p>
-        {kindNote(l) ? <p className="break-words text-xs text-muted">{kindNote(l)}</p> : null}
-        {l.date ? <p className="text-xs text-muted">{formatDate(l.date, locale)}</p> : null}
+        {kindNote(l) ? <p className="break-words text-sm text-muted">{kindNote(l)}</p> : null}
+        {l.date ? <p className="text-sm text-muted">{formatDate(l.date, locale)}</p> : null}
       </div>
       <span className={`shrink-0 tabular-nums ${l.amount_paisa < 0 ? "text-danger" : "text-success"}`}>{money(l.amount_paisa)}</span>
     </li>

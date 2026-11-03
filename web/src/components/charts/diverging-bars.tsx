@@ -126,7 +126,7 @@ export function VerticalColumns({
                   aria-label={`${it.label}: ${it.valueLabel}`}
                   data-testid={`col-${it.key}`}
                   onPointerEnter={() => setActive(i)}
-                  onPointerLeave={() => setActive((a) => (a === i ? null : a))}
+                  onPointerLeave={(e) => { if (e.pointerType !== "touch") setActive((a) => (a === i ? null : a)); }}
                   onFocus={() => setActive(i)}
                   onBlur={() => setActive((a) => (a === i ? null : a))}
                   className={`relative h-full flex-1 outline-none focus-visible:ring-2 focus-visible:ring-focus ${active === i ? "bg-foreground/5" : ""}`}

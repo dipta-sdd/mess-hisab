@@ -56,7 +56,7 @@ export function ExpenseForm({
     if (expense) titleRef.current?.scrollIntoView?.({ block: "start" });
   }, [expense]);
   const editing = Boolean(expense);
-  const isManager = me.is_manager;
+  const isManager = me.is_manager || me.is_admin;
 
   const initialPayer: ExpenseFormValues["payer"] = !expense
     ? "me"
@@ -161,7 +161,7 @@ export function ExpenseForm({
           {label}
         </label>
         {control}
-        {hint && !message ? <p id={`ef-${name}-hint`} className="text-xs text-muted">{hint}</p> : null}
+        {hint && !message ? <p id={`ef-${name}-hint`} className="text-sm text-muted">{hint}</p> : null}
         {message ? (
           <p id={`ef-${name}-error`} role="alert" className="text-sm text-danger">
             {message}
@@ -247,7 +247,7 @@ export function ExpenseForm({
                 </select>,
               )
             : null}
-          {payer === "cash" ? <p className="text-xs text-muted">{t("form.cashHint")}</p> : null}
+          {payer === "cash" ? <p className="text-sm text-muted">{t("form.cashHint")}</p> : null}
           {errors.payer?.message ? <p role="alert" className="text-sm text-danger">{msg(errors.payer.message, errors.payer.type)}</p> : null}
         </fieldset>
       ) : (

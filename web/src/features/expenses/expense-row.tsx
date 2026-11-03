@@ -43,7 +43,7 @@ export function ExpenseRow({
         <p className="shrink-0 text-lg font-semibold tabular-nums">{money(expense.amount_paisa)}</p>
       </div>
       {expense.note ? <p className="mt-1 text-sm break-words">{expense.note}</p> : null}
-      {creatorName ? <p className="mt-1 break-words text-xs text-muted">{t("queue.recordedBy", { name: creatorName })}</p> : null}
+      {creatorName ? <p className="mt-1 break-words text-sm text-muted">{t("queue.recordedBy", { name: creatorName })}</p> : null}
       <div className="mt-2 flex flex-wrap gap-1.5">
         <span className={`${badgeBase} ${statusClass[expense.status]}`}>{t(`status.${expense.status}`)}</span>
         {expense.is_late ? <span className={`${badgeBase} bg-default text-foreground`}>{t("badges.late")}</span> : null}

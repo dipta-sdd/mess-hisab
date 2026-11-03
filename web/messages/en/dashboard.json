@@ -15,7 +15,9 @@
     "closed": "Closed",
     "status": "Status: {status}",
     "fixedDeadline": "Fixed bills due {date}",
-    "depositDeadline": "Deposit due {date}"
+    "depositDeadline": "Deposit due {date}",
+    "prev": "Previous month",
+    "next": "Next month"
   },
   "totals": {
     "title": "Month totals",
@@ -33,7 +35,10 @@
     "managerBalanceNamed": "{name}'s own balance",
     "zeroMealsUnresolved": "Food was bought but nobody has any meals this month. Close the month to decide how to split it.",
     "unchargedFood": "{amount} of food cost is not charged to anyone yet.",
-    "cashHint": "Money the manager is holding for the mess"
+    "cashHint": "Money the manager is holding for the mess",
+    "fixedGroup": "Fixed bills",
+    "mealsGroup": "Meals",
+    "toCollect": "Still to collect"
   },
   "overdue": {
     "fixed": "Bills {days} days overdue",
@@ -56,7 +61,9 @@
     "balance": "Balance",
     "outstanding": "Bills to pay",
     "depositOutstanding": "Deposit to pay",
-    "overdueCol": "Overdue"
+    "overdueCol": "Overdue",
+    "bill": "Bill",
+    "toPay": "Still to pay"
   },
   "charts": {
     "showTable": "Show as table",
@@ -102,5 +109,11 @@
       "cash": "Cash in manager's hand"
     },
     "noRow": "No balance to show for this month."
+  },
+  "adminTitle": "Mess overview",
+  "alerts": {
+    "title": "Needs attention",
+    "overdue": "{count} members are overdue",
+    "show": "Show them"
   }
 }

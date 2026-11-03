@@ -2,6 +2,7 @@
 
 use App\Models\MessMember;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 require_once __DIR__.'/AuthHelpers.php';
 
@@ -161,4 +162,53 @@ it('validates patch me and ignores email changes', function () {
     $this->patchJson('/api/auth/me', ['name' => ''])->assertUnprocessable()->assertJsonValidationErrors(['name']);
     $this->patchJson('/api/auth/me', ['email' => 'hacker@example.com', 'name' => 'Ok'])->assertOk();
     expect($user->fresh()->email)->toBe('keep@example.com');
+});
+
+it('changes the password only with the current one', function () {
+    $user = user(['password' => 'old-secret-1']);
+    $this->actingAs($user);
+    $new = ['password' => 'brand-new-pass', 'password_confirmation' => 'brand-new-pass'];
+
+    $this->patchJson('/api/auth/me/password', $new)->assertUnprocessable()->assertJsonValidationErrors(['current_password']);
+    $this->patchJson('/api/auth/me/password', ['current_password' => 'wrong-pass-1'] + $new)->assertUnprocessable()->assertJsonValidationErrors(['current_password']);
+    $this->patchJson('/api/auth/me/password', ['current_password' => 'old-secret-1', 'password' => 'short', 'password_confirmation' => 'short'])
+        ->assertUnprocessable()->assertJsonValidationErrors(['password']);
+
+    $res = $this->patchJson('/api/auth/me/password', ['current_password' => 'old-secret-1'] + $new)->assertOk();
+    expectContractShape($res->json('data'), 'User');
+    expect(Hash::check('brand-new-pass', $user->fresh()->password))->toBeTrue();
+});
+
+it('lets a Google-only account set a first password without an old one', function () {
+    $user = user(['password' => null, 'google_id' => 'g-1']);
+    $this->actingAs($user);
+
+    $this->patchJson('/api/auth/me/password', ['password' => 'first-pass-1', 'password_confirmation' => 'first-pass-1'])->assertOk()
+        ->assertJsonPath('data.has_password', true);
+});
+
+it('changes the email with the password, lowercased, and keeps it unique', function () {
+    $user = user(['password' => 'old-secret-1', 'email' => 'old@example.com']);
+    user(['email' => 'taken@example.com']);
+    $this->actingAs($user);
+
+    $this->patchJson('/api/auth/me/email', ['email' => 'New@Example.com'])->assertUnprocessable()->assertJsonValidationErrors(['current_password']);
+    $this->patchJson('/api/auth/me/email', ['email' => 'new@example.com', 'current_password' => 'nope-nope-1'])->assertUnprocessable()->assertJsonValidationErrors(['current_password']);
+    $this->patchJson('/api/auth/me/email', ['email' => 'taken@example.com', 'current_password' => 'old-secret-1'])->assertUnprocessable()->assertJsonValidationErrors(['email']);
+
+    $this->patchJson('/api/auth/me/email', ['email' => 'New@Example.com', 'current_password' => 'old-secret-1'])->assertOk()
+        ->assertJsonPath('data.email', 'new@example.com');
+    // Re-saving your own address is fine.
+    $this->patchJson('/api/auth/me/email', ['email' => 'new@example.com', 'current_password' => 'old-secret-1'])->assertOk();
+});
+
+it('refuses an email change from an account that has no password yet', function () {
+    $this->actingAs(user(['password' => null, 'google_id' => 'g-2']));
+
+    $this->patchJson('/api/auth/me/email', ['email' => 'a@example.com', 'current_password' => 'whatever-1'])->assertUnprocessable();
+});
+
+it('requires auth to change password or email', function () {
+    $this->patchJson('/api/auth/me/password', [])->assertUnauthorized();
+    $this->patchJson('/api/auth/me/email', [])->assertUnauthorized();
 });

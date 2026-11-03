@@ -68,7 +68,7 @@ export function StackedBars({ items, series, ariaLabel }: { items: StackedDatum[
                   )}
                 </div>
               </div>
-              <p className="text-xs text-muted">
+              <p className="text-sm text-muted">
                 {it.segments.map((seg, i) => (seg.value > 0 ? `${series[i].label} ${seg.valueLabel}` : null)).filter(Boolean).join(" · ")}
               </p>
             </li>

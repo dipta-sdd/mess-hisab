@@ -24,6 +24,8 @@ Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
         Route::patch('me', [AuthController::class, 'update']);
+        Route::patch('me/password', [AuthController::class, 'changePassword'])->middleware('throttle:6,1');
+        Route::patch('me/email', [AuthController::class, 'changeEmail'])->middleware('throttle:6,1');
 
         Route::post('phone/send', [PhoneVerificationController::class, 'send'])->middleware('throttle:otp-send');
         Route::post('phone/verify', [PhoneVerificationController::class, 'verify'])->middleware('throttle:otp-verify');

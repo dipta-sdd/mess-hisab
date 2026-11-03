@@ -52,8 +52,11 @@ describe("AppShell", () => {
     );
     expect(screen.getByRole("main")).toHaveTextContent("page body");
     expect((await screen.findAllByText("Green House")).length).toBeGreaterThan(0);
-    expect(screen.queryByRole("navigation", { name: "Main navigation" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Admin navigation" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
+    // The same links sit in a top bar from md up.
+    const top = screen.getByRole("navigation", { name: "Main navigation (top bar)" });
+    expect([...top.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/7", "/7/expenses"]);
     const bottom = screen.getByRole("navigation", { name: "Main navigation (bottom bar)" });
     expect([...bottom.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/7", "/7/expenses"]);
     // The dashboard (`/7`) is a prefix of every page but must not light up on them.
@@ -67,7 +70,7 @@ describe("AppShell", () => {
     me({ is_admin: false, is_manager: true });
     renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
     await screen.findAllByText("Green House");
-    const sidebar = screen.getByRole("navigation", { name: "Main navigation" });
+    const sidebar = screen.getByRole("navigation", { name: "Admin navigation" });
     expect([...sidebar.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/7/close"]);
     const bottom = screen.getByRole("navigation", { name: "Main navigation (bottom bar)" });
     expect([...bottom.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/7", "/7/expenses"]);
@@ -84,7 +87,7 @@ describe("AppShell", () => {
     me({ is_admin: true, is_manager: false });
     renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
     await screen.findAllByText("Green House");
-    const sidebar = screen.getByRole("navigation", { name: "Main navigation" });
+    const sidebar = screen.getByRole("navigation", { name: "Admin navigation" });
     expect([...sidebar.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/7/settings", "/7/close"]);
   });
 
@@ -95,15 +98,15 @@ describe("AppShell", () => {
     await waitFor(() => expect(bottom.querySelectorAll("a")).toHaveLength(5));
     expect([...bottom.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/7", "/7/meals", "/7/expenses", "/7/payments", "/7/statements/3"]);
     expect(bottom.querySelector('a[href="/7/statements/3"]')).toHaveTextContent("My statement");
-    expect(screen.queryByRole("navigation", { name: "Main navigation" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Admin navigation" })).toBeNull();
     unmount();
 
     me({ is_admin: false, is_manager: true });
     renderWithProviders(<AppShell>x</AppShell>, { messId: 7 });
-    const sidebar = await screen.findByRole("navigation", { name: "Main navigation" });
+    const sidebar = await screen.findByRole("navigation", { name: "Admin navigation" });
     await waitFor(() => expect(sidebar.querySelectorAll("a").length).toBeGreaterThan(0));
     const hrefs = [...sidebar.querySelectorAll("a")].map((a) => a.getAttribute("href"));
-    expect(hrefs).toEqual(["/7/fixed", "/7/members", "/7/statements", "/7/reports", "/7/months", "/7/audit"]);
+    expect(hrefs).toEqual(["/7/admin", "/7/admin/meals", "/7/admin/expenses", "/7/admin/payments", "/7/admin/fixed", "/7/admin/members", "/7/admin/statements", "/7/admin/reports", "/7/admin/months", "/7/admin/audit"]);
     expect(screen.getByRole("navigation", { name: "Main navigation (bottom bar)" }).querySelectorAll("a")).toHaveLength(5);
   });
 
@@ -121,20 +124,10 @@ describe("AppShell", () => {
     renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
     await screen.findAllByText("Green House");
     expect(screen.getByRole("main").className).toContain("env(safe-area-inset-bottom)");
-    expect(screen.getByRole("main").className).not.toContain("md:pb-6");
+    expect(screen.getByRole("main").className).toContain("md:pb-6");
     const bottom = screen.getByRole("navigation", { name: "Main navigation (bottom bar)" });
     expect(bottom.className).toContain("env(safe-area-inset-bottom)");
-    expect(bottom.className).not.toContain("md:hidden");
-  });
-
-  it("puts the account in one sidebar row: profile link and a log out icon", async () => {
-    me({ is_admin: false, is_manager: true });
-    renderWithProviders(<AppShell items={items}>x</AppShell>, { messId: 7 });
-    const account = await screen.findByRole("group", { name: "Your account" });
-    await waitFor(() => expect(account.querySelector('a[href="/7/profile"]')).toHaveTextContent("A"));
-    const buttons = account.querySelectorAll("button");
-    expect(buttons).toHaveLength(1);
-    expect(buttons[0]).toHaveAccessibleName("Log out");
+    expect(bottom.className).toContain("md:hidden");
   });
 
   it("opens a phone account menu with profile, language and log out", async () => {
@@ -144,6 +137,8 @@ describe("AppShell", () => {
     await user.click(await screen.findByRole("button", { name: "Your account" }));
     const menu = await screen.findByRole("dialog", { name: "Your account" });
     expect(menu.querySelector('a[href="/7/profile"]')).toHaveTextContent("Profile");
+    expect(menu.querySelector('a[href="/7/profile#email"]')).toHaveTextContent("Change email");
+    expect(menu.querySelector('a[href="/7/profile#password"]')).toHaveTextContent("Change password");
     expect(menu.querySelector('[role="group"][aria-label="Language"]')).not.toBeNull();
     expect([...menu.querySelectorAll("button")].some((b) => b.textContent?.includes("Log out"))).toBe(true);
 

@@ -49,7 +49,7 @@ export function SidebarAccount({ messId }: { messId: number }) {
         <Initial name={name} />
         <span className="min-w-0">
           <span className="block truncate">{name ?? t("profile")}</span>
-          <span className={`block text-xs ${active ? "" : "text-muted"}`}>{t("profile")}</span>
+          <span className={`block text-sm ${active ? "" : "text-muted"}`}>{t("profile")}</span>
         </span>
       </Link>
       <Button
@@ -83,14 +83,23 @@ export function AccountMenu({ messId }: { messId: number }) {
       <Popover.Content placement="bottom end" className="w-60">
         <Popover.Dialog aria-label={t("shell.account")} className="flex flex-col gap-1 p-2">
           {name ? <p className="truncate px-3 pb-1 pt-2 text-sm font-semibold">{name}</p> : null}
-          <Link
-            href={`/${messId}/profile`}
-            onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium hover:bg-default"
-          >
-            <NavIcon name="profile" />
-            {t("shell.profile")}
-          </Link>
+          {(
+            [
+              ["profile", "", "shell.profile"],
+              ["mail", "#email", "profile.menuEmail"],
+              ["lock", "#password", "profile.menuPassword"],
+            ] as const
+          ).map(([icon, hash, label]) => (
+            <Link
+              key={icon}
+              href={`/${messId}/profile${hash}`}
+              onClick={() => setOpen(false)}
+              className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium hover:bg-default"
+            >
+              <NavIcon name={icon} />
+              {t(label)}
+            </Link>
+          ))}
           <div className="flex items-center justify-between gap-2 px-3 py-1">
             <span className="text-sm text-muted">{t("language.label")}</span>
             <LanguageSwitcher />

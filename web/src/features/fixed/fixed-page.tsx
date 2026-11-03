@@ -115,12 +115,12 @@ export function FixedPage() {
                 ))}
               </ul>
             )}
-            {hasByMeal ? <p className="text-xs text-muted">{t("bills.byMealNote")}</p> : null}
+            {hasByMeal ? <p className="text-sm text-muted">{t("bills.byMealNote")}</p> : null}
           </section>
 
           <section aria-labelledby="fx-members-title" className="rounded-2xl border border-border bg-surface p-4">
             <h2 id="fx-members-title" className="text-lg font-semibold">{t("members.title")}</h2>
-            <p className="mb-2 text-xs text-muted">{t("members.hint")}</p>
+            <p className="mb-2 text-sm text-muted">{t("members.hint")}</p>
             <ul className="divide-y divide-border">
               {members.map((m) => (
                 <MemberSettingRow

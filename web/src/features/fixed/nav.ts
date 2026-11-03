@@ -2,7 +2,7 @@ import type { NavItem } from "@/features/types";
 
 export const fixedNav: NavItem = {
   key: "fixed",
-  href: (messId) => `/${messId}/fixed`,
+  href: (messId) => `/${messId}/admin/fixed`,
   labelKey: "fixed.nav",
   icon: "settings",
   place: "admin",

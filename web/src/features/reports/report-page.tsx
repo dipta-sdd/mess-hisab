@@ -112,7 +112,7 @@ function Blocked({ err, messId, monthId, locale, nextMonthLabel: nextLabel }: { 
       <div role="alert" className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4" data-testid={`blocked-${err.code}`}>
         <p>{err.code === "month_not_closed" ? t("blocked.month_not_closed") : t("blocked.next_month_bills_missing", { month: label })}</p>
         <Link
-          href={`/${messId}/fixed${target ? `?month=${target}` : ""}`}
+          href={`/${messId}/admin/fixed${target ? `?month=${target}` : ""}`}
           className="font-medium text-accent underline"
           data-print="hide"
         >
@@ -129,7 +129,7 @@ function Tile({ label, value, hint, tone, testId }: { label: string; value: stri
     <div className="flex flex-col gap-1 rounded-xl border border-border bg-surface p-3" data-testid={testId}>
       <span className="text-sm text-muted">{label}</span>
       <span className={`text-xl font-bold tabular-nums ${tone === "danger" ? "text-danger" : tone === "success" ? "text-success" : ""}`}>{value}</span>
-      {hint ? <span className="text-xs text-muted">{hint}</span> : null}
+      {hint ? <span className="text-sm text-muted">{hint}</span> : null}
     </div>
   );
 }
@@ -274,7 +274,7 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
                       <th scope="row" className="p-2 text-start font-medium">
                         {r.row.display_name}
                         {r.row.last_month_credit_paisa > 0 ? (
-                          <span className="block text-xs font-normal text-muted">{t("next.creditNote", { amount: money(r.row.last_month_credit_paisa) })}</span>
+                          <span className="block text-sm font-normal text-muted">{t("next.creditNote", { amount: money(r.row.last_month_credit_paisa) })}</span>
                         ) : null}
                       </th>
                       <td className="p-2 text-end">{money(r.rent)}</td>

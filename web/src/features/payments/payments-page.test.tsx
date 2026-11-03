@@ -40,7 +40,7 @@ function mockApi({ manager = true, payments = [pay(1, 2, "fixed", 150000, { note
   return requests;
 }
 
-const renderPage = () => renderWithProviders(<PaymentsPage />, { messId: 7 });
+const renderPage = () => renderWithProviders(<PaymentsPage scope="all" />, { messId: 7 });
 
 describe("PaymentsPage", () => {
   it("lists the current month's payments with totals and the cash in the manager's hand", async () => {
@@ -195,7 +195,7 @@ describe("PaymentsPage", () => {
 
   it("renders Bangla", async () => {
     mockApi();
-    renderWithProviders(<PaymentsPage />, { messId: 7, locale: "bn" });
+    renderWithProviders(<PaymentsPage scope="all" />, { messId: 7, locale: "bn" });
     expect(await screen.findByText("এই মাসের পেমেন্ট", { exact: false })).toBeInTheDocument();
     await waitFor(() => expect(screen.getByTestId("cash-pool")).toHaveTextContent("৳১২,৩৪৫.০০"));
     expectBanglaOnly([]);

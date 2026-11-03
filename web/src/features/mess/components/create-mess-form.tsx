@@ -133,7 +133,7 @@ export function CreateMessForm({ defaultName = "" }: { defaultName?: string }) {
       <section className="flex flex-col gap-3">
         <div>
           <h3 className="text-sm font-semibold">{t("create.others")}</h3>
-          <p className="text-xs text-muted">{t("create.othersHint")}</p>
+          <p className="text-sm text-muted">{t("create.othersHint")}</p>
         </div>
         {fields.map((field, index) => (
           <div key={field.id} className="flex flex-col gap-3 rounded-xl border border-border p-3">

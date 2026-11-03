@@ -39,13 +39,15 @@ function useNarrow(): boolean {
   return narrow;
 }
 
-export function MealsPage() {
+/** `scope="own"` is the member page (just the signed-in member's row); `scope="all"` is the admin grid for everyone. */
+export function MealsPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const { messId } = useMess();
   const t = useTranslations("meals");
   const locale = useLocale() as AppLocale;
 
+  const all = scope === "all";
   const messQ = useMessInfo(messId);
-  const membersQ = useMembers(messId);
+  const membersQ = useMembers(messId, all);
   const monthsQ = useMonths(messId);
   const currentQ = useCurrentMonth(messId);
 
@@ -60,24 +62,25 @@ export function MealsPage() {
   const months = monthsQ.data ?? [];
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const month = months.find((m) => m.id === monthId) ?? (currentQ.data?.id === monthId ? currentQ.data : undefined);
-  const mealsQ = useMeals(messId, monthId);
+  const mealsQ = useMeals(messId, monthId, all ? null : (messQ.data?.me.id ?? null));
 
   const bulk = useBulkSaveMeals(messId);
   const single = useSaveMeal(messId);
 
   const mess = messQ.data?.mess;
   const me = messQ.data?.me;
-  const isManager = Boolean(me?.is_manager);
-  const isStaff = isManager || Boolean(me?.is_admin);
+  const isStaff = all && Boolean(me?.is_manager || me?.is_admin);
+  const isManager = isStaff;
   const style = mess?.meal_tracking ?? "daily_number";
   const closed = month?.status === "closed";
 
   const members = useMemo(() => {
     if (!month) return [] as Member[];
-    return (membersQ.data ?? []).filter(
+    const pool = all ? (membersQ.data ?? []) : me ? [me] : [];
+    return pool.filter(
       (m) => (isStaff || m.id === me?.id) && m.joined_on <= month.ends_on && (m.left_on === null || m.left_on >= month.starts_on),
     );
-  }, [membersQ.data, month, isStaff, me?.id]);
+  }, [all, membersQ.data, month, isStaff, me]);
 
   const days = useMemo(() => (month ? daysBetween(month.starts_on, month.ends_on) : []), [month]);
   const entryMap = useMemo(() => {
@@ -150,8 +153,8 @@ export function MealsPage() {
     return [error.message || t("errors.generic")];
   }
 
-  const loading = messQ.isPending || membersQ.isPending || monthsQ.isPending || currentQ.isPending || (monthId !== null && mealsQ.isPending);
-  const loadFailed = messQ.isError || membersQ.isError || monthsQ.isError || mealsQ.isError || (currentQ.isError && months.length === 0 && !monthsQ.isPending);
+  const loading = messQ.isPending || (all && membersQ.isPending) || monthsQ.isPending || currentQ.isPending || (monthId !== null && mealsQ.isPending);
+  const loadFailed = messQ.isError || (all && membersQ.isError) || monthsQ.isError || mealsQ.isError || (currentQ.isError && months.length === 0 && !monthsQ.isPending);
   const saving = bulk.isPending || single.isPending;
   const totals = mealsQ.data?.totals ?? {};
 
@@ -187,7 +190,7 @@ export function MealsPage() {
     return row ? (
       <span data-testid={`total-${m.id}`}>
         {formatMeals(row.meals_centi, locale)}
-        {row.guest_meals_centi > 0 ? <span className="text-xs text-muted"> {t("cell.guestsShort", { count: formatMeals(row.guest_meals_centi, locale) })}</span> : null}
+        {row.guest_meals_centi > 0 ? <span className="text-sm text-muted"> {t("cell.guestsShort", { count: formatMeals(row.guest_meals_centi, locale) })}</span> : null}
       </span>
     ) : (
       <span data-testid={`total-${m.id}`}>{formatNumber(0, locale)}</span>
@@ -293,7 +296,7 @@ export function MealsPage() {
                 <li key={m.id} className="rounded-xl border border-border bg-surface p-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="min-w-0 break-words font-medium">{m.display_name}</p>
-                    <p className="shrink-0 text-xs text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
+                    <p className="shrink-0 text-sm text-muted">{t("totalLabel")}: {rowTotal(m)}</p>
                   </div>
                   <div className="mt-2 max-w-48">
                     <MealCell

@@ -134,7 +134,7 @@ describe("StaffDashboard", () => {
   it("renders in Bangla with Bangla digits", async () => {
     mockApi();
     render({}, "bn");
-    expect(screen.getByRole("heading", { name: "ড্যাশবোর্ড" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "মেসের ওভারভিউ" })).toBeInTheDocument();
     expect(await screen.findByTestId("stat-fixed-bills")).toHaveTextContent("৮,৪০০");
     expect(screen.getAllByText(/বকেয়া/).length).toBeGreaterThan(0);
     expectBanglaOnly(["X"]);

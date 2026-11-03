@@ -49,9 +49,9 @@ export function MealCell({
             {TICKS.map((k) => (ticks[k] ? t(`ticks.short.${k}`) : "·")).join(" ")}
           </span>
         ) : null}
-        {style === "bld_ticks" && own > 0 ? <span className="block text-xs text-muted">{formatMeals(own, locale)}</span> : null}
+        {style === "bld_ticks" && own > 0 ? <span className="block text-sm text-muted">{formatMeals(own, locale)}</span> : null}
         {style !== "bld_ticks" ? <span>{entry ? formatMeals(own, locale) : "–"}</span> : null}
-        {guests > 0 ? <span className="block text-xs text-muted">{t("cell.guestsShort", { count: formatMeals(guests, locale) })}</span> : null}
+        {guests > 0 ? <span className="block text-sm text-muted">{t("cell.guestsShort", { count: formatMeals(guests, locale) })}</span> : null}
       </div>
     );
   }

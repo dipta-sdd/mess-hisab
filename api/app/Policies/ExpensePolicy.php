@@ -14,6 +14,6 @@ class ExpensePolicy
 {
     public function modify(MessMember $member, Expense $expense): bool
     {
-        return $member->isManager() || $expense->created_by_member_id === $member->id;
+        return $member->isStaff() || $expense->created_by_member_id === $member->id;
     }
 }

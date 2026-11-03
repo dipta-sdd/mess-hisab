@@ -1,5 +1,6 @@
 // Lead-owned. Each feature exports `nav` from src/features/<feature>/nav.ts; the lead adds one line here when merging.
 import type { NavItem } from "./types";
+import { adminNav } from "./admin-nav";
 import { auditNav } from "./audit/nav";
 import { dashboardNav } from "./dashboard/nav";
 import { expensesNav } from "./expenses/nav";
@@ -13,6 +14,7 @@ import { nav as settingsNav } from "./settings/nav";
 import { myStatementNav, statementsNav } from "./statements/nav";
 
 const items: NavItem[] = [
+  ...adminNav,
   dashboardNav,
   statementsNav,
   myStatementNav,

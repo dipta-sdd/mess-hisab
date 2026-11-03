@@ -40,7 +40,7 @@ export function TextInputField({
         {label}
       </label>
       <Input id={id} fullWidth aria-invalid={!!message} data-invalid={message ? "true" : undefined} {...input} />
-      {description ? <p className="text-xs text-muted">{description}</p> : null}
+      {description ? <p className="text-sm text-muted">{description}</p> : null}
       {message ? (
         <p role="alert" className="text-sm text-danger">
           {message}
@@ -90,7 +90,7 @@ export function CheckboxField({
       <input type="checkbox" className="mt-1 size-5 shrink-0 accent-[var(--accent)]" {...input} />
       <span className="flex flex-col">
         <span className="text-sm font-medium">{label}</span>
-        {description ? <span className="text-xs text-muted">{description}</span> : null}
+        {description ? <span className="text-sm text-muted">{description}</span> : null}
       </span>
     </label>
   );

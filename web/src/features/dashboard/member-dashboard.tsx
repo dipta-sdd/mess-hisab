@@ -17,7 +17,7 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
   const [picked, setPicked] = useState<number | null>(initialMonthId);
   const messQ = useMessInfo(messId);
   const historyQ = useHistory(messId);
-  const dashQ = useDashboard(messId, picked);
+  const dashQ = useDashboard(messId, picked, true);
 
   const mode = messQ.data?.mess.rounding_mode ?? "two_decimals";
   const money = (paisa: number) => formatMoney(paisa, locale, mode);
@@ -122,7 +122,7 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
                 <div key={l.key} className="flex items-start justify-between gap-3 py-2" data-testid={`line-${l.key}`}>
                   <dt className="min-w-0">
                     {l.label}
-                    {l.hint ? <span className="block text-xs text-muted">{l.hint}</span> : null}
+                    {l.hint ? <span className="block text-sm text-muted">{l.hint}</span> : null}
                   </dt>
                   <dd className="shrink-0 font-medium tabular-nums">{l.value}</dd>
                 </div>
@@ -140,7 +140,7 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
         <dl className="grid grid-cols-3 gap-2">
           {mini.map((s) => (
             <div key={s.key} className="rounded-xl border border-border bg-surface p-2" data-testid={`mini-${s.key}`}>
-              <dt className="text-xs text-muted">{s.label}</dt>
+              <dt className="text-sm text-muted">{s.label}</dt>
               <dd className="break-words text-sm font-semibold tabular-nums">{s.value}</dd>
             </div>
           ))}

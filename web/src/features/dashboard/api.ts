@@ -7,7 +7,7 @@ import { apiClient } from "@/lib/api-client";
 export const balanceKeys = {
   all: (messId: number) => ["balance", messId] as const,
   mess: (messId: number) => ["balance", messId, "mess"] as const,
-  dashboard: (messId: number, monthId: number | null) => ["balance", messId, "dashboard", monthId] as const,
+  dashboard: (messId: number, monthId: number | null, own = false) => ["balance", messId, "dashboard", monthId, own] as const,
   statement: (messId: number, memberId: number, monthId: number | null) => ["balance", messId, "statement", memberId, monthId] as const,
   history: (messId: number) => ["balance", messId, "history"] as const,
   memberHistory: (messId: number, memberId: number) => ["balance", messId, "member-history", memberId] as const,
@@ -30,11 +30,11 @@ export function useMembers(messId: number) {
 }
 
 /** `monthId` null = let the server pick its default month (the param is omitted). */
-export function useDashboard(messId: number, monthId: number | null) {
+export function useDashboard(messId: number, monthId: number | null, own = false) {
   return useQuery({
-    queryKey: balanceKeys.dashboard(messId, monthId),
+    queryKey: balanceKeys.dashboard(messId, monthId, own),
     queryFn: async () =>
-      (await apiClient.get<ItemResponse<Dashboard>>(`${base(messId)}/dashboard`, { query: { month_id: monthId } })).data,
+      (await apiClient.get<ItemResponse<Dashboard>>(`${base(messId)}/dashboard`, { query: { month_id: monthId, scope: own ? "own" : undefined } })).data,
   });
 }
 

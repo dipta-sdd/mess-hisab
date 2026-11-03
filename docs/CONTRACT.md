@@ -244,6 +244,8 @@ Shapes below are the response `data`. List endpoints return `{data:[…], meta:{
 | POST `/api/auth/logout` | auth | → 204 |
 | GET `/api/auth/me` | auth | → `{user: User, memberships: Membership[]}` |
 | PATCH `/api/auth/me` | auth | `{name?, locale?}` → `User` |
+| PATCH `/api/auth/me/password` | auth | `{current_password, password, password_confirmation}` → `User`. 422 on a wrong current password. A Google-only account (no password yet) may omit `current_password`. Throttled 6/min |
+| PATCH `/api/auth/me/email` | auth | `{email, current_password}` → `User`. Lowercased; 422 if taken or the password is wrong; 422 for an account with no password yet. Throttled 6/min |
 | POST `/api/auth/forgot-password` | guest | `{email}` → 202 |
 | POST `/api/auth/reset-password` | guest | `{token,email,password,password_confirmation}` → 200 |
 | GET `/api/auth/google/redirect` | guest | 302 to Google |

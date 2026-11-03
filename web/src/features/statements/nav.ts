@@ -2,7 +2,7 @@ import type { NavItem } from "@/features/types";
 
 export const statementsNav: NavItem = {
   key: "statements",
-  href: (messId) => `/${messId}/statements`,
+  href: (messId) => `/${messId}/admin/statements`,
   labelKey: "statements.nav",
   icon: "reports",
   place: "admin",

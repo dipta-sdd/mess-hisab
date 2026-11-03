@@ -33,3 +33,20 @@ body {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+/* HeroUI's light --muted is 4.4:1 on the page background and 4.05:1 on --default chips, under AA.
+   Darkened one step; dark theme already clears 6.7:1. */
+:root:not(.dark) {
+  --muted: oklch(0.49 0.0138 285.94);
+}
+
+/* Brand accent: the teal of the app icon and theme-color (#0f766e), replacing HeroUI's default blue.
+   Light: white text on it is 5.5:1. Dark: a lighter teal with near-black text so both stay above AA. */
+:root:not(.dark) {
+  --accent: #0f766e;
+  --accent-foreground: #ffffff;
+}
+:root.dark {
+  --accent: #2dd4bf;
+  --accent-foreground: #04201d;
+}

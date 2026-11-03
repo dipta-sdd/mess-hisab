@@ -25,14 +25,14 @@ function MemberRow({ member }: { member: Member }) {
     <li className="flex flex-col gap-2 rounded-xl border border-border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="min-w-0 break-words font-medium">{member.display_name}</span>
-        <span className="flex flex-wrap gap-2 text-xs text-muted">
+        <span className="flex flex-wrap gap-2 text-sm text-muted">
           {member.is_admin ? <span>{t("badge.admin")}</span> : null}
           {member.is_manager ? <span>{t("badge.manager")}</span> : null}
           {member.archived_at ? <span>{t("badge.archived")}</span> : null}
           {!member.has_account && !member.archived_at ? <span>{t("badge.noAccount")}</span> : null}
         </span>
       </div>
-      <p className="text-xs text-muted">
+      <p className="text-sm text-muted">
         {t("joined", { date: formatDate(member.joined_on, locale) })}
         {member.left_on ? ` · ${t("left", { date: formatDate(member.left_on, locale) })}` : ""}
       </p>

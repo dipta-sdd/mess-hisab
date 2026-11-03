@@ -106,7 +106,7 @@ export function PaymentForm({
           {label}
         </label>
         {control}
-        {hint && !message ? <p id={`pf-${name}-hint`} className="text-xs text-muted">{hint}</p> : null}
+        {hint && !message ? <p id={`pf-${name}-hint`} className="text-sm text-muted">{hint}</p> : null}
         {message ? (
           <p id={`pf-${name}-error`} role="alert" className="text-sm text-danger">
             {message}

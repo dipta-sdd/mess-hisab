@@ -36,7 +36,7 @@ class ExpenseService
     {
         return DB::transaction(function () use ($mess, $actor, $data) {
             $mess = $this->lockMess($mess);
-            $isManager = $actor->id === $mess->manager_member_id;
+            $isManager = $actor->isStaff(); // admin has the manager's edit powers; cash stays the manager's
 
             $paidBy = PaidBy::from($data['paid_by']);
             $paidByMemberId = $this->resolvePayer($isManager, $actor, $paidBy, $data['paid_by_member_id'] ?? null);
@@ -78,7 +78,7 @@ class ExpenseService
         return DB::transaction(function () use ($mess, $actor, $expense, $data) {
             $mess = $this->lockMess($mess);
             $expense = Expense::query()->lockForUpdate()->findOrFail($expense->id);
-            $isManager = $actor->id === $mess->manager_member_id;
+            $isManager = $actor->isStaff(); // admin has the manager's edit powers; cash stays the manager's
 
             $this->assertCanModify($mess, $actor, $expense, $isManager, editing: true);
 

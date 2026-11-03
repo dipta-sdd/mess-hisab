@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\Locale;
 use App\Enums\OtpPurpose;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ChangeEmailRequest;
+use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\UpdateMeRequest;
@@ -18,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -98,6 +101,39 @@ class AuthController extends Controller
         $user->fill($request->validated())->save();
 
         return new UserResource($user->fresh());
+    }
+
+    public function changePassword(ChangePasswordRequest $request): UserResource
+    {
+        $user = $request->user();
+        if ($user->password !== null) {
+            $this->assertCurrentPassword($user, (string) $request->validated('current_password'));
+        }
+
+        $user->forceFill(['password' => $request->validated('password')])->save();
+
+        return new UserResource($user->fresh());
+    }
+
+    public function changeEmail(ChangeEmailRequest $request): UserResource
+    {
+        $user = $request->user();
+        // Email is a login name, so changing it needs the password; a Google-only account must set one first.
+        if ($user->password === null) {
+            throw ValidationException::withMessages(['current_password' => [trans('auth.password')]]);
+        }
+        $this->assertCurrentPassword($user, (string) $request->validated('current_password'));
+
+        $user->forceFill(['email' => $request->validated('email')])->save();
+
+        return new UserResource($user->fresh());
+    }
+
+    private function assertCurrentPassword(User $user, string $given): void
+    {
+        if (! Hash::check($given, $user->password)) {
+            throw ValidationException::withMessages(['current_password' => [trans('auth.password')]]);
+        }
     }
 
     private function startSession(RegisterRequest $request, User $user): void

@@ -70,7 +70,7 @@ function RoleRow({
           </option>
         ))}
       </SelectField>
-      {options.length === 0 ? <p className="text-xs text-muted">{t("roles.noCandidates")}</p> : null}
+      {options.length === 0 ? <p className="text-sm text-muted">{t("roles.noCandidates")}</p> : null}
       {confirming && chosen ? (
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t(`roles.${kind}ConfirmGroup`)}>
           <span className="text-sm">{t(`roles.${kind}Confirm`, { name: chosen.display_name })}</span>

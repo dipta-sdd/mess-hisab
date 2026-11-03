@@ -15,13 +15,15 @@ import { fieldClassInvalid } from "@/components/ui/field";
 
 type FormState = { mode: "closed" } | { mode: "create" } | { mode: "edit"; payment: Payment };
 
-export function PaymentsPage() {
+/** `scope="own"` is the member page (just the signed-in member's payments); `scope="all"` is the admin page with recording and editing. */
+export function PaymentsPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const { messId } = useMess();
   const t = useTranslations("payments");
   const locale = useLocale() as AppLocale;
 
+  const all = scope === "all";
   const messQ = useMessInfo(messId);
-  const membersQ = useMembers(messId);
+  const membersQ = useMembers(messId, all);
   const monthsQ = useMonths(messId);
   const currentQ = useCurrentMonth(messId);
   const cashQ = useCash(messId);
@@ -34,13 +36,13 @@ export function PaymentsPage() {
   const months = monthsQ.data ?? [];
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const month = months.find((m) => m.id === monthId) ?? (currentQ.data?.id === monthId ? currentQ.data : undefined);
-  const paymentsQ = usePayments(messId, monthId, memberFilter);
+  const paymentsQ = usePayments(messId, monthId, all ? memberFilter : (messQ.data?.me.id ?? null));
 
   const mess = messQ.data?.mess;
-  const isManager = Boolean(messQ.data?.me.is_manager);
-  const isStaff = isManager || Boolean(messQ.data?.me.is_admin);
+  const isStaff = all && Boolean(messQ.data?.me.is_manager || messQ.data?.me.is_admin);
+  const isManager = isStaff;
   const mode = mess?.rounding_mode ?? "two_decimals";
-  const members = membersQ.data ?? [];
+  const members = all ? (membersQ.data ?? []) : messQ.data ? [messQ.data.me] : [];
   const nameOf = (id: number | null) => members.find((m) => m.id === id)?.display_name ?? t("list.unknownMember");
 
   const payments = paymentsQ.data ?? [];
@@ -67,7 +69,7 @@ export function PaymentsPage() {
         <p className="text-3xl font-bold" data-testid="cash-pool">
           {cashQ.data ? money(cashQ.data.pool_balance_paisa) : "…"}
         </p>
-        <p className="text-xs text-muted">{t("cash.hint")}</p>
+        <p className="text-sm text-muted">{t("cash.hint")}</p>
       </section>
 
       {isManager && form.mode !== "closed" ? (
@@ -211,7 +213,7 @@ function PaymentRow({
         <p className="shrink-0 text-lg font-semibold">{money(payment.amount_paisa)}</p>
       </div>
       {payment.note ? <p className="mt-1 text-sm break-words">{payment.note}</p> : null}
-      {receivedBy ? <p className="mt-1 text-xs text-muted">{t("list.receivedBy", { name: receivedBy })}</p> : null}
+      {receivedBy ? <p className="mt-1 text-sm text-muted">{t("list.receivedBy", { name: receivedBy })}</p> : null}
       {canManage ? (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {confirming ? (

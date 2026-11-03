@@ -41,7 +41,7 @@ export function HistoryPage() {
                 <Link href={href(r.month_id)} className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">{formatMonthLabel(r.starts_on, locale)}</span>
-                    <span className="text-xs text-muted">{r.status === "open" ? t("history.open") : t("history.closed")}</span>
+                    <span className="text-sm text-muted">{r.status === "open" ? t("history.open") : t("history.closed")}</span>
                   </div>
                   <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm tabular-nums">
                     <dt className="text-muted">{t("history.fixedCharged")}</dt><dd className="text-end">{money(r.fixed_charged_paisa)}</dd>

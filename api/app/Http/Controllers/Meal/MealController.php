@@ -28,6 +28,7 @@ class MealController extends Controller
     {
         $data = $request->validate([
             'month_id' => ['sometimes', 'integer', Rule::exists('months', 'id')->where('mess_id', $mess->id)],
+            'member_id' => ['sometimes', 'integer'],
         ]);
 
         try {
@@ -37,6 +38,7 @@ class MealController extends Controller
         }
 
         $entries = MealEntry::query()->where('month_id', $month->id)
+            ->when(isset($data['member_id']), fn ($q) => $q->where('member_id', $data['member_id']))
             ->unless(currentMember()->isStaff(), fn ($q) => $q->where('member_id', currentMember()->id))
             ->orderBy('entry_date')->orderBy('member_id')->get();
 
@@ -44,6 +46,7 @@ class MealController extends Controller
         $totals = MessMember::query()
             ->where('joined_on', '<=', $month->ends_on->toDateString())
             ->where(fn ($q) => $q->whereNull('left_on')->orWhere('left_on', '>=', $month->starts_on->toDateString()))
+            ->when(isset($data['member_id']), fn ($q) => $q->where('id', $data['member_id']))
             ->unless(currentMember()->isStaff(), fn ($q) => $q->where('id', currentMember()->id))
             ->pluck('id')
             ->mapWithKeys(fn ($id) => [$id => ['meals_centi' => 0, 'guest_meals_centi' => 0]])

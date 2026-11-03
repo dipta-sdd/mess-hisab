@@ -19,13 +19,15 @@ import { fieldClassInvalid } from "@/components/ui/field";
 
 const STATUSES: ExpenseStatus[] = ["pending", "approved", "rejected"];
 
-export function ExpensesPage() {
+/** `scope="own"` is the member page: just what the signed-in member recorded or paid, with member powers. `scope="all"` is the admin page. */
+export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const { messId } = useMess();
   const t = useTranslations("expenses");
   const locale = useLocale() as AppLocale;
 
+  const all = scope === "all";
   const messQ = useMessInfo(messId);
-  const membersQ = useMembers(messId);
+  const membersQ = useMembers(messId, all);
   const monthsQ = useMonths(messId);
   const currentQ = useCurrentMonth(messId);
   const categoriesQ = useCategories(messId);
@@ -41,15 +43,16 @@ export function ExpensesPage() {
   const months = monthsQ.data ?? [];
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const month = months.find((m) => m.id === monthId) ?? (currentQ.data?.id === monthId ? currentQ.data : undefined);
-  const expensesQ = useExpenses(messId, { monthId, status, memberId: memberFilter, categoryId: categoryFilter });
+  const expensesQ = useExpenses(messId, { monthId, status, memberId: all ? memberFilter : (messQ.data?.me.id ?? null), categoryId: categoryFilter });
 
   const mess = messQ.data?.mess;
-  const me = messQ.data?.me;
-  const isManager = Boolean(me?.is_manager);
-  const isStaff = isManager || Boolean(me?.is_admin);
-  const pendingQ = usePendingExpenses(messId, isManager);
+  const realMe = messQ.data?.me;
+  // On the member page a manager or admin is treated like any member: no cash expenses, no approvals.
+  const me = realMe && !all ? { ...realMe, is_manager: false, is_admin: false } : realMe;
+  const isStaff = all && Boolean(me?.is_manager || me?.is_admin);
+  const pendingQ = usePendingExpenses(messId, isStaff);
   const mode = mess?.rounding_mode ?? "two_decimals";
-  const members = membersQ.data ?? [];
+  const members = all ? (membersQ.data ?? []) : me ? [me] : [];
   const categories = categoriesQ.data ?? [];
 
   const nameOf = (id: number | null) => members.find((m) => m.id === id)?.display_name ?? t("list.unknownMember");
@@ -67,9 +70,9 @@ export function ExpensesPage() {
   }
 
   const pending = pendingQ.data ?? [];
-  const showQueue = isManager && Boolean(mess) && (mess!.approval_required || pending.length > 0);
+  const showQueue = isStaff && Boolean(mess) && (mess!.approval_required || pending.length > 0);
 
-  const loading = messQ.isPending || monthsQ.isPending || currentQ.isPending || categoriesQ.isPending || (monthId !== null && expensesQ.isPending);
+  const loading = messQ.isPending || (all && membersQ.isPending) || monthsQ.isPending || currentQ.isPending || categoriesQ.isPending || (monthId !== null && expensesQ.isPending);
   const loadFailed = messQ.isError || monthsQ.isError || categoriesQ.isError || expensesQ.isError || (currentQ.isError && months.length === 0 && !monthsQ.isPending);
   const activeCategories = categories.filter((c) => !c.archived_at || c.id === categoryFilter);
 
@@ -149,7 +152,7 @@ export function ExpensesPage() {
             <p className="text-lg font-semibold">{money(totals[g])}</p>
           </div>
         ))}
-        <p className="col-span-2 text-xs text-muted">{t("totals.hint")}</p>
+        <p className="col-span-2 text-sm text-muted">{t("totals.hint")}</p>
       </section>
 
       {notice ? (

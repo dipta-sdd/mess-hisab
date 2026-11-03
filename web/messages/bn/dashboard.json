@@ -15,7 +15,9 @@
     "closed": "বন্ধ",
     "status": "অবস্থা: {status}",
     "fixedDeadline": "ফিক্সড বিল দেওয়ার শেষ তারিখ {date}",
-    "depositDeadline": "ডিপোজিট দেওয়ার শেষ তারিখ {date}"
+    "depositDeadline": "ডিপোজিট দেওয়ার শেষ তারিখ {date}",
+    "prev": "আগের মাস",
+    "next": "পরের মাস"
   },
   "totals": {
     "title": "মাসের মোট হিসাব",
@@ -33,7 +35,10 @@
     "managerBalanceNamed": "{name}-এর নিজের ব্যালেন্স",
     "zeroMealsUnresolved": "বাজার হয়েছে, কিন্তু এই মাসে কারও মিল নেই। কীভাবে ভাগ হবে ঠিক করতে মাস বন্ধ করুন।",
     "unchargedFood": "খাবারের খরচের {amount} এখনও কারও ওপর ধরা হয়নি।",
-    "cashHint": "ম্যানেজারের কাছে মেসের যে টাকা আছে"
+    "cashHint": "ম্যানেজারের কাছে মেসের যে টাকা আছে",
+    "fixedGroup": "নির্ধারিত বিল",
+    "mealsGroup": "মিল",
+    "toCollect": "আদায় বাকি"
   },
   "overdue": {
     "fixed": "বিল {days} দিন বকেয়া",
@@ -56,7 +61,9 @@
     "balance": "ব্যালেন্স",
     "outstanding": "বিল বাকি",
     "depositOutstanding": "ডিপোজিট বাকি",
-    "overdueCol": "বকেয়া"
+    "overdueCol": "বকেয়া",
+    "bill": "বিল",
+    "toPay": "দিতে বাকি"
   },
   "charts": {
     "showTable": "টেবিল হিসেবে দেখুন",
@@ -102,5 +109,11 @@
       "cash": "ম্যানেজারের হাতে ক্যাশ"
     },
     "noRow": "এই মাসের জন্য দেখানোর মতো হিসাব নেই।"
+  },
+  "adminTitle": "মেসের ওভারভিউ",
+  "alerts": {
+    "title": "নজর দিন",
+    "overdue": "{count} জন সদস্যের বকেয়া পার হয়েছে",
+    "show": "দেখুন"
   }
 }
