@@ -18,7 +18,9 @@
   },
   "month": {
     "open": "চালু",
-    "closed": "বন্ধ"
+    "closed": "বন্ধ",
+    "prev": "আগের মাস",
+    "next": "পরের মাস"
   },
   "filters": {
     "month": "মাস",
@@ -27,7 +29,8 @@
     "member": "যিনি লিখেছেন বা দিয়েছেন",
     "allMembers": "সব সদস্য",
     "category": "খাত অনুযায়ী ফিল্টার",
-    "allCategories": "সব খাত"
+    "allCategories": "সব খাত",
+    "all": "সব"
   },
   "totals": {
     "title": "মোট",
@@ -78,7 +81,9 @@
     "delete": "মুছুন",
     "confirmDelete": "এই খরচ মুছবেন?",
     "confirmYes": "হ্যাঁ, মুছুন",
-    "dismiss": "বন্ধ করুন"
+    "dismiss": "বন্ধ করুন",
+    "add": "খরচ যোগ করুন",
+    "menu": "আরও কাজ"
   },
   "saved": {
     "title": "খরচ সেভ হয়েছে",

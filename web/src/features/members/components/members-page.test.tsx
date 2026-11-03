@@ -31,6 +31,14 @@ function serve(me: Member, members: Member[] = [rina, karim, salma, old], invite
   );
 }
 
+const openMenu = async (name: string) => {
+  await userEvent.click(await screen.findByRole("button", { name: `More actions for ${name}` }));
+};
+const pick = async (member: string, action: "Edit" | "Archive") => {
+  await openMenu(member);
+  await userEvent.click(await screen.findByRole("menuitem", { name: `${action} ${member}` }));
+};
+
 const render = () => renderWithProviders(<MembersPage />, { messId: 3 });
 
 beforeEach(() => {
@@ -42,13 +50,13 @@ describe("MembersPage list and filter", () => {
   it("shows active members by default and archived ones through the filter", async () => {
     serve(rina);
     render();
-    expect(await screen.findByLabelText("Edit Karim")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "More actions for Karim" })).toBeInTheDocument();
     expect(screen.queryByText("Old Timer")).not.toBeInTheDocument();
-    await userEvent.selectOptions(screen.getByLabelText("Show"), "archived");
+    await userEvent.click(screen.getByRole("button", { name: "Archived members" }));
     expect(screen.getByText("Old Timer")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Edit Karim")).not.toBeInTheDocument();
-    await userEvent.selectOptions(screen.getByLabelText("Show"), "all");
-    expect(screen.getByLabelText("Edit Karim")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "More actions for Karim" })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Everyone" }));
+    expect(screen.getByRole("button", { name: "More actions for Karim" })).toBeInTheDocument();
     expect(screen.getByText("Old Timer")).toBeInTheDocument();
   });
 
@@ -58,8 +66,7 @@ describe("MembersPage list and filter", () => {
     expect(await screen.findByText("Karim")).toBeInTheDocument();
     expect(screen.getByText("Only the admin or manager can change members.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Add member" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /^Edit/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /^Archive/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^More actions/ })).not.toBeInTheDocument();
     expect(screen.queryByText("Invites")).not.toBeInTheDocument();
     expect(screen.queryByText("Roles")).not.toBeInTheDocument();
   });
@@ -137,7 +144,7 @@ describe("editing and archiving", () => {
       }),
     );
     render();
-    await userEvent.click(await screen.findByRole("button", { name: "Edit Salma" }));
+    await pick("Salma", "Edit");
     const form = screen.getByRole("form", { name: "Edit Salma" });
     const name = within(form).getByLabelText("Display name");
     await userEvent.clear(name);
@@ -154,7 +161,7 @@ describe("editing and archiving", () => {
       ),
     );
     render();
-    await userEvent.click(await screen.findByRole("button", { name: "Archive Karim" }));
+    await pick("Karim", "Archive");
     await userEvent.click(screen.getByRole("button", { name: "Yes, archive" }));
     expect(
       await screen.findByText("The admin or manager cannot be archived. Hand over the role to someone else first."),
@@ -171,7 +178,7 @@ describe("editing and archiving", () => {
       }),
     );
     render();
-    await userEvent.click(await screen.findByRole("button", { name: "Archive Salma" }));
+    await pick("Salma", "Archive");
     expect(archive).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole("button", { name: "Yes, archive" }));
     await waitFor(() => expect(archive).toHaveBeenCalledTimes(1));
@@ -183,7 +190,7 @@ describe("editing and archiving", () => {
       http.post(`${API_BASE_URL}/api/messes/3/members/3/archive`, () => HttpResponse.json({ message: "no" }, { status: 403 })),
     );
     render();
-    await userEvent.click(await screen.findByRole("button", { name: "Archive Salma" }));
+    await pick("Salma", "Archive");
     await userEvent.click(screen.getByRole("button", { name: "Yes, archive" }));
     expect(await screen.findByRole("alert")).toBeInTheDocument();
   });

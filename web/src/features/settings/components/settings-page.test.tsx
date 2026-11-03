@@ -50,6 +50,8 @@ const serve = (me: Member) =>
   );
 
 const render = (locale?: "en" | "bn") => renderWithProviders(<SettingsPage />, { messId: 3, locale });
+/** Save stays disabled until something changes, so make a harmless edit first. */
+const touch = async () => userEvent.type(await screen.findByLabelText("Mess name"), "!");
 const save = () => userEvent.click(screen.getByRole("button", { name: "Save settings" }));
 
 beforeEach(() => {
@@ -121,7 +123,7 @@ describe("SettingsPage as admin", () => {
       }),
     );
     render();
-    await screen.findByLabelText("Mess name");
+    await touch();
     await save();
     await waitFor(() => expect(body).toHaveBeenCalled());
     expect(body.mock.calls[0]![0]).toMatchObject({
@@ -161,7 +163,7 @@ describe("SettingsPage as admin", () => {
       ),
     );
     render();
-    await screen.findByLabelText("Mess name");
+    await touch();
     await save();
     expect(await screen.findByText("The deposit is too large.")).toBeInTheDocument();
     expect(screen.getByText("Name is taken.")).toBeInTheDocument();
@@ -173,7 +175,7 @@ describe("SettingsPage as admin", () => {
       http.patch(`${API_BASE_URL}/api/messes/3/settings`, () => HttpResponse.json({ message: "no" }, { status: 403 })),
     );
     render();
-    await screen.findByLabelText("Mess name");
+    await touch();
     await save();
     expect(await screen.findByRole("alert")).toBeInTheDocument();
   });

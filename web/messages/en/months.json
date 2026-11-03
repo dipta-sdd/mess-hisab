@@ -251,5 +251,11 @@
       "amountInvalid": "Enter taka like 1,000 or 250.50.",
       "noteRequired": "Write a short reason."
     }
+  },
+  "stepper": {
+    "prev": "Previous month",
+    "next": "Next month",
+    "open": "Open",
+    "closed": "Closed"
   }
 }

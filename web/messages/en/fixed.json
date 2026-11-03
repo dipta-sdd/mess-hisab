@@ -5,8 +5,17 @@
   "saved": "Saved.",
   "closedNote": "This month is closed. You can look at the setup but not change it.",
   "readOnlyNote": "Only the manager can change the setup. You can see how each bill is shared.",
-  "monthPicker": { "label": "Month", "open": "Open", "closed": "Closed" },
-  "groups": { "fixed": "Fixed bill", "meals": "Meals group" },
+  "monthPicker": {
+    "label": "Month",
+    "open": "Open",
+    "closed": "Closed",
+    "prev": "Previous month",
+    "next": "Next month"
+  },
+  "groups": {
+    "fixed": "Fixed bill",
+    "meals": "Meals group"
+  },
   "split": {
     "equal": "Shared equally",
     "fixed_per_person": "Set amount per person",
@@ -56,7 +65,10 @@
     "saveMember": "Save",
     "saving": "Saving…",
     "spread": "Spread",
-    "accept": "Accept"
+    "accept": "Accept",
+    "editMember": "Edit",
+    "cancel": "Cancel",
+    "editMonth": "Edit"
   },
   "errors": {
     "amount_required": "Enter the bill's amount first.",

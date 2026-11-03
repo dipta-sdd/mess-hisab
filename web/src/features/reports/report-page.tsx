@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@heroui/react";
 import { useState } from "react";
+import { MonthStepper } from "@/components/ui/month-stepper";
 import { useLocale, useTranslations } from "next-intl";
 import { ChartCard, DivergingBars } from "@/components/charts";
 import type { AppLocale } from "@/i18n/config";
@@ -24,53 +26,42 @@ function splitRow(row: ReportNextRow) {
   return { rent, other, due: row.last_month_due_paisa };
 }
 
-export function ReportsPage() {
+export function ReportsPage({ embedded = false, monthId, onMonthChange }: { embedded?: boolean; monthId?: number | null; onMonthChange?: (id: number) => void } = {}) {
   const { messId } = useMess();
   const t = useTranslations("reports");
   const locale = useLocale() as AppLocale;
   const monthsQ = useReportMonths(messId);
   const closed: Month[] = (monthsQ.data ?? []).filter((m) => m.status === "closed").sort((a, b) => (a.starts_on < b.starts_on ? 1 : -1));
-  const [picked, setPicked] = useState<number | null>(null);
+  const [localPicked, setLocalPicked] = useState<number | null>(null);
+  const picked = monthId !== undefined ? monthId : localPicked;
+  const setPicked = (id: number) => {
+    setLocalPicked(id);
+    onMonthChange?.(id);
+  };
   const selected = picked !== null && closed.some((m) => m.id === picked) ? picked : (closed[0]?.id ?? null);
   const reportQ = useMonthlyReport(messId, selected);
   const err = reportQ.error instanceof ApiError ? reportQ.error : null;
 
-  const monthName = (m: Month) => formatMonthLabel(m.starts_on, locale);
-
   return (
-    <div className="report-root mx-auto flex w-full max-w-5xl flex-col gap-4 p-4" data-testid="report-root">
+    <div className="report-root flex w-full flex-col gap-6" data-testid="report-root">
       <ReportPrintStyles />
-      <div className="flex flex-wrap items-end justify-between gap-3" data-testid="report-toolbar">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
-        </div>
-        <div className="flex flex-wrap items-end gap-3" data-print="hide">
+      <div className="flex flex-wrap items-center justify-between gap-3" data-testid="report-toolbar">
+        <h1 className={embedded ? "sr-only" : "text-2xl font-semibold"}>{t("title")}</h1>
+        <div className="flex flex-wrap items-center gap-3" data-print="hide">
           {closed.length > 0 ? (
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="text-muted">{t("monthPicker.label")}</span>
-              <select
-                className="min-h-11 rounded-lg border border-border bg-surface px-3"
-                value={selected ?? ""}
-                onChange={(e) => setPicked(Number(e.target.value))}
-              >
-                {closed.map((m) => (
-                  <option key={m.id} value={m.id}>{monthName(m)}</option>
-                ))}
-              </select>
-            </label>
+            <MonthStepper
+              months={closed}
+              selectedId={selected}
+              onChange={setPicked}
+              labels={{ prev: t("stepper.prev"), next: t("stepper.next"), open: t("stepper.open"), closed: t("stepper.closed") }}
+            />
           ) : null}
           {reportQ.data && selected !== null ? (
-            <a
-              href={`${API_BASE_URL}/api/messes/${messId}/reports/monthly/${selected}/pdf`}
-              download
-              className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-medium text-accent-foreground"
-            >
+            <Button variant="primary" className="min-h-11" onPress={() => window.location.assign(`${API_BASE_URL}/api/messes/${messId}/reports/monthly/${selected}/pdf`)}>
               {t("download")}
-            </a>
+            </Button>
           ) : (
-            <span aria-disabled="true" className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-medium text-accent-foreground opacity-50">
-              {t("download")}
-            </span>
+            <Button variant="primary" isDisabled className="min-h-11">{t("download")}</Button>
           )}
         </div>
       </div>
@@ -109,7 +100,7 @@ function Blocked({ err, messId, monthId, locale, nextMonthLabel: nextLabel }: { 
     const target = err.code === "next_month_bills_missing" ? (body.next_month_id ?? monthId) : monthId;
     const label = err.code === "next_month_bills_missing" ? nextLabel : "";
     return (
-      <div role="alert" className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4" data-testid={`blocked-${err.code}`}>
+      <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4" data-testid={`blocked-${err.code}`}>
         <p>{err.code === "month_not_closed" ? t("blocked.month_not_closed") : t("blocked.next_month_bills_missing", { month: label })}</p>
         <Link
           href={`/${messId}/admin/fixed${target ? `?month=${target}` : ""}`}
@@ -124,15 +115,18 @@ function Blocked({ err, messId, monthId, locale, nextMonthLabel: nextLabel }: { 
   return <p role="alert" className="text-danger">{err?.isForbidden ? t("forbidden") : t("loadFailed")}</p>;
 }
 
-function Tile({ label, value, hint, tone, testId }: { label: string; value: string; hint?: string; tone?: "danger" | "success"; testId: string }) {
+function Stat({ label, value, hint, tone, testId }: { label: string; value: string; hint?: string; tone?: "danger" | "success"; testId: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-xl border border-border bg-surface p-3" data-testid={testId}>
-      <span className="text-sm text-muted">{label}</span>
-      <span className={`text-xl font-bold tabular-nums ${tone === "danger" ? "text-danger" : tone === "success" ? "text-success" : ""}`}>{value}</span>
-      {hint ? <span className="text-sm text-muted">{hint}</span> : null}
+    <div className="flex flex-col gap-1 p-4" data-testid={testId}>
+      <dt className="text-sm text-muted">{label}</dt>
+      <dd className={`text-xl font-semibold tabular-nums ${tone === "danger" ? "text-danger" : tone === "success" ? "text-success" : ""}`}>{value}</dd>
+      {hint ? <dd className="text-sm text-muted">{hint}</dd> : null}
     </div>
   );
 }
+
+/** Cells of a stat strip share one card, divided by hairlines. */
+const strip = "grid divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface sm:divide-y-0 sm:divide-x rtl:sm:divide-x-reverse";
 
 function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLocale }) {
   const t = useTranslations("reports");
@@ -159,8 +153,7 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
       {/* 1. Header + summary */}
       <section aria-labelledby="rep-head" className="flex flex-col gap-3" data-testid="section-summary">
         <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted">{t("header.kicker")}</p>
-          <h2 id="rep-head" className="text-xl font-bold">
+          <h2 id="rep-head" className="text-xl font-semibold">
             {report.mess.name} · {formatMonthLabel(month.starts_on, locale)}
           </h2>
           <p className="text-sm text-muted">
@@ -169,17 +162,47 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
             {` · ${t("header.members", { count: s.member_count })}`}
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          <Tile testId="tile-expenses" label={t("summary.expenses")} value={money(s.expenses_paisa)} hint={t("summary.expensesHint", { count: s.expense_count })} />
-          <Tile testId="tile-charged" label={t("summary.charged")} value={money(s.charged_paisa)} />
-          <Tile testId="tile-paid" label={t("summary.paid")} value={money(s.paid_paisa)} />
-          <Tile testId="tile-due" label={t("summary.due")} value={money(s.total_due_paisa)} tone="danger" />
-          <Tile testId="tile-credit" label={t("summary.credit")} value={money(s.total_credit_paisa)} tone="success" />
-          {meals ? <Tile testId="tile-meal-rate" label={t("summary.mealRate")} value={money(meals.meal_rate_paisa)} /> : null}
-        </div>
+        <dl className={`${strip} sm:grid-cols-3`}>
+          <Stat testId="tile-expenses" label={t("summary.expenses")} value={money(s.expenses_paisa)} hint={t("summary.expensesHint", { count: s.expense_count })} />
+          <Stat testId="tile-charged" label={t("summary.charged")} value={money(s.charged_paisa)} />
+          <Stat testId="tile-paid" label={t("summary.paid")} value={money(s.paid_paisa)} />
+        </dl>
+        <dl className={`${strip} ${meals ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+          <Stat testId="tile-due" label={t("summary.due")} value={money(s.total_due_paisa)} tone="danger" />
+          <Stat testId="tile-credit" label={t("summary.credit")} value={money(s.total_credit_paisa)} tone="success" />
+          {meals ? <Stat testId="tile-meal-rate" label={t("summary.mealRate")} value={money(meals.meal_rate_paisa)} /> : null}
+        </dl>
       </section>
 
       {/* 2. Per-person charts */}
+      <section aria-labelledby="rep-people" className="flex flex-col gap-3" data-testid="section-people-table">
+        <h2 id="rep-people" className="text-lg font-semibold">{t("people.title")}</h2>
+        <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
+          <table className="w-full text-sm tabular-nums">
+            <thead>
+              <tr className="border-b border-border bg-default/50 text-muted">
+                <th scope="col" className="p-3 text-start">{t("balances.tableMember")}</th>
+                <th scope="col" className="p-3 text-end">{t("people.share")}</th>
+                <th scope="col" className="p-3 text-end">{t("people.deposited")}</th>
+                <th scope="col" className="p-3 text-end">{t("people.spent")}</th>
+                <th scope="col" className="p-3 text-end">{t("balances.tableBalance")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {members.map((m) => (
+                <tr key={m.member_id} data-testid={`people-row-${m.member_id}`}>
+                  <th scope="row" className="p-3 text-start font-medium">{m.display_name}</th>
+                  <td className="p-3 text-end">{money(m.share_paisa)}</td>
+                  <td className="p-3 text-end">{money(m.paid_paisa)}</td>
+                  <td className="p-3 text-end">{money(m.spent_paisa)}</td>
+                  <td className={`p-3 text-end font-semibold ${m.balance_paisa < 0 ? "text-danger" : m.balance_paisa > 0 ? "text-success" : ""}`}>{money(m.balance_paisa)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <div className="grid gap-4 md:grid-cols-2" data-testid="section-people">
         <ChartCard
           {...common}
@@ -225,7 +248,7 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
       </div>
 
       {/* 3. To pay for next month */}
-      <section aria-labelledby="rep-next" className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-3" data-testid="section-next">
+      <section aria-labelledby="rep-next" className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4" data-testid="section-next">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
             <h2 id="rep-next" className="text-lg font-semibold">{t("next.title", { month: nextName })}</h2>
@@ -292,7 +315,7 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
       </section>
 
       {/* 4. Expenses */}
-      <section aria-labelledby="rep-exp" className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3" data-testid="section-expenses">
+      <section aria-labelledby="rep-exp" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4" data-testid="section-expenses">
         <div>
           <h2 id="rep-exp" className="text-lg font-semibold">{t("expenses.title")}</h2>
           <p className="text-sm text-muted">{t("expenses.subtitle")}</p>
@@ -335,16 +358,16 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
 
       {/* 5. Meals */}
       {meals ? (
-        <section aria-labelledby="rep-meals" className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3" data-testid="section-meals">
+        <section aria-labelledby="rep-meals" className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4" data-testid="section-meals">
           <div>
             <h2 id="rep-meals" className="text-lg font-semibold">{t("meals.title")}</h2>
             <p className="text-sm text-muted">{t("meals.subtitle")}</p>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <Tile testId="meals-total" label={t("meals.totalMeals")} value={formatMeals(meals.total_meals_centi, locale)} />
-            <Tile testId="meals-rate" label={t("meals.rate")} value={money(meals.meal_rate_paisa)} />
-            <Tile testId="meals-food" label={t("meals.foodCost")} value={money(meals.food_cost_paisa)} />
-          </div>
+          <dl className={`${strip} sm:grid-cols-3`}>
+            <Stat testId="meals-total" label={t("meals.totalMeals")} value={formatMeals(meals.total_meals_centi, locale)} />
+            <Stat testId="meals-rate" label={t("meals.rate")} value={money(meals.meal_rate_paisa)} />
+            <Stat testId="meals-food" label={t("meals.foodCost")} value={money(meals.food_cost_paisa)} />
+          </dl>
           <div className="overflow-x-auto">
             <table className="w-full text-sm tabular-nums">
               <thead>

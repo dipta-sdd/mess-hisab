@@ -59,10 +59,18 @@ function mockApi({
 
 const renderPage = () => renderWithProviders(<ExpensesPage scope="all" />, { messId: 7 });
 const form = () => screen.findByRole("form", { name: "Add an expense" });
+const openAdd = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(await screen.findByRole("button", { name: "Add expense" }));
+  return form();
+};
+const openRowMenu = async (user: ReturnType<typeof userEvent.setup>, row: string, action: RegExp) => {
+  await user.click(within(screen.getByTestId(row)).getByRole("button", { name: /^More actions:/ }));
+  await user.click(await screen.findByRole("menuitem", { name: action }));
+};
 const queue = () => screen.findByRole("region", { name: /Waiting for approval/ });
 
 async function fillBasics(user: ReturnType<typeof userEvent.setup>, amount = "250.5", category = "Fish") {
-  await form();
+  await openAdd(user);
   await user.type(screen.getByLabelText("Amount (taka)"), amount);
   await user.selectOptions(screen.getByLabelText("Category"), category);
 }
@@ -88,14 +96,15 @@ describe("ExpensesPage entry form", () => {
       expect(body).toEqual({ category_id: 3, amount_paisa: 25050, spent_on: "2026-11-03", note: "market", paid_by: "member", paid_by_member_id: 1 }),
     );
     expect(await screen.findByText(/Saved: Fish/)).toBeInTheDocument();
-    // Ready for the next receipt.
-    await waitFor(() => expect(screen.getByLabelText("Amount (taka)")).toHaveValue(""));
-    expect(screen.getByLabelText("Category")).toHaveValue("3");
+    // The modal closes after a save.
+    await waitFor(() => expect(screen.queryByRole("form", { name: "Add an expense" })).toBeNull());
   });
 
   it("groups categories into Fixed / Meals and hides archived ones", async () => {
     mockApi();
+    const user = userEvent.setup();
     renderPage();
+    await openAdd(user);
     const select = await screen.findByLabelText("Category");
     const groups = within(select).getAllByRole("group");
     expect(groups.map((g) => g.getAttribute("label"))).toEqual(["Fixed bills", "Meals"]);
@@ -213,11 +222,11 @@ describe("ExpensesPage list", () => {
     expect(await screen.findByText("November rent")).toBeInTheDocument();
     const list = within(screen.getByRole("region", { name: /^Expenses —/ }));
     const row = list.getByTestId("expense-3");
-    expect(within(row).getByText("Late entry")).toBeInTheDocument();
-    expect(within(row).getByText("Recorded by manager")).toBeInTheDocument();
-    expect(within(row).getByText("Short cash")).toBeInTheDocument();
-    expect(within(list.getByTestId("expense-2")).getByText("Pending approval")).toBeInTheDocument();
-    expect(within(list.getByTestId("expense-1")).getByText("Approved")).toBeInTheDocument();
+    expect(within(row).getByText(/Late entry/)).toBeInTheDocument();
+    expect(within(row).getByText(/Recorded by manager/)).toBeInTheDocument();
+    expect(within(row).getByText(/Short cash/)).toBeInTheDocument();
+    expect(within(list.getByTestId("expense-2")).getByText(/Pending approval/)).toBeInTheDocument();
+    expect(within(list.getByTestId("expense-1")).getByText(/Approved/)).toBeInTheDocument();
     // 1500 + 50 fixed; pending fish not counted.
     expect(within(screen.getByTestId("total-fixed")).getByText("৳1,550.00")).toBeInTheDocument();
     expect(within(screen.getByTestId("total-meals")).getByText("৳0.00")).toBeInTheDocument();
@@ -229,13 +238,13 @@ describe("ExpensesPage list", () => {
     const user = userEvent.setup();
     renderPage();
     await screen.findByText("November rent");
-    await user.selectOptions(screen.getByLabelText("Status"), "Approved");
+    await user.click(within(screen.getByRole("group", { name: "Status" })).getByRole("button", { name: "Approved" }));
     await waitFor(() => expect(requests.at(-1)).toContain("status=approved"));
     await user.selectOptions(screen.getByLabelText("Recorded or paid by"), "Karim");
     await waitFor(() => expect(requests.at(-1)).toContain("member_id=2"));
     await user.selectOptions(screen.getByLabelText("Filter by category"), "Gas");
     await waitFor(() => expect(requests.at(-1)).toContain("category_id=2"));
-    await user.selectOptions(screen.getByLabelText("Month"), "10");
+    await user.click(screen.getByRole("button", { name: "Older month" }));
     await waitFor(() => expect(requests.at(-1)).toContain("month_id=10"));
   });
 
@@ -244,7 +253,7 @@ describe("ExpensesPage list", () => {
     renderPage();
     await screen.findByText("November rent");
     expect(screen.queryByLabelText("Recorded or paid by")).toBeNull();
-    expect(screen.getByLabelText("Status")).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Status" })).toBeInTheDocument();
     expect(screen.getByLabelText("Filter by category")).toBeInTheDocument();
   });
 
@@ -255,9 +264,11 @@ describe("ExpensesPage list", () => {
     const user = userEvent.setup();
     renderPage();
     await screen.findByText("November rent");
-    expect(screen.queryByRole("button", { name: /^Edit: Rent/ })).toBeNull();
-    expect(screen.queryByRole("button", { name: /^Delete: Rent/ })).toBeNull();
-    await user.click(screen.getByRole("button", { name: /^Delete: Fish/ }));
+    // The approved row has no actions at all; the pending one has a menu.
+    expect(within(screen.getByTestId("expense-1")).queryByRole("button")).toBeNull();
+    await user.click(within(screen.getByTestId("expense-2")).getByRole("button", { name: /^More actions:/ }));
+    expect(screen.queryByRole("menuitem", { name: /^Edit: Rent/ })).toBeNull();
+    await user.click(await screen.findByRole("menuitem", { name: /^Delete: Fish/ }));
     await user.click(screen.getByRole("button", { name: "Yes, delete" }));
     expect(await screen.findByText(/already approved/)).toBeInTheDocument();
   });
@@ -266,17 +277,20 @@ describe("ExpensesPage list", () => {
     mockApi({ manager: false, approvalRequired: false });
     renderPage();
     await screen.findByText("November rent");
-    expect(screen.getByRole("button", { name: /^Edit: Rent/ })).toBeInTheDocument();
+    await userEvent.setup().click(within(screen.getByTestId("expense-1")).getByRole("button", { name: /^More actions:/ }));
+    expect(await screen.findByRole("menuitem", { name: /^Edit: Rent/ })).toBeInTheDocument();
   });
 
   it("offers nothing on closed months and no edit for rejected expenses", async () => {
     mockApi({ list: [exp(5, 1, 1000, { month_id: 10 }), exp(6, 1, 2000, { status: "rejected", created_by_member_id: 1, paid_by_member_id: 1 })] });
     server.use(http.get(`${BASE}/months/current`, () => HttpResponse.json({ data: nov })));
+    const user = userEvent.setup();
     renderPage();
     await screen.findByTestId("expense-5");
     expect(within(screen.getByTestId("expense-5")).queryByRole("button")).toBeNull();
-    expect(within(screen.getByTestId("expense-6")).queryByRole("button", { name: /^Edit/ })).toBeNull();
-    expect(within(screen.getByTestId("expense-6")).getByRole("button", { name: /^Delete/ })).toBeInTheDocument();
+    await user.click(within(screen.getByTestId("expense-6")).getByRole("button", { name: /^More actions:/ }));
+    expect(screen.queryByRole("menuitem", { name: /^Edit/ })).toBeNull();
+    expect(await screen.findByRole("menuitem", { name: /^Delete/ })).toBeInTheDocument();
   });
 
   it("edits only the changed fields", async () => {
@@ -291,7 +305,7 @@ describe("ExpensesPage list", () => {
     const user = userEvent.setup();
     renderPage();
     await screen.findByText("November rent");
-    await user.click(screen.getByRole("button", { name: /^Edit: Rent/ }));
+    await openRowMenu(user, "expense-1", /^Edit: Rent/);
     const amount = screen.getByLabelText("Amount (taka)");
     expect(amount).toHaveValue("1500");
     await user.clear(amount);

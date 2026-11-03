@@ -9,3 +9,17 @@ afterEach(() => {
   cleanup();
 });
 afterAll(() => server.close());
+
+// jsdom has no ResizeObserver; HeroUI's Tabs indicator measures with it.
+if (typeof globalThis.ResizeObserver === "undefined") {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
+// ...nor Element.getAnimations, which react-aria's tab panel transitions call.
+if (typeof Element !== "undefined" && !Element.prototype.getAnimations) {
+  Element.prototype.getAnimations = () => [];
+}

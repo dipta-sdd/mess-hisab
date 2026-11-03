@@ -5,13 +5,13 @@ import type { AppLocale } from "@/i18n/config";
 import type { Expense } from "@/lib/api/contract";
 import { formatDate } from "@/lib/format";
 
-const badgeBase = "rounded-full px-2 py-0.5 text-xs font-medium";
 const statusClass: Record<Expense["status"], string> = {
-  pending: "bg-warning/15 text-warning",
-  approved: "bg-success/15 text-success",
-  rejected: "bg-danger/15 text-danger",
+  pending: "font-medium text-warning",
+  approved: "text-muted",
+  rejected: "font-medium text-danger",
 };
 
+/** One ledger line. Sits inside a divided list, so it has no border of its own. */
 export function ExpenseRow({
   expense,
   categoryName,
@@ -19,6 +19,8 @@ export function ExpenseRow({
   creatorName,
   locale,
   money,
+  showDate = false,
+  menu,
   children,
 }: {
   expense: Expense;
@@ -28,27 +30,36 @@ export function ExpenseRow({
   creatorName?: string;
   locale: AppLocale;
   money: (paisa: number) => string;
+  /** The ledger groups rows under a date heading; the approval queue has no headings, so it shows the date here. */
+  showDate?: boolean;
+  /** Per-row actions, placed after the amount. */
+  menu?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   const t = useTranslations("expenses");
+  const flags = [
+    expense.is_late ? t("badges.late") : null,
+    expense.is_self_recorded ? t("badges.selfRecorded") : null,
+    expense.short_cash_converted ? t("badges.shortCash") : null,
+  ].filter(Boolean);
+
   return (
-    <li className="rounded-xl border border-border bg-surface p-3" data-testid={`expense-${expense.id}`}>
+    <li className="px-4 py-3" data-testid={`expense-${expense.id}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="break-words font-medium">{categoryName}</p>
           <p className="text-sm text-muted">
-            {formatDate(expense.spent_on, locale)} · {t("list.paidByLabel", { name: payerLabel })}
+            {showDate ? `${formatDate(expense.spent_on, locale)} · ` : ""}
+            {t("list.paidByLabel", { name: payerLabel })} · <span className={statusClass[expense.status]}>{t(`status.${expense.status}`)}</span>
+            {flags.length > 0 ? ` · ${flags.join(" · ")}` : ""}
           </p>
+          {expense.note ? <p className="mt-1 break-words text-sm">{expense.note}</p> : null}
+          {creatorName ? <p className="mt-1 break-words text-sm text-muted">{t("queue.recordedBy", { name: creatorName })}</p> : null}
         </div>
-        <p className="shrink-0 text-lg font-semibold tabular-nums">{money(expense.amount_paisa)}</p>
-      </div>
-      {expense.note ? <p className="mt-1 text-sm break-words">{expense.note}</p> : null}
-      {creatorName ? <p className="mt-1 break-words text-sm text-muted">{t("queue.recordedBy", { name: creatorName })}</p> : null}
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        <span className={`${badgeBase} ${statusClass[expense.status]}`}>{t(`status.${expense.status}`)}</span>
-        {expense.is_late ? <span className={`${badgeBase} bg-default text-foreground`}>{t("badges.late")}</span> : null}
-        {expense.is_self_recorded ? <span className={`${badgeBase} bg-default text-foreground`}>{t("badges.selfRecorded")}</span> : null}
-        {expense.short_cash_converted ? <span className={`${badgeBase} bg-warning/15 text-warning`}>{t("badges.shortCash")}</span> : null}
+        <div className="flex shrink-0 items-center gap-1">
+          <p className="text-lg font-semibold tabular-nums">{money(expense.amount_paisa)}</p>
+          {menu}
+        </div>
       </div>
       {children}
     </li>

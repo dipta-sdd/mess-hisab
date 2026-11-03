@@ -5,7 +5,10 @@
   "loadFailed": "Could not load the report. Please try again.",
   "forbidden": "Only the admin and the manager can open reports.",
   "download": "Download PDF",
-  "monthPicker": { "label": "Month", "none": "There is no closed month yet. Close a month to see its report." },
+  "monthPicker": {
+    "label": "Month",
+    "none": "There is no closed month yet. Close a month to see its report."
+  },
   "blocked": {
     "month_not_closed": "This month is not closed yet, so it has no report. Close the month first.",
     "next_month_bills_missing": "{month} has no Fixed bills yet, so we cannot show what everyone pays. Save its Fixed bills first.",
@@ -80,5 +83,14 @@
     "bill": "Meal bill",
     "chartTitle": "Meals by member"
   },
-  "charts": { "showTable": "Show as table", "hideTable": "Show chart" }
+  "charts": {
+    "showTable": "Show as table",
+    "hideTable": "Show chart"
+  },
+  "stepper": {
+    "prev": "Previous month",
+    "next": "Next month",
+    "open": "Open",
+    "closed": "Closed"
+  }
 }

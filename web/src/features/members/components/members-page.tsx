@@ -1,11 +1,10 @@
 "use client";
 
-import { Button, Card, Spinner } from "@heroui/react";
+import { Button, Modal, Spinner } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useMessRoles } from "@/features/mess/api";
 import { ErrorAlert } from "@/features/mess/ui/errors";
-import { SelectField } from "@/features/mess/ui/fields";
 import type { Member } from "@/lib/api/contract";
 import { formatDate } from "@/lib/format";
 import type { AppLocale } from "@/i18n/config";
@@ -18,24 +17,29 @@ import { RolesPanel } from "./roles-panel";
 
 type Filter = "active" | "archived" | "all";
 
+const FILTERS: Filter[] = ["active", "archived", "all"];
+
 function MemberRow({ member }: { member: Member }) {
   const t = useTranslations("members");
   const locale = useLocale() as AppLocale;
+  const tags = [
+    member.is_admin ? t("badge.admin") : null,
+    member.is_manager ? t("badge.manager") : null,
+    member.archived_at ? t("badge.archived") : null,
+    !member.has_account && !member.archived_at ? t("badge.noAccount") : null,
+  ].filter(Boolean);
   return (
-    <li className="flex flex-col gap-2 rounded-xl border border-border p-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="min-w-0 break-words font-medium">{member.display_name}</span>
-        <span className="flex flex-wrap gap-2 text-sm text-muted">
-          {member.is_admin ? <span>{t("badge.admin")}</span> : null}
-          {member.is_manager ? <span>{t("badge.manager")}</span> : null}
-          {member.archived_at ? <span>{t("badge.archived")}</span> : null}
-          {!member.has_account && !member.archived_at ? <span>{t("badge.noAccount")}</span> : null}
-        </span>
+    <li className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 px-4 py-3" data-testid={`member-${member.id}`}>
+      <div className="min-w-0 flex-1">
+        <p className="break-words font-medium">
+          {member.display_name}
+          {tags.length > 0 ? <span className="text-sm font-normal text-muted"> · {tags.join(" · ")}</span> : null}
+        </p>
+        <p className="text-sm text-muted">
+          {t("joined", { date: formatDate(member.joined_on, locale) })}
+          {member.left_on ? ` · ${t("left", { date: formatDate(member.left_on, locale) })}` : ""}
+        </p>
       </div>
-      <p className="text-sm text-muted">
-        {t("joined", { date: formatDate(member.joined_on, locale) })}
-        {member.left_on ? ` · ${t("left", { date: formatDate(member.left_on, locale) })}` : ""}
-      </p>
       <MemberRowActions member={member} />
     </li>
   );
@@ -67,7 +71,7 @@ export function MembersPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        {roles.canManage && !adding ? (
+        {roles.canManage ? (
           <Button variant="primary" onPress={() => setAdding(true)}>
             {t("add.button")}
           </Button>
@@ -75,23 +79,36 @@ export function MembersPage() {
       </header>
 
       {!roles.canManage ? <p className="text-sm text-muted">{t("readOnly")}</p> : null}
-      {adding && roles.canManage ? <AddMemberForm onDone={() => setAdding(false)} /> : null}
 
-      <Card.Root>
-        <Card.Content className="flex flex-col gap-4">
-          <SelectField label={t("filter.label")} value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
-            <option value="active">{t("filter.active")}</option>
-            <option value="archived">{t("filter.archived")}</option>
-            <option value="all">{t("filter.all")}</option>
-          </SelectField>
-          {shown.length === 0 ? <p className="text-sm text-muted">{t("empty")}</p> : null}
-          <ul className="flex flex-col gap-2">
-            {shown.map((m) => (
-              <MemberRow key={m.id} member={m} />
-            ))}
-          </ul>
-        </Card.Content>
-      </Card.Root>
+      {roles.canManage ? (
+        <Modal isOpen={adding} onOpenChange={setAdding}>
+          <Modal.Backdrop>
+            <Modal.Container placement="center" size="md">
+              <Modal.Dialog aria-label={t("add.title")} className="max-h-[92dvh] overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                {adding ? <AddMemberForm onDone={() => setAdding(false)} /> : null}
+              </Modal.Dialog>
+            </Modal.Container>
+          </Modal.Backdrop>
+        </Modal>
+      ) : null}
+
+      <div role="group" aria-label={t("filter.label")} className="flex flex-wrap gap-2">
+        {FILTERS.map((f) => (
+          <Button key={f} size="sm" variant={filter === f ? "primary" : "secondary"} aria-pressed={filter === f} className="min-h-9" onPress={() => setFilter(f)}>
+            {t(`filter.${f}`)}
+          </Button>
+        ))}
+      </div>
+
+      {shown.length === 0 ? (
+        <p className="text-sm text-muted">{t("empty")}</p>
+      ) : (
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface">
+          {shown.map((m) => (
+            <MemberRow key={m.id} member={m} />
+          ))}
+        </ul>
+      )}
 
       {roles.canManage ? <InvitesPanel members={all} /> : null}
       {roles.canAdmin ? <RolesPanel members={all} /> : null}

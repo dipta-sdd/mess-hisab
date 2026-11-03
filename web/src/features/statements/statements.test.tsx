@@ -69,20 +69,29 @@ describe("StatementPage", () => {
     renderWithProviders(<StatementPage memberId={1} />, { messId: 7 });
     const first = await screen.findByTestId("line-carry_in");
     expect(first).toHaveTextContent("Last month due");
-    expect(first).toHaveTextContent("Due ৳300.00");
+    expect(first).toHaveTextContent("-৳300.00");
 
+    // One passbook list: undated charges post first (Fixed before Meals), then dated lines by date.
     const all = screen.getAllByTestId(/^line-/).map((n) => n.getAttribute("data-testid"));
-    expect(all).toEqual(["line-carry_in", "line-payment", "line-fixed_bill", "line-meal_charge", "line-own_pocket_expense"]);
+    expect(all).toEqual(["line-carry_in", "line-fixed_bill", "line-meal_charge", "line-payment", "line-own_pocket_expense"]);
     // carry_in appears once (not duplicated from lines)
     expect(all.filter((k) => k === "line-carry_in").length).toBe(1);
+    expect(screen.queryByTestId("section-fixed")).toBeNull();
+    expect(screen.queryByTestId("section-meals")).toBeNull();
 
-    const fixed = screen.getByTestId("section-fixed");
-    expect(within(fixed).getByText("Rent")).toBeInTheDocument();
-    expect(within(fixed).getByText("Payment")).toBeInTheDocument();
-    const meals = screen.getByTestId("section-meals");
-    expect(within(meals).getByText("Meal charge")).toBeInTheDocument();
-    expect(within(meals).getByText("Paid from own pocket")).toBeInTheDocument();
-    expect(within(meals).getByText("Paid from pocket: rice")).toBeInTheDocument();
+    // Each line carries its amount, its running balance and a small group label.
+    const rent = screen.getByTestId("line-fixed_bill");
+    expect(rent).toHaveTextContent("Rent");
+    expect(rent).toHaveTextContent("Fixed");
+    expect(rent).toHaveTextContent("-৳2,000.00");
+    expect(rent).toHaveTextContent("-৳2,300.00");
+    expect(screen.getByTestId("line-payment")).toHaveTextContent("Payment");
+    const meal = screen.getByTestId("line-meal_charge");
+    expect(meal).toHaveTextContent("Meal charge");
+    expect(meal).toHaveTextContent("Meals");
+    const pocket = screen.getByTestId("line-own_pocket_expense");
+    expect(pocket).toHaveTextContent("Paid from own pocket");
+    expect(pocket).toHaveTextContent("Paid from pocket: rice");
     expect(requests[0]).toBe("1");
   });
 
@@ -105,11 +114,27 @@ describe("StatementPage", () => {
     renderWithProviders(<StatementPage />, { messId: 7 });
     await screen.findByTestId("stmt-total");
     expect(requests[0]).toBe("2");
-    await waitFor(() => expect(screen.getByLabelText("Month")).toHaveValue("1"));
-    await user.selectOptions(screen.getByLabelText("Month"), "2");
+    const stepper = screen.getByTestId("month-stepper");
+    await waitFor(() => expect(within(stepper).getByText("October 2026")).toBeInTheDocument());
+    await user.click(within(stepper).getByRole("button", { name: "Next month" }));
     await waitFor(() => expect(requests.at(-1)).toBe("2?month_id=2"));
     await user.selectOptions(screen.getByLabelText("Member"), "X");
     await waitFor(() => expect(requests.at(-1)).toBe("1?month_id=2"));
+  });
+
+  it("offers a Report tab that loads the mess report", async () => {
+    mockApi();
+    server.use(
+      http.get(`${BASE}/months`, () => HttpResponse.json({ data: [{ id: 1, starts_on: "2026-09-01", ends_on: "2026-09-30", status: "closed" }] })),
+      http.get(`${BASE}/reports/monthly/:month`, () => HttpResponse.json({ code: "month_not_closed", message: "x" }, { status: 409 })),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<StatementPage />, { messId: 7 });
+    await screen.findByTestId("stmt-total");
+    expect(screen.getByRole("tab", { name: "Statement" })).toHaveAttribute("aria-selected", "true");
+    await user.click(screen.getByRole("tab", { name: "Report" }));
+    expect(screen.getByRole("tab", { name: "Report" })).toHaveAttribute("aria-selected", "true");
+    expect(await screen.findByTestId("report-root")).toBeInTheDocument();
   });
 
   it("shows a friendly not-found and a generic error", async () => {

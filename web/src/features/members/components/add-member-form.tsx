@@ -54,7 +54,7 @@ export function AddMemberForm({ onDone }: { onDone: () => void }) {
       onSubmit={onSubmit}
       noValidate
       aria-label={t("add.title")}
-      className="flex flex-col gap-3 rounded-xl border border-border p-4"
+      className="flex flex-col gap-3"
     >
       <h2 className="text-lg font-semibold">{t("add.title")}</h2>
       <ErrorAlert message={form.message} />
@@ -66,12 +66,12 @@ export function AddMemberForm({ onDone }: { onDone: () => void }) {
         direction={register("direction")}
         error={errors.amount?.message}
       />
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <Button type="button" variant="ghost" onPress={onDone} className="w-full sm:w-auto">
+          {t("cancel")}
+        </Button>
         <Button type="submit" variant="primary" className="w-full sm:w-auto" isPending={add.isPending}>
           {t("add.submit")}
-        </Button>
-        <Button type="button" variant="ghost" onPress={onDone}>
-          {t("cancel")}
         </Button>
       </div>
     </form>

@@ -40,6 +40,10 @@ const open = async (user: ReturnType<typeof userEvent.setup>) => {
   return screen.findByRole("dialog");
 };
 
+const openMenu = async (name = "Karim") => {
+  await userEvent.click(await screen.findByRole("button", { name: `More actions for ${name}` }));
+};
+
 beforeEach(() => {
   resetApiClientState();
   document.cookie = "XSRF-TOKEN=t; path=/";
@@ -49,8 +53,9 @@ describe("MemberRowActions final settlement", () => {
   it("keeps the existing edit and archive actions", async () => {
     serve(manager, dashboard([row(2, 100000)], 500000));
     renderWithProviders(<MemberRowActions member={karim} />, { messId: 3 });
-    expect(await screen.findByLabelText("Edit Karim")).toBeInTheDocument();
-    expect(screen.getByLabelText("Archive Karim")).toBeInTheDocument();
+    await openMenu();
+    expect(await screen.findByRole("menuitem", { name: "Edit Karim" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Archive Karim" })).toBeInTheDocument();
   });
 
   it("prefills min(credit, cash) when cash is lower, and shows balance and cash pool", async () => {
@@ -92,7 +97,8 @@ describe("MemberRowActions final settlement", () => {
     expect(screen.getByText("Credit left: ৳499.50")).toBeInTheDocument();
     expect(screen.getByText("Cash in manager's hand now: ৳2,499.50")).toBeInTheDocument();
     expect(screen.getByText(/can now archive this member/)).toBeInTheDocument();
-    expect(screen.getByLabelText("Archive Karim")).toBeInTheDocument();
+    await openMenu();
+    expect(await screen.findByRole("menuitem", { name: "Archive Karim" })).toBeInTheDocument();
   });
 
   it("rejects a bad amount without calling the API", async () => {
@@ -140,7 +146,8 @@ describe("MemberRowActions final settlement", () => {
   it("is hidden for a member with no credit", async () => {
     serve(manager, dashboard([row(2, -5000)], 350000));
     renderWithProviders(<MemberRowActions member={karim} />, { messId: 3 });
-    expect(await screen.findByLabelText("Edit Karim")).toBeInTheDocument();
+    await openMenu();
+    expect(await screen.findByRole("menuitem", { name: "Edit Karim" })).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByRole("button", { name: /Final settlement/ })).toBeNull());
     await new Promise((r) => setTimeout(r, 50));
     expect(screen.queryByRole("button", { name: /Final settlement/ })).toBeNull();
@@ -172,7 +179,8 @@ describe("MemberRowActions final settlement", () => {
       }),
     );
     renderWithProviders(<MemberRowActions member={karim} />, { messId: 3 });
-    expect(await screen.findByLabelText("Edit Karim")).toBeInTheDocument();
+    await openMenu();
+    expect(await screen.findByRole("menuitem", { name: "Edit Karim" })).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 50));
     expect(screen.queryByRole("button", { name: /Final settlement/ })).toBeNull();
     expect(dashboardCalls).toBe(0);

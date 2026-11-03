@@ -34,7 +34,7 @@ export function ApprovalQueue({
   const [notice, setNotice] = useState<{ tone: "error" | "info"; text: string } | null>(null);
 
   return (
-    <section aria-labelledby="queue-title" className="flex flex-col gap-2 rounded-2xl border border-warning bg-warning/5 p-4">
+    <section aria-labelledby="queue-title" className="flex flex-col gap-2 rounded-xl border border-warning/50 bg-warning/5 p-3">
       <h2 id="queue-title" className="text-lg font-semibold">
         {t("queue.title")} ({formatNumber(expenses.length, locale)})
       </h2>
@@ -46,7 +46,7 @@ export function ApprovalQueue({
       {expenses.length === 0 ? (
         <p className="text-muted">{t("queue.empty")}</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
           {expenses.map((e) => (
             <QueueItem
               key={e.id}
@@ -120,7 +120,7 @@ function QueueItem({
   }
 
   return (
-    <ExpenseRow expense={expense} categoryName={categoryName} payerLabel={payerLabel} creatorName={creatorName} locale={locale} money={money}>
+    <ExpenseRow expense={expense} categoryName={categoryName} payerLabel={payerLabel} creatorName={creatorName} locale={locale} money={money} showDate>
       {rejecting ? (
         <div className="mt-2 flex flex-col gap-2">
           <label htmlFor={`reason-${expense.id}`} className="text-sm font-medium">

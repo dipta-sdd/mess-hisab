@@ -1,10 +1,6 @@
-import { StaffOnly } from "@/components/shell/staff-only";
-import { ReportsPage } from "@/features/reports/report-page";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <StaffOnly>
-      <ReportsPage />
-    </StaffOnly>
-  );
+/** The report now lives on the Statement page as its second tab. */
+export default async function Page({ params }: { params: Promise<{ mess: string }> }) {
+  redirect(`/${(await params).mess}/admin/statements?tab=report`);
 }

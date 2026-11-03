@@ -18,7 +18,9 @@
   },
   "month": {
     "open": "Open",
-    "closed": "Closed"
+    "closed": "Closed",
+    "prev": "Older month",
+    "next": "Newer month"
   },
   "filters": {
     "month": "Month",
@@ -27,7 +29,8 @@
     "member": "Recorded or paid by",
     "allMembers": "All members",
     "category": "Filter by category",
-    "allCategories": "All categories"
+    "allCategories": "All categories",
+    "all": "All"
   },
   "totals": {
     "title": "Totals",
@@ -78,7 +81,9 @@
     "delete": "Delete",
     "confirmDelete": "Delete this expense?",
     "confirmYes": "Yes, delete",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "add": "Add expense",
+    "menu": "More actions"
   },
   "saved": {
     "title": "Expense saved",

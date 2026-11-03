@@ -54,14 +54,24 @@ function mockApi({ manager = true, current = nov, bills = [rent(), food()] }: { 
   );
 }
 
+/** Bills are accordion rows, collapsed by default: open one by its category name. */
+const expandBill = async (name = "Rent") => {
+  const trigger = await screen.findByRole("button", { name: new RegExp(`^${name}`) });
+  if (trigger.getAttribute("aria-expanded") !== "true") await userEvent.click(trigger);
+  return trigger;
+};
+/** Per-member deposit/minimum meals and the month deadlines open in modals. */
+const openMemberEdit = async (name: string) => userEvent.click(await screen.findByRole("button", { name: `Edit: ${name}` }));
+
 const renderPage = () => renderWithProviders(<FixedPage />, { messId: 7 });
 
 describe("FixedPage (manager)", () => {
   it("shows bills with server shares and hides by-meal categories", async () => {
     mockApi();
     renderPage();
-    expect(await screen.findByRole("heading", { name: "Rent" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Food" })).toBeNull();
+    expect(await screen.findByRole("button", { name: /^Rent/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Food/ })).toBeNull();
+    await expandBill();
     expect(screen.getByTestId("share-1-1")).toHaveTextContent("5,000");
     expect(screen.getByTestId("share-1-2")).toHaveTextContent("5,000");
     expect(screen.getByLabelText("Bill amount (taka)")).toHaveValue("10000");
@@ -73,6 +83,7 @@ describe("FixedPage (manager)", () => {
     server.use(http.put(`${BASE}/months/11/bills/1`, async ({ request }) => { body = await request.json(); return HttpResponse.json({ data: rent() }); }));
     const user = userEvent.setup();
     renderPage();
+    await expandBill();
     const amount = await screen.findByLabelText("Bill amount (taka)");
     await user.clear(amount);
     await user.type(amount, "12,000.50");
@@ -89,6 +100,7 @@ describe("FixedPage (manager)", () => {
     server.use(http.put(`${BASE}/months/11/bills/1`, () => { called = true; return HttpResponse.json({ data: rent() }); }));
     const user = userEvent.setup();
     renderPage();
+    await expandBill();
     const amount = await screen.findByLabelText("Bill amount (taka)");
     await user.clear(amount);
     await user.type(amount, "12.345");
@@ -104,6 +116,7 @@ describe("FixedPage (manager)", () => {
     server.use(http.post(`${BASE}/months/11/bills/1/spread`, () => { spread += 1; return HttpResponse.json({ data: rent() }); }));
     const user = userEvent.setup();
     renderPage();
+    await expandBill();
     const box = await screen.findByTestId("unallocated-1");
     expect(box).toHaveTextContent("Unallocated");
     expect(box).toHaveTextContent("2,000");
@@ -117,6 +130,7 @@ describe("FixedPage (manager)", () => {
     server.use(http.post(`${BASE}/months/11/bills/1/accept`, () => { accepted += 1; return HttpResponse.json({ data: rent() }); }));
     const user = userEvent.setup();
     renderPage();
+    await expandBill();
     await user.click(await screen.findByRole("button", { name: "Accept: Rent" }));
     await waitFor(() => expect(accepted).toBe(1));
   });
@@ -124,6 +138,7 @@ describe("FixedPage (manager)", () => {
   it("offers no spread when over-allocated", async () => {
     mockApi({ bills: [rent({ unallocated_paisa: -50000 })] });
     renderPage();
+    await expandBill();
     expect(await screen.findByTestId("unallocated-1")).toHaveTextContent("Over-allocated by");
     expect(screen.queryByRole("button", { name: "Spread: Rent" })).toBeNull();
   });
@@ -138,6 +153,7 @@ describe("FixedPage (manager)", () => {
     server.use(http.post(`${BASE}/months/11/bills/1/${action}`, () => HttpResponse.json({ message: "server words", code }, { status: 409 })));
     const user = userEvent.setup();
     renderPage();
+    await expandBill();
     await user.click(await screen.findByRole("button", { name: `${action === "spread" ? "Spread" : "Accept"}: Rent` }));
     expect(await screen.findByText(text)).toBeInTheDocument();
     expect(screen.queryByText("server words")).toBeNull();
@@ -148,6 +164,7 @@ describe("FixedPage (manager)", () => {
     server.use(http.put(`${BASE}/months/11/bills/1`, () => HttpResponse.json({ message: "x", code: "over_allocated" }, { status: 409 })));
     const user = userEvent.setup();
     renderPage();
+    await expandBill();
     await user.type(await screen.findByLabelText("Set by hand (taka): Karim"), "99999");
     await user.click(screen.getByRole("button", { name: "Save bill: Rent" }));
     expect(await screen.findByText(/Too much is allocated/)).toBeInTheDocument();
@@ -159,6 +176,7 @@ describe("FixedPage (manager)", () => {
     server.use(http.patch(`${BASE}/months/11/setup`, async ({ request }) => { body = await request.json(); return HttpResponse.json({ data: nov }); }));
     const user = userEvent.setup();
     renderPage();
+    await user.click(await screen.findByRole("button", { name: "Edit" }));
     const deposit = await screen.findByLabelText("Deposit per member (taka)");
     await user.clear(deposit);
     await user.type(deposit, "1500");
@@ -178,9 +196,13 @@ describe("FixedPage (manager)", () => {
     );
     const user = userEvent.setup();
     renderPage();
+    await openMemberEdit("Karim");
     expect(await screen.findByLabelText("Deposit (taka): Karim")).toHaveValue("2500");
     expect(screen.getByLabelText("Minimum meals: Karim")).toHaveValue("12.5");
-    await user.type(screen.getByLabelText("Deposit (taka): Rahim"), "2000");
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByLabelText("Deposit (taka): Karim")).toBeNull());
+    await openMemberEdit("Rahim");
+    await user.type(await screen.findByLabelText("Deposit (taka): Rahim"), "2000");
     await user.type(screen.getByLabelText("Minimum meals: Rahim"), "20.5");
     await user.click(screen.getByRole("button", { name: "Save: Rahim" }));
     await waitFor(() => expect(body).toEqual({ deposit_paisa: 200000, min_meals_centi: 2050 }));
@@ -211,6 +233,7 @@ describe("FixedPage (read-only)", () => {
     mockApi();
     renderWithProviders(<FixedPage />, { messId: 7, locale: "bn" });
     expect(await screen.findByRole("heading", { name: "ফিক্সড বিল সেটআপ" })).toBeInTheDocument();
+    await expandBill();
     expect(await screen.findByRole("button", { name: "বিল সেভ করুন: Rent" })).toBeInTheDocument();
     expectBanglaOnly([]);
   });
@@ -221,6 +244,7 @@ describe("FixedPage (read-only)", () => {
     server.use(http.get(`${BASE}/months/11/setup`, () => { asked = true; return HttpResponse.json({ data: { month: nov, bills: [rent()], member_settings: [] } }); }));
     search = new URLSearchParams("month=11");
     renderPage();
+    await expandBill();
     expect(await screen.findByLabelText("Bill amount (taka)")).toBeInTheDocument();
     expect(asked).toBe(true);
     expect(screen.queryByTestId("closed-note")).toBeNull();

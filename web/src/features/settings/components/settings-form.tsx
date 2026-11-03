@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Card } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -68,13 +68,13 @@ function toValues(mess: Mess): Values {
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title className="text-lg font-semibold">{title}</Card.Title>
-        {hint ? <Card.Description>{hint}</Card.Description> : null}
-      </Card.Header>
-      <Card.Content className="flex flex-col gap-3">{children}</Card.Content>
-    </Card.Root>
+    <section aria-label={title} className="grid gap-4 py-6 first:pt-0 last:pb-0 lg:grid-cols-[14rem_1fr] lg:gap-10">
+      <div>
+        <h2 className="text-lg font-semibold">{title}</h2>
+        {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
+      </div>
+      <div className="flex max-w-xl flex-col gap-3">{children}</div>
+    </section>
   );
 }
 
@@ -88,7 +88,8 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
     setError,
     watch,
     setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: toValues(mess) });
   const form = useFormError<Values>(setError, (f) => (FIELD_MAP[f] as string | undefined) ?? f);
 
@@ -130,6 +131,7 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
     };
     try {
       await update.mutateAsync(payload);
+      reset(v);
       setSaved(true);
     } catch (error) {
       form.handle(error);
@@ -139,10 +141,10 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
   const e = (k: keyof Values) => errors[k]?.message as string | undefined;
 
   return (
-    <form onSubmit={onSubmit} noValidate aria-label={t("title")} className="flex flex-col gap-6">
+    <form onSubmit={onSubmit} noValidate aria-label={t("title")} className="flex flex-col gap-4">
       <ErrorAlert message={form.message} />
       {saved ? <SuccessAlert message={t("saved")} /> : null}
-      <fieldset disabled={readOnly} className="flex min-w-0 flex-col gap-6">
+      <fieldset disabled={readOnly} className="min-w-0 divide-y divide-border rounded-2xl border border-border bg-surface p-4 md:p-6">
         <Section title={t("general.title")}>
           <TextInputField label={t("general.name")} error={e("name")} {...register("name")} />
           <div className="grid gap-3 sm:grid-cols-2">
@@ -276,8 +278,8 @@ export function SettingsForm({ mess, messId, readOnly }: { mess: Mess; messId: n
       {readOnly ? (
         <p className="text-sm text-muted">{t("readOnly")}</p>
       ) : (
-        <div>
-          <Button type="submit" variant="primary" className="w-full sm:w-auto" isPending={update.isPending}>
+        <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 -mx-4 flex justify-end border-t border-border bg-background px-4 py-3 md:bottom-0 md:-mx-6 md:px-6">
+          <Button type="submit" variant="primary" className="w-full sm:w-auto" isDisabled={!isDirty} isPending={update.isPending}>
             {t("save")}
           </Button>
         </div>

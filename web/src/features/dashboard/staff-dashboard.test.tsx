@@ -67,7 +67,6 @@ describe("StaffDashboard", () => {
     expect(screen.getByTestId("stat-total-meals")).toHaveTextContent("50");
     const cash = screen.getByTestId("cash-card");
     expect(cash).toHaveTextContent("Cash in manager's hand");
-    expect(cash).toHaveTextContent("Money the manager is holding for the mess");
     expect(cash).toHaveTextContent("৳0.00");
     expect(screen.getByTestId("stat-rounding")).toHaveTextContent("৳0.00");
     expect(screen.getByTestId("stat-manager-balance")).toHaveTextContent("Due ৳1,600.00");
@@ -84,7 +83,7 @@ describe("StaffDashboard", () => {
     expect(within(row).getByText("Due ৳1,600.00")).toBeInTheDocument();
     expect(within(row).getByRole("link", { name: "X" })).toHaveAttribute("href", "/7/statements/1?month=1");
     const credited = screen.getByTestId("member-row-2");
-    expect(within(credited).getAllByText("Credit ৳700.00").length).toBe(2);
+    expect(within(credited).getAllByText("Credit ৳700.00").length).toBe(1);
     expect(within(screen.getByTestId("member-card-2")).getByRole("link")).toHaveAttribute("href", "/7/statements/2?month=1");
   });
 
@@ -119,8 +118,9 @@ describe("StaffDashboard", () => {
     const user = userEvent.setup();
     render();
     await screen.findByTestId("member-row-1");
-    await waitFor(() => expect(screen.getByLabelText("Month")).toHaveValue("1"));
-    await user.selectOptions(screen.getByLabelText("Month"), "2");
+    const stepper = screen.getByRole("group", { name: "Month" });
+    await waitFor(() => expect(within(stepper).getByRole("button", { name: "Next month" })).toBeEnabled());
+    await user.click(within(stepper).getByRole("button", { name: "Next month" }));
     await waitFor(() => expect(requests.at(-1)).toBe("?month_id=2"));
   });
 

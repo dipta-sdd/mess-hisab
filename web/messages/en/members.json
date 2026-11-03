@@ -89,5 +89,6 @@
     "adminDone": "The admin role was transferred.",
     "adminConfirm": "Transfer the admin role to {name}? You will no longer be admin.",
     "adminConfirmGroup": "Confirm admin transfer"
-  }
+  },
+  "menu": "More actions for {name}"
 }

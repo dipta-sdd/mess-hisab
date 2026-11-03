@@ -28,12 +28,15 @@ export function PaymentForm({
   payment,
   onDone,
   onCancel,
+  bare = false,
 }: {
   messId: number;
   members: Member[];
   payment?: Payment;
   onDone: () => void;
   onCancel: () => void;
+  /** Drop the card chrome when the form already sits in a modal. */
+  bare?: boolean;
 }) {
   const t = useTranslations("payments");
   const tc = useTranslations("common");
@@ -120,7 +123,7 @@ export function PaymentForm({
     err(name) ? `pf-${name}-error` : hasHint ? `pf-${name}-hint` : undefined;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4" aria-labelledby="pf-title">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className={`flex flex-col gap-4 ${bare ? "" : "rounded-2xl border border-border bg-surface p-4"}`} aria-labelledby="pf-title">
       <h2 id="pf-title" className="text-lg font-semibold">
         {editing ? t("form.editTitle") : t("form.createTitle")}
       </h2>

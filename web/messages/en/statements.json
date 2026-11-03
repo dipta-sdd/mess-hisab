@@ -4,12 +4,18 @@
   "titleFor": "{name}'s statement",
   "loading": "Loading…",
   "inactive": "This member was not active in this month.",
-  "links": { "dashboard": "Dashboard", "history": "Month history" },
+  "links": {
+    "dashboard": "Dashboard",
+    "history": "Month history"
+  },
   "errors": {
     "loadFailed": "Could not load the statement. Please try again.",
     "notFound": "We could not find that member or month."
   },
-  "member": { "label": "Member", "archived": "archived" },
+  "member": {
+    "label": "Member",
+    "archived": "archived"
+  },
   "summary": {
     "title": "Summary",
     "total": "Total balance",
@@ -19,8 +25,18 @@
     "depositRequired": "Deposit required",
     "depositOutstanding": "Deposit to pay"
   },
-  "lines": { "title": "Details", "empty": "Nothing recorded this month yet." },
-  "groups": { "fixed": "Fixed", "meals": "Meals", "other": "Other" },
+  "lines": {
+    "title": "Details",
+    "empty": "Nothing recorded this month yet.",
+    "amount": "Amount",
+    "balance": "Balance",
+    "closing": "Closing balance"
+  },
+  "groups": {
+    "fixed": "Fixed",
+    "meals": "Meals",
+    "other": "Other"
+  },
   "kinds": {
     "carry_in": "Last month due",
     "fixed_bill": "Fixed bill",
@@ -56,8 +72,19 @@
   "charts": {
     "showTable": "Show as table",
     "hideTable": "Hide table",
-    "mealRate": { "title": "Meal rate by month", "subtitle": "What one meal cost each month", "month": "Month", "rate": "Meal rate", "noMeals": "No meals" },
-    "expenses": { "title": "Expenses by month", "subtitle": "Total approved spending each month", "month": "Month", "amount": "Expenses" },
+    "mealRate": {
+      "title": "Meal rate by month",
+      "subtitle": "What one meal cost each month",
+      "month": "Month",
+      "rate": "Meal rate",
+      "noMeals": "No meals"
+    },
+    "expenses": {
+      "title": "Expenses by month",
+      "subtitle": "Total approved spending each month",
+      "month": "Month",
+      "amount": "Expenses"
+    },
     "trendNote": "The trend will show up after a few more months.",
     "balanceByMonth": {
       "title": "Balance by month",
@@ -67,5 +94,16 @@
       "month": "Month",
       "balance": "Balance"
     }
+  },
+  "stepper": {
+    "prev": "Previous month",
+    "next": "Next month",
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "tabs": {
+    "label": "Statement or report",
+    "statement": "Statement",
+    "report": "Report"
   }
 }

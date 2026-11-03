@@ -73,9 +73,13 @@ describe("MonthsPage: list", () => {
     mockApi();
     renderPage();
     const nav = await screen.findByRole("navigation", { name: "Months" });
-    expect(within(nav).getByRole("button", { name: /November 2026/ })).toHaveAttribute("aria-current", "true");
-    expect(within(nav).getByRole("button", { name: /October 2026/ })).toHaveTextContent("Closed");
-    expect(screen.getByRole("heading", { name: "November 2026", level: 2 })).toBeInTheDocument();
+    expect(within(nav).getByText("November 2026")).toBeInTheDocument();
+    expect(within(nav).getByText("Open")).toBeInTheDocument();
+    expect(within(nav).getByRole("button", { name: "Next month" })).toBeDisabled();
+    await userEvent.setup().click(within(nav).getByRole("button", { name: "Previous month" }));
+    expect(within(nav).getByText("October 2026")).toBeInTheDocument();
+    expect(within(nav).getByText("Closed")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "October 2026", level: 2 })).toBeInTheDocument();
   });
 });
 
@@ -217,7 +221,7 @@ describe("MonthsPage: reopen flow", () => {
     server.use(http.get(`${BASE}/months/10/reopen-preview`, () => HttpResponse.json({ data })));
     const user = userEvent.setup();
     renderPage();
-    await user.click(await screen.findByRole("button", { name: /October 2026/ }));
+    await user.click(await screen.findByRole("button", { name: "Previous month" }));
     await user.click(await screen.findByRole("button", { name: "Review what reopening does" }));
     return user;
   }
@@ -265,7 +269,8 @@ describe("MonthsPage: reopen flow", () => {
     mockApi({ months: [nov, oct, sep] });
     const user = userEvent.setup();
     renderPage();
-    await user.click(await screen.findByRole("button", { name: /September 2026/ }));
+    await user.click(await screen.findByRole("button", { name: "Previous month" }));
+    await user.click(await screen.findByRole("button", { name: "Previous month" }));
     expect(await screen.findByText(/Only the latest closed month can be reopened/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Review what reopening does" })).toBeNull();
   });
@@ -502,7 +507,7 @@ describe("MonthsPage: non-manager and locale", () => {
     mockApi({ manager: false });
     const user = userEvent.setup();
     renderPage();
-    await user.click(await screen.findByRole("button", { name: /October 2026/ }));
+    await user.click(await screen.findByRole("button", { name: "Previous month" }));
     expect(screen.queryByRole("button", { name: "Review what reopening does" })).toBeNull();
   });
 

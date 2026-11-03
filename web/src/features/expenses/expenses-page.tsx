@@ -1,12 +1,13 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, Modal } from "@heroui/react";
+import { RowMenu } from "@/components/ui/row-menu";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
 import type { Expense, ExpenseStatus, Group, Member, Mess, Month } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
-import { formatMoney } from "@/lib/format";
+import { formatDate, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useCategories, useCurrentMonth, useDeleteExpense, useExpenses, useMembers, useMessInfo, useMonths, usePendingExpenses, type CreateResult } from "./api";
 import { ApprovalQueue } from "./approval-queue";
@@ -18,6 +19,17 @@ import { errorKey, expenseAbilities } from "./rules";
 import { fieldClassInvalid } from "@/components/ui/field";
 
 const STATUSES: ExpenseStatus[] = ["pending", "approved", "rejected"];
+
+/** Expenses grouped by day, keeping the order the API returned them in. */
+function byDay(expenses: Expense[]): Array<{ day: string; items: Expense[] }> {
+  const days: Array<{ day: string; items: Expense[] }> = [];
+  for (const e of expenses) {
+    const last = days[days.length - 1];
+    if (last && last.day === e.spent_on) last.items.push(e);
+    else days.push({ day: e.spent_on, items: [e] });
+  }
+  return days;
+}
 
 /** `scope="own"` is the member page: just what the signed-in member recorded or paid, with member powers. `scope="all"` is the admin page. */
 export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
@@ -39,8 +51,10 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const [editing, setEditing] = useState<Expense | null>(null);
   const [saved, setSaved] = useState<(CreateResult & { edited: boolean }) | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
 
-  const months = monthsQ.data ?? [];
+  // Newest first, so "older" is the next index.
+  const months = [...(monthsQ.data ?? [])].sort((a, b) => b.starts_on.localeCompare(a.starts_on));
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const month = months.find((m) => m.id === monthId) ?? (currentQ.data?.id === monthId ? currentQ.data : undefined);
   const expensesQ = useExpenses(messId, { monthId, status, memberId: all ? memberFilter : (messQ.data?.me.id ?? null), categoryId: categoryFilter });
@@ -74,86 +88,139 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
 
   const loading = messQ.isPending || (all && membersQ.isPending) || monthsQ.isPending || currentQ.isPending || categoriesQ.isPending || (monthId !== null && expensesQ.isPending);
   const loadFailed = messQ.isError || monthsQ.isError || categoriesQ.isError || expensesQ.isError || (currentQ.isError && months.length === 0 && !monthsQ.isPending);
+  const monthIndex = months.findIndex((m) => m.id === monthId);
+  const olderMonth = monthIndex >= 0 ? months[monthIndex + 1] : undefined;
+  const newerMonth = monthIndex > 0 ? months[monthIndex - 1] : undefined;
+  const formOpen = adding || editing !== null;
+  const closeForm = () => {
+    setAdding(false);
+    setEditing(null);
+  };
   const activeCategories = categories.filter((c) => !c.archived_at || c.id === categoryFilter);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
+        {me && mess ? (
+          <Button
+            variant="primary"
+            className="min-h-11"
+            onPress={() => {
+              setSaved(null);
+              setNotice(null);
+              setAdding(true);
+            }}
+          >
+            {t("actions.add")}
+          </Button>
+        ) : null}
+      </div>
 
       {saved ? <SavedPanel saved={saved} categoryName={categoryName} money={money} onDismiss={() => setSaved(null)} /> : null}
 
       {me && mess ? (
-        editing ? (
-          <ExpenseForm
-            key={`edit-${editing.id}`}
-            messId={messId}
-            me={me}
-            members={members}
-            categories={categories}
-            expense={editing}
-            onCancel={() => setEditing(null)}
-            onSaved={(result) => {
-              setEditing(null);
-              setSaved({ ...result, edited: true });
-            }}
-          />
-        ) : (
-          <ExpenseForm key="new" messId={messId} me={me} members={members} categories={categories} onSaved={(result) => setSaved({ ...result, edited: false })} />
-        )
+        <Modal isOpen={formOpen} onOpenChange={(open) => (open ? undefined : closeForm())}>
+          <Modal.Backdrop>
+            <Modal.Container placement="center" size="md">
+              <Modal.Dialog aria-label={editing ? t("form.editTitle") : t("form.createTitle")} className="max-h-[92dvh] overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                {editing ? (
+                  <ExpenseForm
+                    key={`edit-${editing.id}`}
+                    bare
+                    messId={messId}
+                    me={me}
+                    members={members}
+                    categories={categories}
+                    expense={editing}
+                    onCancel={closeForm}
+                    onSaved={(result) => {
+                      closeForm();
+                      setSaved({ ...result, edited: true });
+                    }}
+                  />
+                ) : (
+                  <ExpenseForm
+                    key="new"
+                    bare
+                    messId={messId}
+                    me={me}
+                    members={members}
+                    categories={categories}
+                    onCancel={closeForm}
+                    onSaved={(result) => {
+                      closeForm();
+                      setSaved({ ...result, edited: false });
+                    }}
+                  />
+                )}
+              </Modal.Dialog>
+            </Modal.Container>
+          </Modal.Backdrop>
+        </Modal>
       ) : null}
 
       {showQueue ? (
         <ApprovalQueue messId={messId} expenses={pending} categoryName={categoryName} memberName={nameOf} payerLabel={payerLabel} locale={locale} money={money} />
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Select id="month-picker" label={t("filters.month")} value={monthId ?? ""} disabled={months.length === 0} onChange={(v) => setPickedMonth(Number(v))}>
-          {months.map((m: Month) => (
-            <option key={m.id} value={m.id}>
-              {formatMonthLabel(m.starts_on, locale)} ({m.status === "open" ? t("month.open") : t("month.closed")})
-            </option>
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <div className="flex items-center gap-1" data-testid="month-stepper">
+          <Button isIconOnly variant="ghost" aria-label={t("month.prev")} isDisabled={!olderMonth} onPress={() => olderMonth && setPickedMonth(olderMonth.id)} className="size-11">
+            <span aria-hidden="true">‹</span>
+          </Button>
+          <div className="min-w-36 text-center">
+            <p className="font-semibold">{month ? formatMonthLabel(month.starts_on, locale) : "…"}</p>
+            {month ? <p className="text-sm text-muted">{month.status === "open" ? t("month.open") : t("month.closed")}</p> : null}
+          </div>
+          <Button isIconOnly variant="ghost" aria-label={t("month.next")} isDisabled={!newerMonth} onPress={() => newerMonth && setPickedMonth(newerMonth.id)} className="size-11">
+            <span aria-hidden="true">›</span>
+          </Button>
+        </div>
+
+        <section aria-labelledby="totals-title" className="flex gap-6">
+          <h2 id="totals-title" className="sr-only">
+            {t("totals.title")}
+          </h2>
+          {(["fixed", "meals"] as const).map((g) => (
+            <div key={g} data-testid={`total-${g}`}>
+              <p className="text-sm text-muted">{t(`groups.${g}`)}</p>
+              <p className="text-lg font-semibold tabular-nums">{money(totals[g])}</p>
+            </div>
           ))}
-        </Select>
-        <Select id="status-filter" label={t("filters.status")} value={status ?? ""} onChange={(v) => setStatus(v === "" ? null : (v as ExpenseStatus))}>
-          <option value="">{t("filters.allStatuses")}</option>
-          {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {t(`status.${s}`)}
-            </option>
+        </section>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <div role="group" aria-label={t("filters.status")} className="flex flex-wrap gap-2">
+          {[null, ...STATUSES].map((s) => (
+            <Button key={s ?? "all"} size="sm" variant={status === s ? "primary" : "secondary"} aria-pressed={status === s} className="min-h-9" onPress={() => setStatus(s)}>
+              {s === null ? t("filters.all") : t(`status.${s}`)}
+            </Button>
           ))}
-        </Select>
-        {isStaff ? (
-          <Select id="member-filter" label={t("filters.member")} value={memberFilter ?? ""} onChange={(v) => setMemberFilter(v === "" ? null : Number(v))}>
-            <option value="">{t("filters.allMembers")}</option>
-            {members.map((m: Member) => (
-              <option key={m.id} value={m.id}>
-                {m.display_name}
+        </div>
+        <div className="flex flex-wrap gap-2 sm:ml-auto">
+          {isStaff ? (
+            <Select id="member-filter" label={t("filters.member")} value={memberFilter ?? ""} onChange={(v) => setMemberFilter(v === "" ? null : Number(v))}>
+              <option value="">{t("filters.allMembers")}</option>
+              {members.map((m: Member) => (
+                <option key={m.id} value={m.id}>
+                  {m.display_name}
+                </option>
+              ))}
+            </Select>
+          ) : null}
+          <Select id="category-filter" label={t("filters.category")} value={categoryFilter ?? ""} onChange={(v) => setCategoryFilter(v === "" ? null : Number(v))}>
+            <option value="">{t("filters.allCategories")}</option>
+            {activeCategories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
               </option>
             ))}
           </Select>
-        ) : null}
-        <Select id="category-filter" label={t("filters.category")} value={categoryFilter ?? ""} onChange={(v) => setCategoryFilter(v === "" ? null : Number(v))}>
-          <option value="">{t("filters.allCategories")}</option>
-          {activeCategories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </Select>
+        </div>
       </div>
-
-      <section aria-labelledby="totals-title" className="grid grid-cols-2 gap-3">
-        <h2 id="totals-title" className="sr-only">
-          {t("totals.title")}
-        </h2>
-        {(["fixed", "meals"] as const).map((g) => (
-          <div key={g} className="rounded-xl border border-border bg-surface p-3" data-testid={`total-${g}`}>
-            <p className="text-sm text-muted">{t(`groups.${g}`)}</p>
-            <p className="text-lg font-semibold">{money(totals[g])}</p>
-          </div>
-        ))}
-        <p className="col-span-2 text-sm text-muted">{t("totals.hint")}</p>
-      </section>
+      <p className="-mt-2 text-sm text-muted">{t("totals.hint")}</p>
 
       {notice ? (
         <div role="alert" className="rounded-lg border border-danger bg-danger/10 p-3 text-sm text-danger">
@@ -161,8 +228,8 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
         </div>
       ) : null}
 
-      <section aria-labelledby="list-title" className="flex flex-col gap-2">
-        <h2 id="list-title" className="text-lg font-semibold">
+      <section aria-labelledby="list-title" className="flex flex-col gap-4">
+        <h2 id="list-title" className="sr-only">
           {t("list.title")}
           {month ? ` — ${formatMonthLabel(month.starts_on, locale)}` : ""}
         </h2>
@@ -179,52 +246,56 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
         ) : expenses.length === 0 ? (
           <p className="text-muted">{t("list.empty")}</p>
         ) : (
-          <ul className="flex flex-col gap-2">
-            {expenses.map((e) => (
-              <ListItem
-                key={e.id}
-                expense={e}
-                categoryName={categoryName(e.category_id)}
-                payerLabel={payerLabel(e)}
-                locale={locale}
-                money={money}
-                abilities={mess && me ? expenseAbilities(e, months.find((m) => m.id === e.month_id) ?? (currentQ.data?.id === e.month_id ? currentQ.data : undefined), mess as Mess, me) : { canEdit: false, canDelete: false }}
-                onEdit={() => {
-                  setNotice(null);
-                  setSaved(null);
-                  setEditing(e);
-                }}
-                onError={setNotice}
-              />
-            ))}
-          </ul>
+          byDay(expenses).map(({ day, items }) => (
+            <div key={day} className="flex flex-col gap-2">
+              <h3 className="text-sm font-semibold text-muted">{formatDate(day, locale)}</h3>
+              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+                {items.map((e) => (
+                  <ListItem
+                    key={e.id}
+                    expense={e}
+                    categoryName={categoryName(e.category_id)}
+                    payerLabel={payerLabel(e)}
+                    locale={locale}
+                    money={money}
+                    abilities={mess && me ? expenseAbilities(e, months.find((m) => m.id === e.month_id) ?? (currentQ.data?.id === e.month_id ? currentQ.data : undefined), mess as Mess, me) : { canEdit: false, canDelete: false }}
+                    onEdit={() => {
+                      setNotice(null);
+                      setSaved(null);
+                      setEditing(e);
+                    }}
+                    onError={setNotice}
+                  />
+                ))}
+              </ul>
+            </div>
+          ))
         )}
       </section>
     </div>
   );
 }
 
+/** A compact dropdown; the label is for screen readers only so filters fit on one line. */
 function Select({
   id,
   label,
   value,
-  disabled,
   onChange,
   children,
 }: {
   id: string;
   label: string;
   value: string | number;
-  disabled?: boolean;
   onChange: (value: string) => void;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium">
+    <div>
+      <label htmlFor={id} className="sr-only">
         {label}
       </label>
-      <select id={id} className={fieldClassInvalid} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
+      <select id={id} className={`${fieldClassInvalid} min-h-9 w-auto py-1 text-sm`} value={value} onChange={(e) => onChange(e.target.value)}>
         {children}
       </select>
     </div>
@@ -268,34 +339,28 @@ function ListItem({
   }
 
   const label = `${categoryName} ${money(expense.amount_paisa)}`;
+  const hasActions = abilities.canEdit || abilities.canDelete;
+  const menu = hasActions ? (
+    <RowMenu
+      label={`${t("actions.menu")}: ${label}`}
+      actions={[
+        ...(abilities.canEdit ? [{ id: "edit", label: t("actions.edit"), ariaLabel: `${t("actions.edit")}: ${label}`, onAction: onEdit }] : []),
+        ...(abilities.canDelete ? [{ id: "delete", label: t("actions.delete"), ariaLabel: `${t("actions.delete")}: ${label}`, danger: true, onAction: () => setConfirming(true) }] : []),
+      ]}
+    />
+  ) : null;
+
   return (
-    <ExpenseRow expense={expense} categoryName={categoryName} payerLabel={payerLabel} locale={locale} money={money}>
-      {abilities.canEdit || abilities.canDelete ? (
+    <ExpenseRow expense={expense} categoryName={categoryName} payerLabel={payerLabel} locale={locale} money={money} menu={menu}>
+      {confirming ? (
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {confirming ? (
-            <>
-              <span className="text-sm">{t("actions.confirmDelete")}</span>
-              <Button size="sm" variant="danger" onPress={remove} isDisabled={del.isPending}>
-                {t("actions.confirmYes")}
-              </Button>
-              <Button size="sm" variant="ghost" onPress={() => setConfirming(false)}>
-                {t("actions.cancel")}
-              </Button>
-            </>
-          ) : (
-            <>
-              {abilities.canEdit ? (
-                <Button size="sm" variant="secondary" onPress={onEdit} aria-label={`${t("actions.edit")}: ${label}`}>
-                  {t("actions.edit")}
-                </Button>
-              ) : null}
-              {abilities.canDelete ? (
-                <Button size="sm" variant="danger-soft" onPress={() => setConfirming(true)} aria-label={`${t("actions.delete")}: ${label}`}>
-                  {t("actions.delete")}
-                </Button>
-              ) : null}
-            </>
-          )}
+          <span className="text-sm">{t("actions.confirmDelete")}</span>
+          <Button size="sm" variant="danger" onPress={remove} isDisabled={del.isPending}>
+            {t("actions.confirmYes")}
+          </Button>
+          <Button size="sm" variant="ghost" onPress={() => setConfirming(false)}>
+            {t("actions.cancel")}
+          </Button>
         </div>
       ) : null}
     </ExpenseRow>

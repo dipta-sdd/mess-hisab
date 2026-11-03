@@ -8,7 +8,9 @@
   "month": {
     "label": "Month",
     "open": "Open",
-    "closed": "Closed"
+    "closed": "Closed",
+    "prev": "Older month",
+    "next": "Newer month"
   },
   "filter": {
     "label": "Filter by member",
@@ -44,7 +46,8 @@
     "cancel": "Cancel",
     "save": "Save changes",
     "saving": "Saving…",
-    "create": "Save payment"
+    "create": "Save payment",
+    "menu": "More actions"
   },
   "form": {
     "createTitle": "Record a payment",

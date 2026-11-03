@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Accordion, Button } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
 import type { AppLocale } from "@/i18n/config";
 import { formatNumber } from "@/lib/format";
@@ -89,21 +89,26 @@ export function BillCard({
   }
 
   return (
-    <li className="rounded-2xl border border-border bg-surface p-4" aria-label={name}>
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h3 className="min-w-0 break-words text-lg font-semibold">{name}</h3>
-          <p className="text-sm text-muted">
-            {t(`groups.${bill.group}`)} · {t(`split.${bill.split_type}`)}
-          </p>
-        </div>
-        {!isFixedGroup || !canEdit ? (
-          <p className="text-lg font-semibold tabular-nums" data-testid={`amount-${bill.category_id}`}>{money(bill.amount_paisa)}</p>
-        ) : null}
-      </div>
-
+    <Accordion.Item id={String(bill.category_id)} aria-label={name} data-testid={`bill-${bill.category_id}`}>
+      <Accordion.Heading>
+        <Accordion.Trigger className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-start">
+          <span className="min-w-0">
+            <span className="block break-words font-medium">{name}</span>
+            <span className="block text-sm text-muted">
+              {t(`groups.${bill.group}`)} · {t(`split.${bill.split_type}`)}
+              {unallocated !== 0 ? <span className="font-medium text-warning"> · {unallocated > 0 ? t("unallocated.positive", { amount: money(unallocated) }) : t("unallocated.negative", { amount: money(-unallocated) })}</span> : null}
+            </span>
+          </span>
+          <span className="flex shrink-0 items-center gap-2">
+            <span className="text-lg font-semibold tabular-nums" data-testid={`amount-${bill.category_id}`}>{money(bill.amount_paisa)}</span>
+            <Accordion.Indicator />
+          </span>
+        </Accordion.Trigger>
+      </Accordion.Heading>
+      <Accordion.Panel>
+        <Accordion.Body className="px-4 pb-4">
       {isFixedGroup && canEdit ? (
-        <div className="mt-3 flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <label htmlFor={`${idBase}-amount`} className="text-sm font-medium">{t("bill.amount")}</label>
           <input
             id={`${idBase}-amount`}
@@ -186,6 +191,8 @@ export function BillCard({
           </Button>
         </div>
       ) : null}
-    </li>
+        </Accordion.Body>
+      </Accordion.Panel>
+    </Accordion.Item>
   );
 }

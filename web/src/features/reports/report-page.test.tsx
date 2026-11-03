@@ -1,4 +1,5 @@
 import { screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Mess, Month } from "@/lib/api/contract";
@@ -64,7 +65,7 @@ function mock(monthly: () => Response | Promise<Response> = () => HttpResponse.j
   );
 }
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe("ReportsPage", () => {
   it("renders every section from the report", async () => {
@@ -115,8 +116,11 @@ describe("ReportsPage", () => {
     server.use(http.get(`${BASE}/reports/monthly/:month`, ({ params }) => { asked.push(String(params.month)); return HttpResponse.json({ data: report }); }));
     renderWithProviders(<ReportsPage />, { messId: 7 });
     await screen.findByTestId("section-summary");
-    const select = screen.getByLabelText("Month");
-    expect(within(select).getAllByRole("option").map((o) => o.textContent)).toEqual(["October 2026"]);
+    const stepper = screen.getByTestId("month-stepper");
+    expect(within(stepper).getByText("October 2026")).toBeInTheDocument();
+    expect(within(stepper).getByRole("button", { name: "Previous month" })).toBeDisabled();
+    expect(within(stepper).getByRole("button", { name: "Next month" })).toBeDisabled();
+    expect(screen.queryByText("November 2026", { selector: "[data-testid=month-stepper] *" })).toBeNull();
     expect(asked).toEqual(["1"]);
   });
 
@@ -152,9 +156,11 @@ describe("ReportsPage", () => {
     mock();
     renderWithProviders(<ReportsPage />, { messId: 7 });
     await screen.findByTestId("section-summary");
-    const link = await screen.findByRole("link", { name: "Download PDF" });
-    expect(link.getAttribute("href")).toMatch(/\/api\/messes\/7\/reports\/monthly\/\d+\/pdf$/);
-    expect(link).toHaveAttribute("download");
+    const assign = vi.fn();
+    vi.stubGlobal("location", { ...window.location, assign });
+    await userEvent.setup().click(await screen.findByRole("button", { name: "Download PDF" }));
+    expect(assign).toHaveBeenCalledTimes(1);
+    expect(String(assign.mock.calls[0][0])).toMatch(/\/api\/messes\/7\/reports\/monthly\/\d+\/pdf$/);
   });
 
   it("does not use landmarks that the print CSS hides", async () => {
@@ -171,7 +177,7 @@ describe("ReportsPage", () => {
     await screen.findByTestId("section-summary");
     expect(screen.getByTestId("section-next")).toHaveTextContent("নভেম্বর");
     expect(screen.getByTestId("tile-expenses")).toHaveTextContent("৫,০০০.০০");
-    expect(screen.getByRole("link", { name: "পিডিএফ ডাউনলোড" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "পিডিএফ ডাউনলোড" })).toBeInTheDocument();
     expectBanglaOnly(["Green House"]);
   });
 });

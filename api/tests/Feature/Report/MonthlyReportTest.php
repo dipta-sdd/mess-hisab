@@ -80,9 +80,9 @@ it('refuses when next month has no saved Fixed bill', function () {
         ->assertJsonPath('next_month_id', $next->id);
 });
 
-it('forbids a plain member and hides other messes', function () {
+it('lets a plain member in and hides other messes', function () {
     [$mess, , $month] = kScenario('member');
-    $this->getJson(rUrl($mess, $month))->assertForbidden();
+    $this->getJson(rUrl($mess, $month))->assertStatus(409); // allowed in, month still open
 
     $other = otherMess();
     $this->getJson("/api/messes/{$other->id}/reports/monthly/{$month->id}")->assertNotFound();
@@ -134,12 +134,12 @@ it('downloads the report as a one-page PDF', function () {
     expect(preg_match_all('#/Type\s*/Page[^s]#', $res->getContent()))->toBe(1);
 });
 
-it('gives the PDF the same 409s and role checks as the report', function () {
+it('gives the PDF the same 409s as the report, for members too', function () {
     [$mess, , $month] = kScenario('admin_manager');
     $this->getJson(rUrl($mess, $month).'/pdf')->assertStatus(409)->assertJsonPath('code', 'month_not_closed');
 
     [$mess2, , $month2] = kScenario('member');
-    $this->getJson(rUrl($mess2, $month2).'/pdf')->assertForbidden();
+    $this->getJson(rUrl($mess2, $month2).'/pdf')->assertStatus(409);
 });
 
 it('formats PDF money in English taka', function () {

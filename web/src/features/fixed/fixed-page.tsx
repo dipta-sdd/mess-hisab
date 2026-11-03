@@ -1,5 +1,6 @@
 "use client";
 
+import { Accordion, Button, Modal } from "@heroui/react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -9,7 +10,7 @@ import { useMess } from "@/lib/mess/mess-context";
 import { useCategories, useCurrentMonth, useMembers, useMessInfo, useMonths, useSetup } from "./api";
 import { BillCard } from "./bill-card";
 import { MemberSettingRow, MonthSetupForm } from "./month-forms";
-import { fieldClassInvalid } from "@/components/ui/field";
+import { formatDate } from "@/lib/format";
 import { formatMonthLabel } from "@/lib/format/date";
 
 export function FixedPage() {
@@ -26,9 +27,14 @@ export function FixedPage() {
   // The report's "set next month's bills" link opens a given month with `?month=<id>`.
   const linkedMonth = Number(useSearchParams()?.get("month")) || null;
   const [pickedMonth, setPickedMonth] = useState<number | null>(linkedMonth);
+  const [editingMonth, setEditingMonth] = useState(false);
   const months = monthsQ.data ?? [];
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const setupQ = useSetup(messId, monthId);
+  // Months come newest first, so the "older" neighbour is the next index.
+  const at = months.findIndex((m) => m.id === monthId);
+  const olderMonth = at >= 0 ? months[at + 1] : undefined;
+  const newerMonth = at > 0 ? months[at - 1] : undefined;
 
   const mess = messQ.data?.mess;
   const isManager = Boolean(messQ.data?.me.is_manager);
@@ -50,24 +56,20 @@ export function FixedPage() {
   const loadFailed = messQ.isError || membersQ.isError || monthsQ.isError || categoriesQ.isError || setupQ.isError || (currentQ.isError && months.length === 0 && !monthsQ.isPending);
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+    <div className="flex w-full flex-col gap-6">
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
 
-      <div className="flex max-w-sm flex-col gap-1">
-        <label htmlFor="fixed-month" className="text-sm font-medium">{t("monthPicker.label")}</label>
-        <select
-          id="fixed-month"
-          className={fieldClassInvalid}
-          value={monthId ?? ""}
-          disabled={months.length === 0}
-          onChange={(e) => setPickedMonth(Number(e.target.value))}
-        >
-          {months.map((m) => (
-            <option key={m.id} value={m.id}>
-              {formatMonthLabel(m.starts_on, locale)} ({m.status === "open" ? t("monthPicker.open") : t("monthPicker.closed")})
-            </option>
-          ))}
-        </select>
+      <div className="flex items-center gap-1" data-testid="month-stepper">
+        <Button isIconOnly variant="ghost" aria-label={t("monthPicker.prev")} isDisabled={!olderMonth} onPress={() => olderMonth && setPickedMonth(olderMonth.id)} className="size-11">
+          <span aria-hidden="true">‹</span>
+        </Button>
+        <div className="min-w-36 text-center">
+          <p className="font-semibold">{month ? formatMonthLabel(month.starts_on, locale) : "…"}</p>
+          {month ? <p className="text-sm text-muted">{month.status === "open" ? t("monthPicker.open") : t("monthPicker.closed")}</p> : null}
+        </div>
+        <Button isIconOnly variant="ghost" aria-label={t("monthPicker.next")} isDisabled={!newerMonth} onPress={() => newerMonth && setPickedMonth(newerMonth.id)} className="size-11">
+          <span aria-hidden="true">›</span>
+        </Button>
       </div>
 
       {loadFailed ? (
@@ -84,15 +86,36 @@ export function FixedPage() {
             <p role="status" className="rounded-lg border border-border bg-surface p-3 text-sm" data-testid="readonly-note">{t("readOnlyNote")}</p>
           ) : null}
 
-          <section aria-labelledby="fx-month-title" className="rounded-2xl border border-border bg-surface p-4">
-            <h2 id="fx-month-title" className="mb-3 text-lg font-semibold">{t("month.title")}</h2>
-            <MonthSetupForm
-              key={`${month.id}:${month.fixed_deadline}:${month.deposit_deadline}:${month.deposit_paisa}`}
-              messId={messId}
-              month={month}
-              canEdit={canEdit}
-              money={money}
-            />
+          <section aria-labelledby="fx-month-title" className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-4">
+            <div className="min-w-0">
+              <h2 id="fx-month-title" className="text-lg font-semibold">{t("month.title")}</h2>
+              <dl className="mt-1 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-3" data-testid="month-setup-readonly">
+                <div><dt className="text-muted">{t("month.deposit")}</dt><dd className="font-medium">{money(month.deposit_paisa)}</dd></div>
+                <div><dt className="text-muted">{t("month.fixedDeadline")}</dt><dd className="font-medium">{month.fixed_deadline ? formatDate(month.fixed_deadline, locale) : t("month.none")}</dd></div>
+                <div><dt className="text-muted">{t("month.depositDeadline")}</dt><dd className="font-medium">{month.deposit_deadline ? formatDate(month.deposit_deadline, locale) : t("month.none")}</dd></div>
+              </dl>
+            </div>
+            {canEdit ? (
+              <>
+                <Button variant="secondary" className="min-h-11" onPress={() => setEditingMonth(true)}>{t("actions.editMonth")}</Button>
+                <Modal isOpen={editingMonth} onOpenChange={setEditingMonth}>
+                  <Modal.Backdrop>
+                    <Modal.Container placement="center" size="md">
+                      <Modal.Dialog aria-label={t("month.title")} className="max-h-[92dvh] overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                        <MonthSetupForm
+                          key={`${month.id}:${month.fixed_deadline}:${month.deposit_deadline}:${month.deposit_paisa}`}
+                          messId={messId}
+                          month={month}
+                          canEdit
+                          money={money}
+                          onSaved={() => setEditingMonth(false)}
+                        />
+                      </Modal.Dialog>
+                    </Modal.Container>
+                  </Modal.Backdrop>
+                </Modal>
+              </>
+            ) : null}
           </section>
 
           <section aria-labelledby="fx-bills-title" className="flex flex-col gap-3">
@@ -100,7 +123,7 @@ export function FixedPage() {
             {bills.length === 0 ? (
               <p className="text-muted">{t("bills.empty")}</p>
             ) : (
-              <ul className="flex flex-col gap-3">
+              <Accordion allowsMultipleExpanded className="overflow-hidden rounded-2xl border border-border bg-surface">
                 {bills.map((bill) => (
                   <BillCard
                     key={`${bill.category_id}:${bill.amount_paisa}:${JSON.stringify(bill.overrides)}`}
@@ -113,15 +136,17 @@ export function FixedPage() {
                     money={money}
                   />
                 ))}
-              </ul>
+              </Accordion>
             )}
             {hasByMeal ? <p className="text-sm text-muted">{t("bills.byMealNote")}</p> : null}
           </section>
 
-          <section aria-labelledby="fx-members-title" className="rounded-2xl border border-border bg-surface p-4">
-            <h2 id="fx-members-title" className="text-lg font-semibold">{t("members.title")}</h2>
-            <p className="mb-2 text-sm text-muted">{t("members.hint")}</p>
-            <ul className="divide-y divide-border">
+          <section aria-labelledby="fx-members-title" className="flex flex-col gap-2">
+            <div>
+              <h2 id="fx-members-title" className="text-lg font-semibold">{t("members.title")}</h2>
+              <p className="text-sm text-muted">{t("members.hint")}</p>
+            </div>
+            <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface">
               {members.map((m) => (
                 <MemberSettingRow
                   key={`${m.id}:${JSON.stringify(setup?.member_settings.find((s) => s.member_id === m.id) ?? null)}`}

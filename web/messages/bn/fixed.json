@@ -8,7 +8,9 @@
   "monthPicker": {
     "label": "মাস",
     "open": "চালু",
-    "closed": "বন্ধ"
+    "closed": "বন্ধ",
+    "prev": "আগের মাস",
+    "next": "পরের মাস"
   },
   "groups": {
     "fixed": "ফিক্সড বিল",
@@ -63,7 +65,10 @@
     "saveMember": "সেভ",
     "saving": "সেভ হচ্ছে…",
     "spread": "ভাগ করে দিন",
-    "accept": "মেনে নিন"
+    "accept": "মেনে নিন",
+    "editMember": "সম্পাদনা",
+    "cancel": "বাতিল",
+    "editMonth": "সম্পাদনা"
   },
   "errors": {
     "amount_required": "আগে বিলের পরিমাণ লিখুন।",

@@ -1,5 +1,6 @@
 "use client";
 
+import { MonthStepper } from "@/components/ui/month-stepper";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { ExportButton, StatementExport } from "@/features/export";
@@ -56,8 +57,8 @@ export function MonthsPage() {
   const failed = messQ.isError || monthsQ.isError;
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+    <div className="flex w-full flex-col gap-6">
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
 
       {notice ? <Notice>{notice}</Notice> : null}
 
@@ -70,33 +71,17 @@ export function MonthsPage() {
       ) : (
         <>
           <nav aria-label={t("list.label")}>
-            <ul className="flex flex-col gap-2 sm:grid sm:grid-cols-2">
-              {months.map((m) => {
-                const current = m.id === selected?.id;
-                return (
-                  <li key={m.id}>
-                    <button
-                      type="button"
-                      aria-current={current ? "true" : undefined}
-                      onClick={() => { setPicked(m.id); setNotice(null); }}
-                      className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border p-3 text-start focus:outline-2 focus:outline-offset-2 focus:outline-accent ${
-                        current ? "border-accent bg-accent/10" : "border-border bg-surface"
-                      }`}
-                    >
-                      <span className="font-medium">{formatMonthLabel(m.starts_on, locale)}</span>
-                      <span className="rounded-full bg-default px-3 py-1 text-xs font-medium">
-                        {m.status === "open" ? t("status.open") : t("status.closed")}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+            <MonthStepper
+              months={months}
+              selectedId={selected?.id ?? null}
+              onChange={(id) => { setPicked(id); setNotice(null); }}
+              labels={{ prev: t("stepper.prev"), next: t("stepper.next"), open: t("status.open"), closed: t("status.closed") }}
+            />
           </nav>
 
           {selected ? (
-            <section aria-labelledby="month-title" className="flex flex-col gap-4" key={selected.id}>
-              <div className="rounded-2xl border border-border bg-surface p-4">
+            <section aria-labelledby="month-title" className="flex flex-col gap-6" key={selected.id}>
+              <div className="rounded-2xl border border-border bg-surface p-4 md:p-6">
                 <h2 id="month-title" className="text-xl font-semibold">{formatMonthLabel(selected.starts_on, locale)}</h2>
                 <p className="text-sm text-muted">
                   {formatDate(selected.starts_on, locale)} – {formatDate(selected.ends_on, locale)} · {selected.status === "open" ? t("status.open") : t("status.closed")}
@@ -131,7 +116,7 @@ export function MonthsPage() {
                     onReopened={() => { setNotice(t("reopen.done", { month: formatMonthLabel(selected.starts_on, locale) })); }}
                   />
                 ) : (
-                  <p className="rounded-xl border border-border p-3 text-sm text-muted">{t("reopen.onlyLatest")}</p>
+                  <p className="rounded-2xl border border-border bg-surface p-4 text-sm text-muted">{t("reopen.onlyLatest")}</p>
                 )
               ) : null}
 

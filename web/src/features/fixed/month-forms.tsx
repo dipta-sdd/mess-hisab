@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, Modal } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
@@ -18,11 +18,13 @@ export function MonthSetupForm({
   month,
   canEdit,
   money,
+  onSaved,
 }: {
   messId: number;
   month: Month;
   canEdit: boolean;
   money: (paisa: number) => string;
+  onSaved?: () => void;
 }) {
   const t = useTranslations("fixed");
   const locale = useLocale() as AppLocale;
@@ -59,6 +61,7 @@ export function MonthSetupForm({
     try {
       await update.mutateAsync(input);
       setOk(true);
+      onSaved?.();
     } catch (error) {
       setNotice(explainError(error, t));
     }
@@ -75,8 +78,9 @@ export function MonthSetupForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-3" aria-label={t("month.title")}>
-      <div className="grid gap-3 sm:grid-cols-3">
+    <form onSubmit={onSubmit} className="flex flex-col gap-4" aria-label={t("month.title")}>
+      <h2 className="text-lg font-semibold">{t("month.title")}</h2>
+      <div className="grid gap-3">
         <div className="flex flex-col gap-1">
           <label htmlFor="fx-fixed-deadline" className="text-sm font-medium">{t("month.fixedDeadline")}</label>
           <input id="fx-fixed-deadline" type="date" className={fieldClassInvalid} value={fixedDeadline} onChange={(e) => setFixedDeadline(e.target.value)} />
@@ -101,7 +105,7 @@ export function MonthSetupForm({
       <p className="text-sm text-muted">{t("month.hint")}</p>
       {notice ? <p role="alert" className="rounded-lg border border-danger bg-danger/10 p-2 text-sm text-danger">{notice}</p> : null}
       {ok && !dirty ? <p role="status" className="text-sm text-success">{t("saved")}</p> : null}
-      <div>
+      <div className="flex justify-end">
         <Button type="submit" variant="primary" className="w-full sm:w-auto" isDisabled={!dirty || update.isPending}>
           {update.isPending ? t("actions.saving") : t("actions.saveMonth")}
         </Button>
@@ -134,6 +138,7 @@ export function MemberSettingRow({
   const initialMin = setting?.min_meals_centi == null ? "" : centiToInput(setting.min_meals_centi);
   const [deposit, setDeposit] = useState(initialDeposit);
   const [minMeals, setMinMeals] = useState(initialMin);
+  const [open, setOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [bad, setBad] = useState<{ deposit: boolean; min: boolean }>({ deposit: false, min: false });
 
@@ -152,58 +157,75 @@ export function MemberSettingRow({
         memberId: member.id,
         input: { deposit_paisa: d && d.ok ? d.paisa : null, min_meals_centi: m && m.ok ? m.centi : null },
       });
+      setOpen(false);
     } catch (error) {
       setNotice(explainError(error, t));
     }
   }
 
-  if (!canEdit) {
-    return (
-      <li className="flex flex-wrap items-center justify-between gap-2 py-2">
-        <span className="break-words font-medium">{member.display_name}</span>
-        <span className="text-sm text-muted">
-          {t("members.deposit")}: {money(setting?.deposit_paisa ?? month.deposit_paisa)} · {t("members.minMeals")}:{" "}
-          {setting?.min_meals_centi == null ? t("members.defaultValue") : formatMeals(setting.min_meals_centi, locale)}
-        </span>
-      </li>
-    );
-  }
+  const summary = (
+    <div className="min-w-0">
+      <p className="break-words font-medium">{member.display_name}</p>
+      <p className="text-sm text-muted">
+        {t("members.deposit")}: {money(setting?.deposit_paisa ?? month.deposit_paisa)} · {t("members.minMeals")}:{" "}
+        {setting?.min_meals_centi == null ? t("members.defaultValue") : formatMeals(setting.min_meals_centi, locale)}
+      </p>
+    </div>
+  );
+
+  if (!canEdit) return <li className="px-4 py-3">{summary}</li>;
 
   return (
-    <li className="flex flex-col gap-2 py-3">
-      <span className="break-words font-medium">{member.display_name}</span>
-      <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`ms-d-${member.id}`} className="text-sm">{`${t("members.deposit")}: ${member.display_name}`}</label>
-          <input
-            id={`ms-d-${member.id}`}
-            className={fieldClassInvalid}
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder={t("members.depositDefault", { amount: money(month.deposit_paisa) })}
-            value={deposit}
-            aria-invalid={bad.deposit || undefined}
-            onChange={(e) => setDeposit(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`ms-m-${member.id}`} className="text-sm">{`${t("members.minMeals")}: ${member.display_name}`}</label>
-          <input
-            id={`ms-m-${member.id}`}
-            className={fieldClassInvalid}
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder={t("members.minMealsDefault")}
-            value={minMeals}
-            aria-invalid={bad.min || undefined}
-            onChange={(e) => setMinMeals(e.target.value)}
-          />
-        </div>
-        <Button variant="secondary" isDisabled={!dirty || update.isPending} onPress={onSave} aria-label={`${t("actions.saveMember")}: ${member.display_name}`}>
-          {t("actions.saveMember")}
-        </Button>
-      </div>
-      {notice ? <p role="alert" className="text-sm text-danger">{notice}</p> : null}
+    <li className="flex items-center justify-between gap-3 px-4 py-3">
+      {summary}
+      <Button variant="ghost" size="sm" className="min-h-11 shrink-0" aria-label={`${t("actions.editMember")}: ${member.display_name}`} onPress={() => setOpen(true)}>
+        {t("actions.editMember")}
+      </Button>
+      <Modal isOpen={open} onOpenChange={setOpen}>
+        <Modal.Backdrop>
+          <Modal.Container placement="center" size="md">
+            <Modal.Dialog aria-label={member.display_name} className="max-h-[92dvh] overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              <div className="flex flex-col gap-4">
+                <h2 className="text-lg font-semibold">{member.display_name}</h2>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`ms-d-${member.id}`} className="text-sm font-medium">{`${t("members.deposit")}: ${member.display_name}`}</label>
+                  <input
+                    id={`ms-d-${member.id}`}
+                    className={fieldClassInvalid}
+                    inputMode="decimal"
+                    autoComplete="off"
+                    placeholder={t("members.depositDefault", { amount: money(month.deposit_paisa) })}
+                    value={deposit}
+                    aria-invalid={bad.deposit || undefined}
+                    onChange={(e) => setDeposit(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`ms-m-${member.id}`} className="text-sm font-medium">{`${t("members.minMeals")}: ${member.display_name}`}</label>
+                  <input
+                    id={`ms-m-${member.id}`}
+                    className={fieldClassInvalid}
+                    inputMode="decimal"
+                    autoComplete="off"
+                    placeholder={t("members.minMealsDefault")}
+                    value={minMeals}
+                    aria-invalid={bad.min || undefined}
+                    onChange={(e) => setMinMeals(e.target.value)}
+                  />
+                </div>
+                <p className="text-sm text-muted">{t("members.hint")}</p>
+                {notice ? <p role="alert" className="text-sm text-danger">{notice}</p> : null}
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <Button variant="ghost" className="w-full sm:w-auto" onPress={() => setOpen(false)}>{t("actions.cancel")}</Button>
+                  <Button variant="primary" className="w-full sm:w-auto" isDisabled={!dirty || update.isPending} onPress={onSave} aria-label={`${t("actions.saveMember")}: ${member.display_name}`}>
+                    {t("actions.saveMember")}
+                  </Button>
+                </div>
+              </div>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
     </li>
   );
 }

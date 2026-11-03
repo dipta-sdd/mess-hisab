@@ -53,7 +53,7 @@ describe("PaymentsPage", () => {
     expect(within(screen.getByTestId("total-fixed")).getByText("৳1,500.00")).toBeInTheDocument();
     expect(within(screen.getByTestId("total-meals")).getByText("৳521.50")).toBeInTheDocument();
     await waitFor(() => expect(screen.getByTestId("cash-pool")).toHaveTextContent("৳12,345.00"));
-    expect(screen.getAllByText("Received by Rahim").length).toBe(2);
+    expect(screen.getAllByText(/Received by Rahim/).length).toBe(2);
     expect(requests[0]).toContain("month_id=11");
     expect(requests[0]).not.toContain("member_id");
   });
@@ -65,7 +65,7 @@ describe("PaymentsPage", () => {
     await screen.findByText("Rent share");
     await user.selectOptions(screen.getByLabelText("Filter by member"), "Karim");
     await waitFor(() => expect(requests.at(-1)).toContain("member_id=2"));
-    await user.selectOptions(screen.getByLabelText("Month"), "10");
+    await user.click(screen.getByRole("button", { name: "Older month" }));
     await waitFor(() => expect(requests.at(-1)).toContain("month_id=10"));
   });
 
@@ -75,7 +75,7 @@ describe("PaymentsPage", () => {
     await screen.findByText("Rent share");
     expect(screen.queryByLabelText("Filter by member")).toBeNull();
     expect(screen.getByText("Cash in manager's hand")).toBeInTheDocument();
-    expect(screen.getByLabelText("Month")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Older month" })).toBeInTheDocument();
   });
 
   it("records a payment (manager happy path)", async () => {
@@ -155,7 +155,8 @@ describe("PaymentsPage", () => {
     const user = userEvent.setup();
     renderPage();
     await screen.findByText("Rent share");
-    await user.click(screen.getAllByRole("button", { name: "Edit: Karim" })[0]);
+    await user.click(screen.getAllByRole("button", { name: /^More actions: Karim/ })[0]);
+    await user.click(await screen.findByRole("menuitem", { name: "Edit: Karim" }));
     const amount = screen.getByLabelText("Amount (taka)");
     expect(amount).toHaveValue("1500");
     await user.clear(amount);
@@ -170,7 +171,8 @@ describe("PaymentsPage", () => {
     const user = userEvent.setup();
     renderPage();
     await screen.findByText("Rent share");
-    await user.click(screen.getAllByRole("button", { name: "Delete: Karim" })[0]);
+    await user.click(screen.getAllByRole("button", { name: /^More actions: Karim/ })[0]);
+    await user.click(await screen.findByRole("menuitem", { name: "Delete: Karim" }));
     await user.click(screen.getByRole("button", { name: "Yes, delete" }));
     expect(await screen.findByText(/That month is closed/)).toBeInTheDocument();
   });
