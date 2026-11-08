@@ -167,6 +167,52 @@ describe("MonthsPage: close flow", () => {
     expect(await screen.findByText("November 2026 is now closed.")).toBeInTheDocument();
   });
 
+  it("sends the typed-in fixed-bill edits with the close and previews them first", async () => {
+    let closeBody: { bills?: unknown } | null = null;
+    const previews: unknown[] = [];
+    mockApi();
+    server.use(
+      http.get(`${BASE}/months/11/setup`, () =>
+        HttpResponse.json({
+          data: {
+            month: nov,
+            bills: [{ category_id: 1, group: "fixed", split_type: "equal", amount_paisa: 300000, overrides: [], shares: {}, unallocated_paisa: 0, unallocated_accepted: false }],
+            member_settings: [],
+          },
+        }),
+      ),
+      http.get(`${BASE}/categories`, () => HttpResponse.json({ data: [{ id: 1, name: "Rent", group: "fixed" }] })),
+      http.get(`${BASE}/months/11/close-check`, () => HttpResponse.json({ data: { can_close: true, blocks: [] } })),
+      http.post(`${BASE}/months/11/close-preview`, async ({ request }) => {
+        previews.push(await request.json());
+        return HttpResponse.json({ data: { can_close: true, blocks: [], balances: [{ member_id: 1, balance_paisa: -123400 }] } });
+      }),
+      http.post(`${BASE}/months/11/close`, async ({ request }) => {
+        closeBody = (await request.json()) as { bills?: unknown };
+        return HttpResponse.json({ data: { ...nov, status: "closed" } });
+      }),
+    );
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole("button", { name: "Edit fixed bills before closing" }));
+    await user.click(await screen.findByRole("button", { name: /^Rent/ }));
+    const amount = await screen.findByLabelText("Bill amount (taka)");
+    await user.clear(amount);
+    await user.type(amount, "4500");
+    await user.click(screen.getByRole("button", { name: "Add a fixed bill" }));
+    await user.type(screen.getByLabelText("Bill name"), "Gas");
+    await user.click(screen.getByRole("button", { name: "Add bill" }));
+    expect(await screen.findByTestId("close-preview-balances")).toHaveTextContent("Rahim");
+    await waitFor(() => expect(previews.at(-1)).toEqual({ bills: [{ category_id: 1, amount_paisa: 450000, overrides: [] }, { name: "Gas", split_type: "equal", overrides: [] }] }));
+    expect(closeBody).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Done" }));
+    await user.click(await screen.findByRole("button", { name: "Check if the month can be closed" }));
+    await user.click(await screen.findByRole("button", { name: "Close month" }));
+    await user.click(within(screen.getByRole("group", { name: "Close this month?" })).getByRole("button", { name: "Yes, close the month" }));
+    await waitFor(() => expect(closeBody).toEqual({ bills: [{ category_id: 1, amount_paisa: 450000, overrides: [] }, { name: "Gas", split_type: "equal", overrides: [] }] }));
+  });
+
   it("needs a confirmation step before closing", async () => {
     let closed = false;
     mockApi();

@@ -126,3 +126,15 @@ export function useUpdateMemberSettings(messId: number, monthId: number) {
     onSuccess: refresh,
   });
 }
+
+/** A new fixed bill: a real category that stays for every later month. */
+export function useCreateCategory(messId: number) {
+  const refresh = useRefresh(messId);
+  return useMutation({
+    mutationFn: async (input: { name: string; split_type: "equal" | "fixed_per_person" }) =>
+      (await apiClient.post<ItemResponse<Category>>(`${base(messId)}/categories`, { group: "fixed", ...input })).data,
+    onSuccess: async () => {
+      await refresh();
+    },
+  });
+}

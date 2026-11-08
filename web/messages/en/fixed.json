@@ -82,5 +82,21 @@
     "generic": "Something went wrong. Please try again.",
     "loadFailed": "Could not load the setup.",
     "noMonth": "No month is available yet."
+  },
+  "addBill": {
+    "open": "Add fixed bill",
+    "title": "Add a fixed bill",
+    "hint": "It becomes a regular bill and appears in every month from now on.",
+    "name": "Bill name",
+    "namePlaceholder": "e.g. Gas",
+    "split": "How is it shared?",
+    "equal": "Equal",
+    "equalHelp": "The bill amount is divided equally among members.",
+    "fixed_per_person": "Set amount per person",
+    "fixed_per_personHelp": "You type each member's amount.",
+    "submit": "Add bill",
+    "submitting": "Adding…",
+    "cancel": "Cancel",
+    "needName": "Enter a name for the bill."
   }
 }

@@ -250,3 +250,37 @@ describe("FixedPage (read-only)", () => {
     expect(screen.queryByTestId("closed-note")).toBeNull();
   });
 });
+
+describe("FixedPage: add fixed bill", () => {
+  it("creates a fixed category with the chosen split", async () => {
+    let body: unknown = null;
+    mockApi();
+    server.use(http.post(`${BASE}/categories`, async ({ request }) => {
+      body = await request.json();
+      return HttpResponse.json({ data: { id: 9, name: "Gas", group: "fixed", split_type: "fixed_per_person" } }, { status: 201 });
+    }));
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole("button", { name: "Add fixed bill" }));
+    await user.type(screen.getByLabelText("Bill name"), "Gas");
+    await user.click(screen.getByRole("radio", { name: /Set amount per person/ }));
+    await user.click(screen.getByRole("button", { name: "Add bill" }));
+    await waitFor(() => expect(body).toEqual({ group: "fixed", name: "Gas", split_type: "fixed_per_person" }));
+  });
+
+  it("needs a name and is hidden from members", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    const { unmount } = renderPage();
+    await user.click(await screen.findByRole("button", { name: "Add fixed bill" }));
+    await user.click(screen.getByRole("button", { name: "Add bill" }));
+    expect(await screen.findByText("Enter a name for the bill.")).toBeInTheDocument();
+    unmount();
+
+    mockApi({ manager: false });
+    renderPage();
+    await screen.findByRole("button", { name: /^Rent/ });
+    expect(screen.queryByRole("button", { name: "Add fixed bill" })).toBeNull();
+  });
+});
+

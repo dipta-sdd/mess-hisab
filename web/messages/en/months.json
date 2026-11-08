@@ -81,6 +81,26 @@
       "zero_meals_unresolved": "Nobody has any meals this month, but the food cost is {amount}. Choose below what to do with it.",
       "month_closed": "This month is already closed.",
       "unknown": "Something else needs attention before this month can be closed."
+    },
+    "edit": {
+      "open": "Edit fixed bills before closing",
+      "openEdited": "Edit fixed bills ({count} changed)",
+      "title": "Fixed bills before closing",
+      "hint": "Changes here are not saved yet. They are saved together with the close, and dropped if the close does not go through.",
+      "loading": "Loading the bills…",
+      "amount": "Bill amount (taka)",
+      "share": "Amount per member (taka)",
+      "auto": "Auto",
+      "newBadge": "New",
+      "addNew": "Add a fixed bill",
+      "remove": "Remove",
+      "preview": "Balances after these changes",
+      "previewHint": "What each member owes (−) or is owed (+) when the month closes.",
+      "previewLoading": "Updating…",
+      "done": "Done",
+      "discard": "Discard changes",
+      "badAmount": "Check the amounts: taka like 1,000 or 521.50.",
+      "note": "Saved with the close"
     }
   },
   "reopen": {

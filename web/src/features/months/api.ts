@@ -4,7 +4,9 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import type {
   Adjustment,
   AdjustmentInput,
+  CloseBillEdit,
   CloseCheck,
+  ClosePreview,
   Dashboard,
   DoesntPayInput,
   ItemResponse,
@@ -84,11 +86,28 @@ export function useCloseCheck(messId: number, monthId: number, resolution: ZeroM
   });
 }
 
+/** The close-check as if the typed-in fixed-bill edits were saved. Saves nothing on the server. */
+export function useClosePreview(messId: number, monthId: number, resolution: ZeroMealResolution | null, bills: CloseBillEdit[], enabled: boolean) {
+  return useQuery({
+    queryKey: ["months", messId, "close-preview", monthId, resolution, bills] as const,
+    enabled,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+    queryFn: async () =>
+      (await apiClient.post<ItemResponse<ClosePreview>>(`${base(messId)}/months/${monthId}/close-preview`, closeBody(resolution, bills))).data,
+  });
+}
+
+function closeBody(resolution: ZeroMealResolution | null, bills: CloseBillEdit[]) {
+  return { ...(resolution ? { zero_meal_resolution: resolution } : {}), ...(bills.length > 0 ? { bills } : {}) };
+}
+
 export function useCloseMonth(messId: number, monthId: number) {
   const refresh = useRefreshAfterWrite(messId);
   return useMutation({
-    mutationFn: async (resolution: ZeroMealResolution | null) =>
-      (await apiClient.post<ItemResponse<Month>>(`${base(messId)}/months/${monthId}/close`, resolution ? { zero_meal_resolution: resolution } : {})).data,
+    mutationFn: async ({ resolution, bills = [] }: { resolution: ZeroMealResolution | null; bills?: CloseBillEdit[] }) =>
+      (await apiClient.post<ItemResponse<Month>>(`${base(messId)}/months/${monthId}/close`, closeBody(resolution, bills))).data,
     onSuccess: refresh,
   });
 }

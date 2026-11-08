@@ -1,11 +1,14 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, Modal } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useCategories, useMembers, useSetup } from "@/features/fixed/api";
 import type { CloseBlock, Month, ZeroMealResolution } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
-import { useCloseCheck, useCloseMonth } from "./api";
+import { useCloseCheck, useCloseMonth, useClosePreview } from "./api";
+import { buildEdits, noDrafts, type BillDrafts } from "./close-bills";
+import { CloseBillsEditor } from "./close-bills-editor";
 import { CloseBlocks, type BlockContext } from "./blocks";
 import { Banner, useErrorText } from "./ui";
 
@@ -19,11 +22,26 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
   const [serverBlocks, setServerBlocks] = useState<CloseBlock[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const check = useCloseCheck(messId, month.id, resolution, checking);
+  const [drafts, setDrafts] = useState<BillDrafts>(noDrafts);
+  const [editing, setEditing] = useState(false);
+
+  const setupQ = useSetup(messId, month.id);
+  const membersQ = useMembers(messId);
+  const categoriesQ = useCategories(messId);
+  const bills = setupQ.data?.bills ?? [];
+  const activeMembers = (membersQ.data ?? []).filter((m) => m.joined_on <= month.ends_on && (m.left_on === null || m.left_on >= month.starts_on));
+  const { edits, invalid } = buildEdits(drafts, bills, activeMembers.map((m) => m.id));
+  const hasEdits = edits.length > 0;
+  const names = Object.fromEntries((categoriesQ.data ?? []).map((c) => [c.id, c.name]));
+
+  // With typed-in bill changes the answer comes from the preview (which applies them and rolls back); without, from the plain check.
+  const check = useCloseCheck(messId, month.id, resolution, checking && !hasEdits);
+  const preview = useClosePreview(messId, month.id, resolution, edits, (editing || (checking && hasEdits)) && !invalid);
   const close = useCloseMonth(messId, month.id);
 
-  const result = check.data;
-  const stale = check.isPlaceholderData || check.isFetching;
+  const active = hasEdits ? preview : check;
+  const result = active.data;
+  const stale = active.isPlaceholderData || active.isFetching || invalid;
   const hasZeroBlock = Boolean(result?.blocks.some((b) => b.code === "zero_meals_unresolved"));
   const showChoice = hasZeroBlock || resolution !== null;
   const blocks = serverBlocks ?? result?.blocks ?? [];
@@ -33,7 +51,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
     setError(null);
     setServerBlocks(null);
     setConfirming(false);
-    if (checking) await check.refetch();
+    if (checking) await active.refetch();
     else setChecking(true);
   }
 
@@ -46,7 +64,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
   async function doClose() {
     setError(null);
     try {
-      await close.mutateAsync(resolution);
+      await close.mutateAsync({ resolution, bills: edits });
       onClosed();
     } catch (e) {
       setConfirming(false);
@@ -64,14 +82,42 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
       <p className="text-sm text-muted">{t("intro")}</p>
 
       <div>
-        <Button variant="secondary" onPress={runCheck} isDisabled={check.isFetching || close.isPending}>
+        <Button variant="secondary" onPress={runCheck} isDisabled={active.isFetching || close.isPending}>
           {checking ? t("recheck") : t("check")}
         </Button>
       </div>
 
+      <div className="flex flex-col items-start gap-1">
+        <Button variant="secondary" onPress={() => setEditing(true)} isDisabled={setupQ.isPending || membersQ.isPending || close.isPending}>
+          {hasEdits ? t("edit.openEdited", { count: edits.length }) : t("edit.open")}
+        </Button>
+        {hasEdits ? <p className="text-sm text-muted">{t("edit.hint")}</p> : null}
+      </div>
+      <Modal isOpen={editing} onOpenChange={setEditing}>
+        <Modal.Backdrop>
+          <Modal.Container placement="center" size="lg">
+            <Modal.Dialog aria-label={t("edit.title")} className="max-h-[92dvh] overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              <CloseBillsEditor
+                bills={bills}
+                names={names}
+                members={activeMembers}
+                drafts={drafts}
+                setDrafts={(next) => { setDrafts(next); setServerBlocks(null); setConfirming(false); }}
+                preview={preview.data}
+                previewing={preview.isFetching || preview.isPlaceholderData}
+                invalid={invalid}
+                ctx={ctx}
+                onDone={() => setEditing(false)}
+                onDiscard={() => { setDrafts(noDrafts); setEditing(false); }}
+              />
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
+
       {error ? <Banner>{error}</Banner> : null}
-      {check.isError ? <Banner>{errorText(check.error)}</Banner> : null}
-      {checking && check.isPending ? <p role="status" className="text-sm text-muted">{t("checking")}</p> : null}
+      {active.isError ? <Banner>{errorText(active.error)}</Banner> : null}
+      {checking && active.isPending ? <p role="status" className="text-sm text-muted">{t("checking")}</p> : null}
 
       {result && blocks.length > 0 ? <CloseBlocks blocks={blocks} ctx={ctx} /> : null}
 

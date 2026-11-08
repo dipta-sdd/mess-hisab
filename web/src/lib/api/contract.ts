@@ -212,3 +212,10 @@ export interface DoesntPayInput { member_id: number; mode: DoesntPayMode; manual
 export interface RepaymentInput { amount_paisa: number; paid_on: DateString }
 export interface AdjustmentInput { member_id: number; group: Group; amount_paisa: number; note: string }
 export interface FinalSettlementInput { amount_paisa: number; paid_on: DateString }
+
+/** One fixed-bill edit sent with close / close-preview. No `category_id` = a new fixed bill (name + split_type). */
+export interface CloseBillEdit {
+  category_id?: number; name?: string; split_type?: "equal" | "fixed_per_person";
+  amount_paisa?: number; overrides?: { member_id: number; amount_paisa: number }[];
+}
+export interface ClosePreview { can_close: boolean; blocks: CloseBlock[]; balances: { member_id: number; balance_paisa: number }[] }

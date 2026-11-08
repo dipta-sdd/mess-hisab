@@ -7,8 +7,10 @@ import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
 import { formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
-import { useCategories, useCurrentMonth, useMembers, useMessInfo, useMonths, useSetup } from "./api";
+import { useCategories, useCreateCategory, useCurrentMonth, useMembers, useMessInfo, useMonths, useSetup } from "./api";
+import { AddBillForm } from "./add-bill-form";
 import { BillCard } from "./bill-card";
+import { explainError } from "./errors";
 import { MemberSettingRow, MonthSetupForm } from "./month-forms";
 import { formatDate } from "@/lib/format";
 import { formatMonthLabel } from "@/lib/format/date";
@@ -28,6 +30,9 @@ export function FixedPage() {
   const linkedMonth = Number(useSearchParams()?.get("month")) || null;
   const [pickedMonth, setPickedMonth] = useState<number | null>(linkedMonth);
   const [editingMonth, setEditingMonth] = useState(false);
+  const [addingBill, setAddingBill] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const createCategory = useCreateCategory(messId);
   const months = monthsQ.data ?? [];
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const setupQ = useSetup(messId, monthId);
@@ -119,7 +124,36 @@ export function FixedPage() {
           </section>
 
           <section aria-labelledby="fx-bills-title" className="flex flex-col gap-3">
-            <h2 id="fx-bills-title" className="text-lg font-semibold">{t("bills.title")}</h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 id="fx-bills-title" className="text-lg font-semibold">{t("bills.title")}</h2>
+              {canEdit ? (
+                <>
+                  <Button variant="secondary" className="min-h-11" onPress={() => { setAddError(null); setAddingBill(true); }}>{t("addBill.open")}</Button>
+                  <Modal isOpen={addingBill} onOpenChange={setAddingBill}>
+                    <Modal.Backdrop>
+                      <Modal.Container placement="center" size="md">
+                        <Modal.Dialog aria-label={t("addBill.title")} className="max-h-[92dvh] overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                          <AddBillForm
+                            pending={createCategory.isPending}
+                            error={addError}
+                            onCancel={() => setAddingBill(false)}
+                            onSubmit={async (name, split_type) => {
+                              setAddError(null);
+                              try {
+                                await createCategory.mutateAsync({ name, split_type });
+                                setAddingBill(false);
+                              } catch (error) {
+                                setAddError(explainError(error, t));
+                              }
+                            }}
+                          />
+                        </Modal.Dialog>
+                      </Modal.Container>
+                    </Modal.Backdrop>
+                  </Modal>
+                </>
+              ) : null}
+            </div>
             {bills.length === 0 ? (
               <p className="text-muted">{t("bills.empty")}</p>
             ) : (

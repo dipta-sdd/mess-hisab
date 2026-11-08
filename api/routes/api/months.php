@@ -14,6 +14,7 @@ Route::middleware(['auth:sanctum', 'mess'])->prefix('messes/{mess}')->group(func
 
     Route::middleware('mess.role:manager')->group(function () {
         Route::get('months/{month}/close-check', [MonthLifecycleController::class, 'closeCheck'])->whereNumber('month');
+        Route::post('months/{month}/close-preview', [MonthLifecycleController::class, 'closePreview'])->whereNumber('month');
         Route::post('months/{month}/close', [MonthLifecycleController::class, 'close'])->whereNumber('month');
         Route::get('months/{month}/reopen-preview', [MonthLifecycleController::class, 'reopenPreview'])->whereNumber('month');
         Route::post('months/{month}/reopen', [MonthLifecycleController::class, 'reopen'])->whereNumber('month');

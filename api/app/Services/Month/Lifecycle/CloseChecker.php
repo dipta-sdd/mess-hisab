@@ -52,6 +52,45 @@ class CloseChecker
         return ['can_close' => $ev->canClose(), 'blocks' => $ev->blocks];
     }
 
+    /**
+     * Close-check as if $apply (the popup's bill edits) had been saved, plus each member's resulting balance.
+     * Always rolled back.
+     *
+     * @return array{can_close: bool, blocks: list<array{code: string, data: array<string,mixed>}>, balances: list<array{member_id: int, balance_paisa: int}>}
+     */
+    public function preview(Mess $mess, Month $month, ?ZeroMealResolution $choice, callable $apply): array
+    {
+        if ($month->status !== MonthStatus::Open) {
+            return $this->check($mess, $month, $choice) + ['balances' => []];
+        }
+
+        DB::beginTransaction();
+        try {
+            $apply();
+            $ev = $this->evaluate($mess, Month::query()->forMess($mess->id)->findOrFail($month->id), $choice);
+        } finally {
+            DB::rollBack();
+        }
+
+        return ['can_close' => $ev->canClose(), 'blocks' => $ev->blocks, 'balances' => $this->balanceRows($ev->totalsBefore)];
+    }
+
+    /**
+     * A list of rows, not an id-keyed map: the JSON resource renumbers all-numeric keys.
+     *
+     * @param  array<int,int>  $totals
+     * @return list<array{member_id: int, balance_paisa: int}>
+     */
+    private function balanceRows(array $totals): array
+    {
+        $rows = [];
+        foreach ($totals as $id => $paisa) {
+            $rows[] = ['member_id' => $id, 'balance_paisa' => $paisa];
+        }
+
+        return $rows;
+    }
+
     /** Runs the close-check on an OPEN month. Call inside a transaction when the choice must persist. */
     public function evaluate(Mess $mess, Month $month, ?ZeroMealResolution $choice): CloseEvaluation
     {
