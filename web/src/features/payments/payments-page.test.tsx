@@ -69,11 +69,15 @@ describe("PaymentsPage", () => {
     await waitFor(() => expect(requests.at(-1)).toContain("month_id=10"));
   });
 
-  it("hides the member filter and labels the cash for a normal member", async () => {
-    mockApi({ manager: false });
-    renderPage();
+  it("starts a normal member on their own payments and lets them pick anyone", async () => {
+    const requests = mockApi({ manager: false });
+    const user = userEvent.setup();
+    renderWithProviders(<PaymentsPage scope="own" />, { messId: 7 });
     await screen.findByText("Rent share");
-    expect(screen.queryByLabelText("Filter by member")).toBeNull();
+    expect(screen.getByLabelText("Filter by member")).toHaveValue("2");
+    expect(requests.some((r) => r.includes("member_id=2"))).toBe(true);
+    await user.selectOptions(screen.getByLabelText("Filter by member"), "All members");
+    await waitFor(() => expect(requests.at(-1)).not.toContain("member_id"));
     expect(screen.getByText("Cash in manager's hand")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Older month" })).toBeInTheDocument();
   });

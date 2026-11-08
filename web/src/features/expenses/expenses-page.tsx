@@ -42,14 +42,14 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
 
   const all = scope === "all";
   const messQ = useMessInfo(messId);
-  const membersQ = useMembers(messId, all);
+  const membersQ = useMembers(messId);
   const monthsQ = useMonths(messId);
   const currentQ = useCurrentMonth(messId);
   const categoriesQ = useCategories(messId);
 
   const [pickedMonth, setPickedMonth] = useState<number | null>(null);
   const [status, setStatus] = useState<ExpenseStatus | null>(null);
-  const [memberFilter, setMemberFilter] = useState<number | null>(null);
+  const [memberFilter, setMemberFilter] = useState<number | "cash" | "all" | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
   const [editing, setEditing] = useState<Expense | null>(null);
   const [saved, setSaved] = useState<(CreateResult & { edited: boolean }) | null>(null);
@@ -61,16 +61,18 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const months = [...(monthsQ.data ?? [])].sort((a, b) => b.starts_on.localeCompare(a.starts_on));
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const month = months.find((m) => m.id === monthId) ?? (currentQ.data?.id === monthId ? currentQ.data : undefined);
-  const expensesQ = useExpenses(messId, { monthId, status, memberId: all ? memberFilter : (messQ.data?.me.id ?? null), categoryId: categoryFilter });
 
   const mess = messQ.data?.mess;
   const realMe = messQ.data?.me;
+  // The list starts on the signed-in member for a normal member, and on everyone for staff.
+  const payer = memberFilter ?? (all ? "all" : (realMe?.id ?? "all"));
+  const expensesQ = useExpenses(messId, { monthId: all || realMe ? monthId : null, status, payerId: typeof payer === "number" ? payer : null, categoryId: categoryFilter, paidBy: payer === "cash" ? "cash" : null });
   // On the member page a manager or admin is treated like any member: no cash expenses, no approvals.
   const me = realMe && !all ? { ...realMe, is_manager: false, is_admin: false } : realMe;
   const isStaff = all && Boolean(me?.is_manager || me?.is_admin);
   const pendingQ = usePendingExpenses(messId, isStaff);
   const mode = mess?.rounding_mode ?? "two_decimals";
-  const members = all ? (membersQ.data ?? []) : me ? [me] : [];
+  const members = membersQ.data ?? (me ? [me] : []);
   const categories = categoriesQ.data ?? [];
 
   const nameOf = (id: number | null) => members.find((m) => m.id === id)?.display_name ?? t("list.unknownMember");
@@ -90,7 +92,7 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const pending = pendingQ.data ?? [];
   const showQueue = isStaff && Boolean(mess) && (mess!.approval_required || pending.length > 0);
 
-  const loading = messQ.isPending || (all && membersQ.isPending) || monthsQ.isPending || currentQ.isPending || categoriesQ.isPending || (monthId !== null && expensesQ.isPending);
+  const loading = messQ.isPending || membersQ.isPending || monthsQ.isPending || currentQ.isPending || categoriesQ.isPending || (monthId !== null && expensesQ.isPending);
   const loadFailed = messQ.isError || monthsQ.isError || categoriesQ.isError || expensesQ.isError || (currentQ.isError && months.length === 0 && !monthsQ.isPending);
   const monthIndex = months.findIndex((m) => m.id === monthId);
   const olderMonth = monthIndex >= 0 ? months[monthIndex + 1] : undefined;
@@ -224,16 +226,15 @@ export function ExpensesPage({ scope = "own" }: { scope?: "own" | "all" }) {
           ))}
         </div>
         <div className="flex flex-wrap gap-2 sm:ml-auto">
-          {isStaff ? (
-            <Select id="member-filter" label={t("filters.member")} value={memberFilter ?? ""} onChange={(v) => setMemberFilter(v === "" ? null : Number(v))}>
-              <option value="">{t("filters.allMembers")}</option>
+          <Select id="member-filter" label={t("filters.member")} value={String(payer)} onChange={(v) => setMemberFilter(v === "all" || v === "cash" ? v : Number(v))}>
+              <option value="all">{t("filters.allMembers")}</option>
+              <option value="cash">{t("filters.messCash")}</option>
               {members.map((m: Member) => (
                 <option key={m.id} value={m.id}>
                   {m.display_name}
                 </option>
               ))}
-            </Select>
-          ) : null}
+          </Select>
           <Select id="category-filter" label={t("filters.category")} value={categoryFilter ?? ""} onChange={(v) => setCategoryFilter(v === "" ? null : Number(v))}>
             <option value="">{t("filters.allCategories")}</option>
             {activeCategories.map((c) => (

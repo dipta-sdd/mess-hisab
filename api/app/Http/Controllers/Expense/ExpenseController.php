@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Expense;
 
 use App\Enums\ExpenseStatus;
+use App\Enums\PaidBy;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Expense\ExpenseRequest;
 use App\Http\Requests\Expense\RejectExpenseRequest;
@@ -25,20 +26,20 @@ class ExpenseController extends Controller
         $data = $request->validate([
             'month_id' => ['sometimes', 'integer'],
             'status' => ['sometimes', Rule::in(ExpenseStatus::values())],
-            'member_id' => ['sometimes', 'integer'],
+            'payer_id' => ['sometimes', 'integer'],
             'category_id' => ['sometimes', 'integer'],
+            'paid_by' => ['sometimes', Rule::in(PaidBy::values())],
         ]);
 
         $expenses = Expense::query()
             ->when(isset($data['month_id']), fn ($q) => $q->where('month_id', $data['month_id']))
             ->when(isset($data['status']), fn ($q) => $q->where('status', $data['status']))
             ->when(isset($data['category_id']), fn ($q) => $q->where('category_id', $data['category_id']))
-            // member_id: the expenses a member recorded or paid for.
-            ->when(isset($data['member_id']), fn ($q) => $q->where(fn ($w) => $w
-                ->where('created_by_member_id', $data['member_id'])
-                ->orWhere('paid_by_member_id', $data['member_id'])))
+            ->when(isset($data['paid_by']), fn ($q) => $q->where('paid_by', $data['paid_by']))
+            ->when(isset($data['payer_id']), fn ($q) => $q->where('paid_by_member_id', $data['payer_id']))
+            // A normal member sees every approved expense, plus their own (paid by them) in any status.
             ->unless(currentMember()->isStaff(), fn ($q) => $q->where(fn ($w) => $w
-                ->where('created_by_member_id', currentMember()->id)
+                ->where('status', ExpenseStatus::Approved)
                 ->orWhere('paid_by_member_id', currentMember()->id)))
             ->orderByDesc('spent_on')->orderByDesc('id')
             ->get();

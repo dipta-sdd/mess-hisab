@@ -53,13 +53,13 @@ it('lets staff read any statement and history', function () {
     $this->getJson(messPath($mess, "statements/{$other->id}/history"))->assertOk();
 });
 
-it('lists only a normal member\'s own expenses (paid or recorded), but all for staff', function () {
+it('lets a normal member see approved expenses and their own paid ones, but not others\' unapproved ones', function () {
     [$mess, $me, $month, , $other] = mvSetup();
     $cat = jCategory($mess);
     jExpense($mess, $month, $cat, 1000, $me->id);
     jExpense($mess, $month, $cat, 2000, $other->id)->update(['created_by_member_id' => $me->id]);
     jExpense($mess, $month, $cat, 3000, $me->id)->update(['created_by_member_id' => $other->id]);
-    jExpense($mess, $month, $cat, 4000, $other->id);
+    jExpense($mess, $month, $cat, 4000, $other->id)->update(['status' => 'pending']);
 
     $res = $this->getJson(messPath($mess, 'expenses'))->assertOk();
     expect(collect($res->json('data'))->pluck('amount_paisa')->sort()->values()->all())->toBe([1000, 2000, 3000])
@@ -83,14 +83,14 @@ it('lists only a normal member\'s own meals, but all for staff', function () {
     expect($data['entries'])->toHaveCount(2)->and($data['totals'])->toHaveCount(3);
 });
 
-it('lists only a normal member\'s own payments, but all for staff; cash stays open', function () {
+it('lets a normal member see every member\'s payments and filter by one; cash stays open', function () {
     [$mess, $me, $month, , $other] = mvSetup();
     jPay($mess, $month, $me->id, 'meals', 1000);
     jPay($mess, $month, $other->id, 'meals', 2000);
 
     $res = $this->getJson(messPath($mess, 'payments'))->assertOk();
-    expect($res->json('data'))->toHaveCount(1)->and($res->json('data.0.member_id'))->toBe($me->id);
-    expect($this->getJson(messPath($mess, "payments?member_id={$other->id}"))->json('data'))->toBe([]);
+    expect($res->json('data'))->toHaveCount(2);
+    expect($this->getJson(messPath($mess, "payments?member_id={$other->id}"))->json('data'))->toHaveCount(1);
     $this->getJson(messPath($mess, 'cash'))->assertOk();
 
     $this->actingAs($mess->manager->user);

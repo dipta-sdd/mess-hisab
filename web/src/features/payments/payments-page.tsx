@@ -35,13 +35,13 @@ export function PaymentsPage({ scope = "own" }: { scope?: "own" | "all" }) {
 
   const all = scope === "all";
   const messQ = useMessInfo(messId);
-  const membersQ = useMembers(messId, all);
+  const membersQ = useMembers(messId);
   const monthsQ = useMonths(messId);
   const currentQ = useCurrentMonth(messId);
   const cashQ = useCash(messId);
 
   const [pickedMonth, setPickedMonth] = useState<number | null>(null);
-  const [memberFilter, setMemberFilter] = useState<number | null>(null);
+  const [memberFilter, setMemberFilter] = useState<number | "all" | null>(null);
   const [form, setForm] = useState<FormState>({ mode: "closed" });
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -49,13 +49,15 @@ export function PaymentsPage({ scope = "own" }: { scope?: "own" | "all" }) {
   const months = [...(monthsQ.data ?? [])].sort((a, b) => b.starts_on.localeCompare(a.starts_on));
   const monthId = pickedMonth ?? currentQ.data?.id ?? (currentQ.isError ? (months[0]?.id ?? null) : null);
   const month = months.find((m) => m.id === monthId) ?? (currentQ.data?.id === monthId ? currentQ.data : undefined);
-  const paymentsQ = usePayments(messId, monthId, all ? memberFilter : (messQ.data?.me.id ?? null));
 
   const mess = messQ.data?.mess;
+  // A normal member starts on their own payments, staff on everyone; both can pick anyone.
+  const picked = memberFilter ?? (all ? "all" : (messQ.data?.me.id ?? "all"));
+  const paymentsQ = usePayments(messId, all || messQ.data ? monthId : null, typeof picked === "number" ? picked : null);
   const isStaff = all && Boolean(messQ.data?.me.is_manager || messQ.data?.me.is_admin);
   const isManager = isStaff;
   const mode = mess?.rounding_mode ?? "two_decimals";
-  const members = all ? (membersQ.data ?? []) : messQ.data ? [messQ.data.me] : [];
+  const members = membersQ.data ?? (messQ.data ? [messQ.data.me] : []);
   const nameOf = (id: number | null) => members.find((m) => m.id === id)?.display_name ?? t("list.unknownMember");
 
   const payments = paymentsQ.data ?? [];
@@ -136,22 +138,22 @@ export function PaymentsPage({ scope = "own" }: { scope?: "own" | "all" }) {
         </section>
       </div>
 
-      {isStaff ? (
+      {(
         <div>
           <label htmlFor="member-filter" className="sr-only">{t("filter.label")}</label>
           <select
             id="member-filter"
             className={`${fieldClassInvalid} min-h-9 w-auto py-1 text-sm`}
-            value={memberFilter ?? ""}
-            onChange={(e) => setMemberFilter(e.target.value === "" ? null : Number(e.target.value))}
+            value={String(picked)}
+            onChange={(e) => setMemberFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
           >
-            <option value="">{t("filter.all")}</option>
+            <option value="all">{t("filter.all")}</option>
             {members.map((m: Member) => (
               <option key={m.id} value={m.id}>{m.display_name}</option>
             ))}
           </select>
         </div>
-      ) : null}
+      )}
 
       {notice ? <div role="alert" className="rounded-lg border border-danger bg-danger/10 p-3 text-sm text-danger">{notice}</div> : null}
 

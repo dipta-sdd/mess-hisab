@@ -240,19 +240,25 @@ describe("ExpensesPage list", () => {
     await screen.findByText("November rent");
     await user.click(within(screen.getByRole("group", { name: "Status" })).getByRole("button", { name: "Approved" }));
     await waitFor(() => expect(requests.at(-1)).toContain("status=approved"));
-    await user.selectOptions(screen.getByLabelText("Recorded or paid by"), "Karim");
-    await waitFor(() => expect(requests.at(-1)).toContain("member_id=2"));
+    await user.selectOptions(screen.getByLabelText("Paid by"), "Karim");
+    await waitFor(() => expect(requests.at(-1)).toContain("payer_id=2"));
+    await user.selectOptions(screen.getByLabelText("Paid by"), "Mess cash");
+    await waitFor(() => expect(requests.at(-1)).toContain("paid_by=cash"));
     await user.selectOptions(screen.getByLabelText("Filter by category"), "Gas");
     await waitFor(() => expect(requests.at(-1)).toContain("category_id=2"));
     await user.click(screen.getByRole("button", { name: "Older month" }));
     await waitFor(() => expect(requests.at(-1)).toContain("month_id=10"));
   });
 
-  it("hides the member filter for a normal member but keeps the others", async () => {
-    mockApi({ manager: false });
-    renderPage();
+  it("starts a normal member on their own paid expenses, with everyone and mess cash to pick", async () => {
+    const requests = mockApi({ manager: false });
+    const user = userEvent.setup();
+    renderWithProviders(<ExpensesPage scope="own" />, { messId: 7 });
     await screen.findByText("November rent");
-    expect(screen.queryByLabelText("Recorded or paid by")).toBeNull();
+    expect(screen.getByLabelText("Paid by")).toHaveValue("2");
+    expect(requests.some((r) => r.includes("payer_id=2"))).toBe(true);
+    await user.selectOptions(screen.getByLabelText("Paid by"), "Mess cash");
+    await waitFor(() => expect(requests.at(-1)).toContain("paid_by=cash"));
     expect(screen.getByRole("group", { name: "Status" })).toBeInTheDocument();
     expect(screen.getByLabelText("Filter by category")).toBeInTheDocument();
   });

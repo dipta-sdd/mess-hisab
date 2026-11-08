@@ -262,7 +262,7 @@ it('lists expenses for any member with filters', function () {
         expectContractShape($row, 'Expense');
     }
 
-    expect($this->getJson(messPath($mess, "expenses?member_id={$me->id}"))->json('data'))->toHaveCount(1);
+    expect($this->getJson(messPath($mess, "expenses?payer_id={$me->id}"))->json('data'))->toHaveCount(1);
     expect($this->getJson(messPath($mess, 'expenses?status=pending'))->json('data'))->toHaveCount(1);
     expect($this->getJson(messPath($mess, "expenses?category_id={$catA->id}"))->json('data'))->toHaveCount(1);
     expect($this->getJson(messPath($mess, "expenses?month_id={$month->id}"))->json('data'))->toHaveCount(2);

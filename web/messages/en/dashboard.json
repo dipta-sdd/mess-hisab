@@ -106,8 +106,8 @@
       "toClose": "To pay to close the month",
       "getBackAtClose": "You get back when the month closes",
       "foodBill": "Food bill",
-      "pocketFixed": "Fixed expenses I paid from my pocket",
-      "pocketMeals": "Meals expenses I paid from my pocket"
+      "pocketFixed": "Fixed expenses",
+      "pocketMeals": "Meals expenses"
     },
     "statement": "See my full statement",
     "mess": {
@@ -123,8 +123,8 @@
       "title": "Paid this month",
       "payments": "Payments I made",
       "total": "Total paid",
-      "pocketFixed": "Fixed expenses I paid from my pocket",
-      "pocketMeals": "Meals expenses I paid from my pocket"
+      "pocketFixed": "Fixed expenses",
+      "pocketMeals": "Meals expenses"
     }
   },
   "adminTitle": "Mess overview",

@@ -11,7 +11,7 @@ import { formatBalance, formatMoney } from "@/lib/format";
 export function SpendingByCategory({ messId, monthId, mode }: { messId: number; monthId: number; mode: RoundingMode }) {
   const t = useTranslations("dashboard");
   const locale = useLocale() as AppLocale;
-  const expensesQ = useExpenses(messId, { monthId, status: "approved", memberId: null, categoryId: null });
+  const expensesQ = useExpenses(messId, { monthId, status: "approved", categoryId: null });
   const categoriesQ = useCategories(messId);
 
   const title = t("charts.spending.title");

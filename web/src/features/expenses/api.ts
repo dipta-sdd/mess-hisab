@@ -23,7 +23,7 @@ import { isNetworkError } from "@/lib/offline/sync";
 export interface CreateResult { expense: Expense; warnings: string[] }
 /** The expense could not be sent (no connection) and now waits in the offline queue. */
 export interface QueuedResult { queued: true }
-export interface ExpenseFilters { monthId: number | null; status: ExpenseStatus | null; memberId: number | null; categoryId: number | null }
+export interface ExpenseFilters { monthId: number | null; status: ExpenseStatus | null; payerId?: number | null; categoryId: number | null; paidBy?: "cash" | "member" | null }
 
 export const expensesKeys = {
   all: (messId: number) => ["expenses", messId] as const,
@@ -32,7 +32,7 @@ export const expensesKeys = {
   months: (messId: number) => ["expenses", messId, "months"] as const,
   currentMonth: (messId: number) => ["expenses", messId, "month-current"] as const,
   categories: (messId: number) => ["expenses", messId, "categories"] as const,
-  list: (messId: number, f: ExpenseFilters) => ["expenses", messId, "list", f.monthId, f.status, f.memberId, f.categoryId] as const,
+  list: (messId: number, f: ExpenseFilters) => ["expenses", messId, "list", f.monthId, f.status, f.payerId ?? null, f.categoryId, f.paidBy ?? null] as const,
   pending: (messId: number) => ["expenses", messId, "pending"] as const,
 };
 
@@ -84,7 +84,7 @@ export function useExpenses(messId: number, filters: ExpenseFilters) {
     queryFn: async () =>
       (
         await apiClient.get<ListResponse<Expense>>(`${base(messId)}/expenses`, {
-          query: { month_id: filters.monthId, status: filters.status, member_id: filters.memberId, category_id: filters.categoryId },
+          query: { month_id: filters.monthId, status: filters.status, payer_id: filters.payerId ?? undefined, category_id: filters.categoryId, paid_by: filters.paidBy ?? undefined },
         })
       ).data,
   });
