@@ -22,7 +22,7 @@ class MonthlyReportPdf
         $html = view('reports.monthly-pdf', [
             'r' => $data,
             // A no-break space so "Tk 1,344.01" never splits across lines in a narrow column.
-            'tk' => fn (int $paisa) => str_replace(' ', "\u{00A0}", self::money($paisa)),
+            'tk' => fn (int $paisa) => str_replace(' ', "\u{00A0}", Money::tk($paisa)),
             'monthName' => fn (string $date) => CarbonImmutable::parse($date)->format('F Y'),
             'day' => fn (?string $date) => $date ? CarbonImmutable::parse($date)->format('j M Y') : null,
             'categories' => $this->spendingByCategory($data['expenses']),
@@ -40,12 +40,6 @@ class MonthlyReportPdf
         $file = Str::slug($mess->name).'-'.substr($data['month']['starts_on'], 0, 7).'-report.pdf';
 
         return [$pdf->Output('', 'S'), $file];
-    }
-
-    /** "Tk 1,344.01", "Tk 3,500", "-Tk 3,511". */
-    public static function money(int $paisa): string
-    {
-        return Money::tk($paisa);
     }
 
     /** @return list<array{name: string, amount: int, count: int}> biggest first */

@@ -3,7 +3,6 @@
 namespace App\Services\Sms;
 
 use App\Jobs\Sms\SendSms;
-use App\Models\Mess;
 use App\Models\MessMember;
 use App\Models\Month;
 use App\Models\Payment;
@@ -55,23 +54,38 @@ class MemberNotifier
         });
     }
 
-    /** One text per active member with the month's final balance (below 0 owes, above 0 gets back). */
-    public function monthClosed(Mess $mess, Month $month): void
+    /**
+     * One text per active member with the month's final balance (below 0 owes, above 0 gets back).
+     * An archived member is only texted when they still owe or are owed something.
+     */
+    public function monthClosed(Month $month): void
     {
         $this->safely(function () use ($month) {
             $snapshot = $this->balances->snapshot($month);
             $totals = $snapshot->totals();
             $name = $month->starts_on->format('F');
-            $members = MessMember::query()->with('user')->whereIn('id', $snapshot->activeMemberIds)->get();
+            $ids = array_unique([...$snapshot->activeMemberIds, ...array_keys(array_filter($totals))]);
+            $members = MessMember::query()->with('user')->whereIn('id', $ids)->get();
 
             foreach ($members as $member) {
                 $balance = $totals[$member->id] ?? 0;
-                $this->send($member, $balance < 0 ? 'month_owes' : ($balance > 0 ? 'month_credit' : 'month_settled'), [
+                $this->safely(fn () => $this->send($member, $balance < 0 ? 'month_owes' : ($balance > 0 ? 'month_credit' : 'month_settled'), [
                     'month' => $name,
                     'amount' => Money::tk(abs($balance)),
-                ]);
+                ], $balance !== 0));
             }
         });
+    }
+
+    /** A changed payment: a new member means the old one is told it was cancelled and the new one that it arrived. */
+    public function paymentUpdated(Payment $payment, array $before): void
+    {
+        if ($payment->member_id !== $before['member_id']) {
+            $this->paymentCancelled($before['member_id'], $before['amount_paisa'], $before['paid_on']);
+            $this->paymentRecorded($payment);
+        } elseif ($payment->amount_paisa !== $before['amount_paisa'] || $payment->paid_on->toDateString() !== $before['paid_on']) {
+            $this->paymentChanged($payment, $before);
+        }
     }
 
     private function text(int $memberId, string $key, array $params): void
@@ -79,10 +93,10 @@ class MemberNotifier
         $this->send(MessMember::query()->with('user')->find($memberId), $key, $params);
     }
 
-    private function send(?MessMember $member, string $key, array $params): void
+    private function send(?MessMember $member, string $key, array $params, bool $evenIfArchived = false): void
     {
         $user = $member?->user;
-        if ($member === null || $member->isArchived() || $user === null || ! $user->hasVerifiedPhone()) {
+        if ($member === null || ($member->isArchived() && ! $evenIfArchived) || $user === null || ! $user->hasVerifiedPhone()) {
             return;
         }
 
@@ -95,7 +109,7 @@ class MemberNotifier
         try {
             $work();
         } catch (Throwable $e) {
-            Log::warning('Member SMS skipped: '.$e->getMessage());
+            Log::warning('Member SMS skipped ('.$e::class.'): '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
         }
     }
 

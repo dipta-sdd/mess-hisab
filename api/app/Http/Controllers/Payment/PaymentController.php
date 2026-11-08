@@ -76,12 +76,7 @@ class PaymentController extends Controller
         });
 
         $payment = $payment->fresh();
-        if ($payment->member_id !== $before['member_id']) {
-            $notifier->paymentCancelled($before['member_id'], $before['amount_paisa'], $before['paid_on']);
-            $notifier->paymentRecorded($payment);
-        } elseif ($payment->amount_paisa !== $before['amount_paisa'] || $payment->paid_on->toDateString() !== $before['paid_on']) {
-            $notifier->paymentChanged($payment, $before);
-        }
+        $notifier->paymentUpdated($payment, $before);
 
         return new PaymentResource($payment);
     }

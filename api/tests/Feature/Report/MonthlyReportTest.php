@@ -3,6 +3,7 @@
 use App\Models\Category;
 use App\Models\Month;
 use App\Models\User;
+use App\Support\Money;
 
 require_once __DIR__.'/../Lifecycle/LifecycleHelpers.php';
 
@@ -40,7 +41,7 @@ it('builds the report with per-person next-month totals matching the Fixed page'
     expect($data['expenses'][0]['category'])->toBe('Bazar');
     expect($data['members'])->toHaveCount(3);
     foreach ($data['members'] as $m) {
-        $balances[$m["member_id"]] = $m["balance_paisa"];
+        $balances[$m['member_id']] = $m['balance_paisa'];
         expect($m['share_paisa'])->toBe($m['fixed_bill_paisa'] + $m['meals_bill_paisa']);
         // The one bazar was paid from the payer's pocket: it counts as spent, not as a deposit.
         expect($m['spent_paisa'])->toBe($m['member_id'] === $data['expenses'][0]['paid_by_member_id'] ? 90000 : 0);
@@ -64,7 +65,7 @@ it('builds the report with per-person next-month totals matching the Fixed page'
         expect($row['last_month_due_paisa'])->toBe(max(0, -$carry));
         expect($row['last_month_credit_paisa'])->toBe(max(0, $carry));
         expect($row['total_paisa'])->toBe(max(0, 200000 - $carry));
-        expect($carry)->toBe($balances[$row["member_id"]]);
+        expect($carry)->toBe($balances[$row['member_id']]);
     }
 });
 
@@ -143,7 +144,7 @@ it('gives the PDF the same 409s as the report, for members too', function () {
 });
 
 it('formats PDF money in English taka', function () {
-    expect(\App\Services\Report\MonthlyReportPdf::money(134401))->toBe('Tk 1,344.01')
-        ->and(\App\Services\Report\MonthlyReportPdf::money(350000))->toBe('Tk 3,500')
-        ->and(\App\Services\Report\MonthlyReportPdf::money(-351100))->toBe('-Tk 3,511');
+    expect(Money::tk(134401))->toBe('Tk 1,344.01')
+        ->and(Money::tk(350000))->toBe('Tk 3,500')
+        ->and(Money::tk(-351100))->toBe('-Tk 3,511');
 });

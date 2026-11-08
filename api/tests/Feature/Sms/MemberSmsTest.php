@@ -3,6 +3,7 @@
 use App\Models\MessMember;
 use App\Models\Payment;
 use App\Models\User;
+use App\Services\Balance\MonthBalanceService;
 use App\Services\Sms\FakeSender;
 use App\Services\Sms\SmsSender;
 
@@ -118,7 +119,7 @@ it('texts every active verified member when a month closes, and nothing on reope
     $this->postJson("/api/messes/{$mess->id}/months/{$month->id}/close")->assertOk();
 
     expect($fake->sent)->toHaveCount($expected);
-    $totals = app(\App\Services\Balance\MonthBalanceService::class)->snapshot($month->refresh())->totals();
+    $totals = app(MonthBalanceService::class)->snapshot($month->refresh())->totals();
     foreach ($ids as $id) {
         $user = MessMember::find($id)->user;
         if (! $user || ! $user->hasVerifiedPhone()) {
@@ -151,4 +152,18 @@ it('still closes the month when the sender throws something unexpected', functio
     });
 
     $this->postJson("/api/messes/{$mess->id}/months/{$month->id}/close")->assertOk();
+});
+
+it('texts an archived member at close only when they still have a balance', function () {
+    [$mess, $me, $month, $ids] = kScenario();
+    $fake = msFake();
+    $totals = app(MonthBalanceService::class)->snapshot($month)->totals();
+    $withBalance = collect($ids)->first(fn ($id) => $id !== $me->id && ($totals[$id] ?? 0) !== 0 && MessMember::find($id)->user?->hasVerifiedPhone());
+    expect($withBalance)->not->toBeNull();
+    $member = MessMember::find($withBalance);
+    $member->forceFill(['archived_at' => now()])->save();
+
+    $this->postJson("/api/messes/{$mess->id}/months/{$month->id}/close")->assertOk();
+
+    expect($fake->sentTo($member->user->phone))->toHaveCount(1);
 });

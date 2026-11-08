@@ -25,7 +25,7 @@ class MonthLifecycleController extends Controller
     public function close(CloseMonthRequest $request, Mess $mess, Month $month, MonthCloser $closer, MemberNotifier $notifier): MonthResource
     {
         $closed = $closer->close($mess, $month, $request->resolution(), currentMember());
-        $notifier->monthClosed($mess, $month->refresh());
+        $notifier->monthClosed($month->refresh());
 
         return new MonthResource($closed);
     }
