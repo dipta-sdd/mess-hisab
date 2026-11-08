@@ -59,7 +59,7 @@ function mockApi(data: Dashboard = dashboard, spend: Expense[] = expenses) {
 const render = (props = {}, locale: "en" | "bn" = "en") => renderWithProviders(<StaffDashboard {...props} />, { messId: 7, locale });
 
 describe("StaffDashboard", () => {
-  it("renders totals, the cash card and the manager balance from the server", async () => {
+  it("renders totals and the cash card from the server, without the manager balance", async () => {
     const requests = mockApi();
     render();
     expect(await screen.findByTestId("stat-fixed-bills")).toHaveTextContent("৳8,400.00");
@@ -69,8 +69,7 @@ describe("StaffDashboard", () => {
     expect(cash).toHaveTextContent("Cash in manager's hand");
     expect(cash).toHaveTextContent("৳0.00");
     expect(screen.getByTestId("stat-rounding")).toHaveTextContent("৳0.00");
-    expect(screen.getByTestId("stat-manager-balance")).toHaveTextContent("Due ৳1,600.00");
-    expect(screen.getByTestId("stat-manager-balance")).toHaveTextContent("X's own balance");
+    expect(screen.queryByTestId("stat-manager-balance")).toBeNull();
     expect(screen.getByTestId("month-status")).toHaveTextContent("Status: Open");
     // default month: month_id is omitted
     expect(requests[0]).toBe("");

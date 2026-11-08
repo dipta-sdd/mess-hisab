@@ -15,11 +15,11 @@ import { Balance, MonthPicker, OverdueBadge, is404 } from "./shared";
 
 const isOverdue = (r: DashboardRow) => r.fixed_overdue_days > 0 || r.deposit_overdue_days > 0;
 
-function Row({ id, label, value }: { id: string; label: React.ReactNode; value: React.ReactNode }) {
+function Row({ id, label, value, tone }: { id: string; label: React.ReactNode; value: React.ReactNode; tone?: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2.5" data-testid={`stat-${id}`}>
       <dt className="text-sm text-muted">{label}</dt>
-      <dd className="break-words text-end font-medium tabular-nums">{value}</dd>
+      <dd className={`break-words text-end font-medium tabular-nums ${tone ?? ""}`}>{value}</dd>
     </div>
   );
 }
@@ -82,13 +82,21 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
   const members = data.members;
   const overdueCount = members.filter(isOverdue).length;
   const shown = view === "overdue" ? members.filter(isOverdue) : members;
-  const managerName = members.find((m) => m.member_id === data.manager_member_id)?.display_name;
   const stmtHref = (id: number) => `/${messId}/statements/${id}?month=${monthId}`;
   const toggle = (r: DashboardRow) => {
     const open = openId === r.member_id;
     return (
-      <Button size="sm" variant="ghost" aria-expanded={open} onPress={() => setOpenId(open ? null : r.member_id)}>
-        {open ? t("members.hideDetails", { name: r.display_name }) : t("members.details", { name: r.display_name })}
+      <Button
+        isIconOnly
+        size="sm"
+        variant="ghost"
+        aria-expanded={open}
+        aria-label={open ? t("members.hideDetails", { name: r.display_name }) : t("members.details", { name: r.display_name })}
+        onPress={() => setOpenId(open ? null : r.member_id)}
+      >
+        <svg aria-hidden="true" viewBox="0 0 20 20" className={`size-5 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m5 8 5 5 5-5" />
+        </svg>
       </Button>
     );
   };
@@ -155,9 +163,10 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
       <section aria-labelledby="cash-label" className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4" data-testid="cash-card">
         <div>
           <p id="cash-label" className="text-sm text-muted">{t("totals.cashPool")}</p>
-          <p className="text-4xl font-semibold tabular-nums" data-testid="stat-cash-pool">{money(data.cash_pool_paisa)}</p>
-          <p className="mt-1 text-sm text-muted">{t("totals.toCollect")}: <span className="font-medium tabular-nums text-foreground">{money(toCollect)}</span></p>
+          <p className={`text-4xl font-semibold tabular-nums ${data.cash_pool_paisa < 0 ? "text-danger" : "text-success"}`} data-testid="stat-cash-pool">{money(data.cash_pool_paisa)}</p>
+          <p className="mt-1 text-sm text-muted">{t("totals.toCollect")}: <span className={`font-medium tabular-nums ${toCollect > 0 ? "text-danger" : "text-success"}`}>{money(toCollect)}</span></p>
         </div>
+        {trackMeals ? (
         <dl className="flex gap-8">
           <div data-testid="stat-meal-rate">
             <dt className="text-sm text-muted">{t("totals.mealRate")}</dt>
@@ -168,6 +177,7 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
             <dd className="text-xl font-semibold tabular-nums">{formatMeals(totals.total_meals_centi, locale)}</dd>
           </div>
         </dl>
+        ) : null}
       </section>
 
       <section aria-labelledby="totals-title" className="grid rounded-2xl border border-border bg-surface md:grid-cols-2 md:divide-x md:divide-border">
@@ -178,20 +188,15 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
             <Row id="fixed-bills" label={t("totals.fixedBills")} value={money(totals.fixed_bills_paisa)} />
             <Row id="fixed-expenses" label={t("totals.fixedExpenses")} value={money(totals.fixed_expenses_paisa)} />
             <Row id="rounding" label={t("totals.roundingExtra")} value={money(totals.rounding_extra_paisa)} />
-            <Row
-              id="manager-balance"
-              label={managerName ? t("totals.managerBalanceNamed", { name: managerName }) : t("totals.managerBalance")}
-              value={<Balance paisa={data.manager_balance_paisa ?? 0} mode={mode} />}
-            />
           </dl>
         </div>
         <div className="border-t border-border p-4 md:border-t-0 md:p-5">
           <h3 className="text-base font-semibold">{t("totals.mealsGroup")}</h3>
           <dl className="mt-1 divide-y divide-border">
             <Row id="meals-expenses" label={t("totals.mealsExpenses")} value={money(totals.meals_expenses_paisa)} />
-            <Row id="food-cost" label={t("totals.foodCost")} value={money(totals.food_cost_paisa)} />
-            <Row id="charged" label={t("totals.charged")} value={money(totals.charged_paisa)} />
-            <Row id="paid" label={t("totals.paid")} value={money(totals.paid_paisa)} />
+            {trackMeals ? <Row id="food-cost" label={t("totals.foodCost")} value={money(totals.food_cost_paisa)} /> : null}
+            <Row id="charged" label={t("totals.charged")} value={money(totals.charged_paisa)} tone="text-danger" />
+            <Row id="paid" label={t("totals.paid")} value={money(totals.paid_paisa)} tone="text-success" />
           </dl>
         </div>
       </section>
