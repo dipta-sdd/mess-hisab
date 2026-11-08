@@ -8,6 +8,7 @@ use App\Http\Resources\PaymentResource;
 use App\Models\Mess;
 use App\Models\Payment;
 use App\Services\Payment\PaymentMonth;
+use App\Services\Sms\MemberNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -36,7 +37,7 @@ class PaymentController extends Controller
         return PaymentResource::collection($payments)->additional(['meta' => ['total' => $payments->count()]]);
     }
 
-    public function store(PaymentRequest $request, Mess $mess): JsonResponse
+    public function store(PaymentRequest $request, Mess $mess, MemberNotifier $notifier): JsonResponse
     {
         $data = $request->validated();
 
@@ -50,12 +51,19 @@ class PaymentController extends Controller
             ]);
         });
 
+        $notifier->paymentRecorded($payment);
+
         return (new PaymentResource($payment))->response()->setStatusCode(201);
     }
 
-    public function update(PaymentRequest $request, Mess $mess, Payment $payment): PaymentResource
+    public function update(PaymentRequest $request, Mess $mess, Payment $payment, MemberNotifier $notifier): PaymentResource
     {
         $data = $request->validated();
+        $before = [
+            'member_id' => $payment->member_id,
+            'amount_paisa' => $payment->amount_paisa,
+            'paid_on' => $payment->paid_on->toDateString(),
+        ];
 
         DB::transaction(function () use ($data, $mess, $payment) {
             PaymentMonth::assertOpen($payment->month);
@@ -67,15 +75,25 @@ class PaymentController extends Controller
             $payment->update($data);
         });
 
-        return new PaymentResource($payment->fresh());
+        $payment = $payment->fresh();
+        if ($payment->member_id !== $before['member_id']) {
+            $notifier->paymentCancelled($before['member_id'], $before['amount_paisa'], $before['paid_on']);
+            $notifier->paymentRecorded($payment);
+        } elseif ($payment->amount_paisa !== $before['amount_paisa'] || $payment->paid_on->toDateString() !== $before['paid_on']) {
+            $notifier->paymentChanged($payment, $before);
+        }
+
+        return new PaymentResource($payment);
     }
 
-    public function destroy(Mess $mess, Payment $payment): Response
+    public function destroy(Mess $mess, Payment $payment, MemberNotifier $notifier): Response
     {
         DB::transaction(function () use ($payment) {
             PaymentMonth::assertOpen($payment->month);
             $payment->delete();
         });
+
+        $notifier->paymentCancelled($payment->member_id, $payment->amount_paisa, $payment->paid_on);
 
         return response()->noContent();
     }

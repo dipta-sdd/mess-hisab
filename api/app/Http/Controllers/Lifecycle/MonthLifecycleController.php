@@ -11,6 +11,7 @@ use App\Models\Month;
 use App\Services\Month\Lifecycle\CloseChecker;
 use App\Services\Month\Lifecycle\MonthCloser;
 use App\Services\Month\Lifecycle\MonthReopener;
+use App\Services\Sms\MemberNotifier;
 use Illuminate\Http\Request;
 
 /** Task K: close / reopen a month. Manager only (routes/api/months.php). */
@@ -21,9 +22,12 @@ class MonthLifecycleController extends Controller
         return new ArrayResource($checker->check($mess, $month, $request->resolution()));
     }
 
-    public function close(CloseMonthRequest $request, Mess $mess, Month $month, MonthCloser $closer): MonthResource
+    public function close(CloseMonthRequest $request, Mess $mess, Month $month, MonthCloser $closer, MemberNotifier $notifier): MonthResource
     {
-        return new MonthResource($closer->close($mess, $month, $request->resolution(), currentMember()));
+        $closed = $closer->close($mess, $month, $request->resolution(), currentMember());
+        $notifier->monthClosed($mess, $month->refresh());
+
+        return new MonthResource($closed);
     }
 
     public function reopenPreview(Request $request, Mess $mess, Month $month, MonthReopener $reopener): ArrayResource

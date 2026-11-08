@@ -4,6 +4,7 @@ namespace App\Services\Report;
 
 use App\Models\Mess;
 use App\Models\Month;
+use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
@@ -44,10 +45,7 @@ class MonthlyReportPdf
     /** "Tk 1,344.01", "Tk 3,500", "-Tk 3,511". */
     public static function money(int $paisa): string
     {
-        $abs = abs($paisa);
-        $body = number_format(intdiv($abs, 100)).($abs % 100 ? sprintf('.%02d', $abs % 100) : '');
-
-        return ($paisa < 0 ? '-' : '').'Tk '.$body;
+        return Money::tk($paisa);
     }
 
     /** @return list<array{name: string, amount: int, count: int}> biggest first */
