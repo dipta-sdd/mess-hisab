@@ -1,4 +1,4 @@
-import { clearOfflineCopies } from "@/lib/offline/cached";
+import { clearOfflineCopies } from "@/lib/offline/clear";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Locale, OtpSent, User } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client/client";

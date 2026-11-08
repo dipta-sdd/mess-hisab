@@ -1,3 +1,4 @@
+import { clearOfflineCopies } from "@/lib/offline/clear";
 import { buildApiError } from "./errors";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -22,6 +23,8 @@ const SAFE_METHODS = new Set<string>(["GET", "HEAD", "OPTIONS"]);
 let unauthorizedHandler: () => void = defaultUnauthorized;
 
 function defaultUnauthorized() {
+  // The session ended without a logout; don't leave this person's offline copies for the next user.
+  clearOfflineCopies();
   if (typeof window !== "undefined" && window.location.pathname !== "/login") window.location.assign("/login");
 }
 

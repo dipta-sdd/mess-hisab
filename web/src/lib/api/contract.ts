@@ -98,7 +98,7 @@ export interface MonthInfo {
 export interface DashboardRow {
   member_id: number; display_name: string; is_archived: boolean; is_active: boolean;
   meals_centi: number; effective_meals_centi: number; carry_in_paisa: number;
-  fixed_bill_paisa: number; meals_bill_paisa: number; paid_paisa: number;
+  fixed_bill_paisa: number; meals_bill_paisa: number; paid_paisa: number; own_pocket_paisa: number; own_pocket_fixed_paisa: number; own_pocket_meals_paisa: number;
   fixed_balance_paisa: number; meals_balance_paisa: number; balance_paisa: number;
   fixed_outstanding_paisa: number; deposit_required_paisa: number; deposit_outstanding_paisa: number;
   fixed_overdue_days: number; deposit_overdue_days: number;

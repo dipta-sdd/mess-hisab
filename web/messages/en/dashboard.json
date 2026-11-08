@@ -63,7 +63,9 @@
     "depositOutstanding": "Deposit to pay",
     "overdueCol": "Overdue",
     "bill": "Bill",
-    "toPay": "Still to pay"
+    "toPay": "Still to pay",
+    "details": "Show breakdown for {name}",
+    "hideDetails": "Hide breakdown for {name}"
   },
   "charts": {
     "showTable": "Show as table",
@@ -99,7 +101,13 @@
       "fixedBill": "Fixed bill",
       "carryDue": "Last month due",
       "carryCredit": "Last month credit",
-      "paid": "Paid"
+      "paid": "Paid",
+      "other": "Adjustments",
+      "toClose": "To pay to close the month",
+      "getBackAtClose": "You get back when the month closes",
+      "foodBill": "Food bill",
+      "pocketFixed": "Fixed expenses I paid from my pocket",
+      "pocketMeals": "Meals expenses I paid from my pocket"
     },
     "statement": "See my full statement",
     "mess": {
@@ -110,7 +118,14 @@
     },
     "noRow": "No balance to show for this month.",
     "mealsPendingDue": "Meals so far: {amount} to pay, added when the month closes.",
-    "mealsPendingCredit": "Meals so far: {amount} credit, added when the month closes."
+    "mealsPendingCredit": "Meals so far: {amount} credit, added when the month closes.",
+    "paidThisMonth": {
+      "title": "Paid this month",
+      "payments": "Payments I made",
+      "total": "Total paid",
+      "pocketFixed": "Fixed expenses I paid from my pocket",
+      "pocketMeals": "Meals expenses I paid from my pocket"
+    }
   },
   "adminTitle": "Mess overview",
   "alerts": {

@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
-import { formatDate, formatMeals, formatMoney } from "@/lib/format";
+import { formatDate, formatMoney } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useDashboard, useHistory, useMessInfo } from "./api";
+import { HowItAdds, PaidThisMonth } from "./member-breakdown";
 import { MonthPicker, is404 } from "./shared";
 
 export function MemberDashboard({ memberId, initialMonthId = null }: { memberId: number; initialMonthId?: number | null }) {
@@ -22,6 +23,7 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
   const mode = messQ.data?.mess.rounding_mode ?? "two_decimals";
   const money = (paisa: number) => formatMoney(paisa, locale, mode);
   const data = dashQ.data;
+  const trackMeals = messQ.data?.mess.meal_tracking !== "off";
 
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-3">
@@ -69,29 +71,8 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
     : balance > 0 ? t("member.getBack", { amount: money(balance) })
     : t("member.settled");
 
-  const lines: { key: string; label: string; hint?: string; value: string }[] = row
-    ? [
-        { key: "meals", label: t("member.breakdown.meals"), value: formatMeals(row.meals_centi, locale) },
-        {
-          key: "meal-bill",
-          label: t("member.breakdown.mealBill"),
-          hint: t("member.breakdown.mealBillHint", { meals: formatMeals(row.meals_centi, locale), rate: money(totals.meal_rate_paisa) }),
-          value: money(row.meals_bill_paisa),
-        },
-        { key: "fixed-bill", label: t("member.breakdown.fixedBill"), value: money(row.fixed_bill_paisa) },
-        ...(row.carry_in_paisa !== 0
-          ? [{
-              key: "carry",
-              label: row.carry_in_paisa < 0 ? t("member.breakdown.carryDue") : t("member.breakdown.carryCredit"),
-              value: money(Math.abs(row.carry_in_paisa)),
-            }]
-          : []),
-        { key: "paid", label: t("member.breakdown.paid"), value: `− ${money(row.paid_paisa)}` },
-      ]
-    : [];
-
   const mini: { key: string; label: string; value: string }[] = [
-    { key: "meal-rate", label: t("member.mess.mealRate"), value: money(totals.meal_rate_paisa) },
+    ...(trackMeals ? [{ key: "meal-rate", label: t("member.mess.mealRate"), value: money(totals.meal_rate_paisa) }] : []),
     { key: "bazar", label: t("member.mess.totalBazar"), value: money(totals.meals_expenses_paisa) },
     { key: "cash", label: t("member.mess.cash"), value: money(data.cash_pool_paisa) },
   ];
@@ -122,21 +103,8 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
             ) : null}
           </section>
 
-          <section aria-labelledby="breakdown-title" className="rounded-2xl border border-border bg-surface p-4">
-            <h2 id="breakdown-title" className="mb-2 text-lg font-semibold">{t("member.breakdown.title")}</h2>
-            <dl className="flex flex-col divide-y divide-border">
-              {lines.map((l) => (
-                <div key={l.key} className="flex items-start justify-between gap-3 py-2" data-testid={`line-${l.key}`}>
-                  <dt className="min-w-0">
-                    {l.label}
-                    {l.hint ? <span className="block text-sm text-muted">{l.hint}</span> : null}
-                  </dt>
-                  <dd className="shrink-0 font-medium tabular-nums">{l.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <Link href={statementHref} className="mt-3 inline-block text-sm font-medium text-accent underline">{t("member.statement")}</Link>
-          </section>
+          <PaidThisMonth row={row} money={money} />
+          <HowItAdds row={row} totals={totals} money={money} locale={locale} trackMeals={trackMeals} statementHref={statementHref} />
         </>
       ) : (
         <p className="text-muted">{t("member.noRow")}</p>
@@ -144,7 +112,7 @@ export function MemberDashboard({ memberId, initialMonthId = null }: { memberId:
 
       <section aria-labelledby="mess-title" className="flex flex-col gap-2">
         <h2 id="mess-title" className="text-sm font-semibold text-muted">{t("member.mess.title")}</h2>
-        <dl className="grid grid-cols-3 gap-2">
+        <dl className={`grid gap-2 ${trackMeals ? "grid-cols-3" : "grid-cols-2"}`}>
           {mini.map((s) => (
             <div key={s.key} className="rounded-xl border border-border bg-surface p-2" data-testid={`mini-${s.key}`}>
               <dt className="text-sm text-muted">{s.label}</dt>

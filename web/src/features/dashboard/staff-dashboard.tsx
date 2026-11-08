@@ -3,13 +3,14 @@
 import { Button } from "@heroui/react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import type { AppLocale } from "@/i18n/config";
 import type { DashboardRow } from "@/lib/api/contract";
 import { formatDate, formatMeals, formatMoney, formatMonthLabel, formatNumber } from "@/lib/format";
 import { useMess } from "@/lib/mess/mess-context";
 import { useDashboard, useHistory, useMessInfo } from "./api";
 import { MemberBalances, SpendingByCategory } from "./charts";
+import { HowItAdds, PaidThisMonth } from "./member-breakdown";
 import { Balance, MonthPicker, OverdueBadge, is404 } from "./shared";
 
 const isOverdue = (r: DashboardRow) => r.fixed_overdue_days > 0 || r.deposit_overdue_days > 0;
@@ -30,6 +31,7 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
 
   const [picked, setPicked] = useState<number | null>(initialMonthId);
   const [view, setView] = useState<"all" | "overdue">("all");
+  const [openId, setOpenId] = useState<number | null>(null);
 
   const messQ = useMessInfo(messId);
   const historyQ = useHistory(messId);
@@ -38,6 +40,7 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
   const mode = messQ.data?.mess.rounding_mode ?? "two_decimals";
   const money = (paisa: number) => formatMoney(paisa, locale, mode);
   const data = dashQ.data;
+  const trackMeals = messQ.data?.mess.meal_tracking !== "off";
 
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-3">
@@ -81,6 +84,20 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
   const shown = view === "overdue" ? members.filter(isOverdue) : members;
   const managerName = members.find((m) => m.member_id === data.manager_member_id)?.display_name;
   const stmtHref = (id: number) => `/${messId}/statements/${id}?month=${monthId}`;
+  const toggle = (r: DashboardRow) => {
+    const open = openId === r.member_id;
+    return (
+      <Button size="sm" variant="ghost" aria-expanded={open} onPress={() => setOpenId(open ? null : r.member_id)}>
+        {open ? t("members.hideDetails", { name: r.display_name }) : t("members.details", { name: r.display_name })}
+      </Button>
+    );
+  };
+  const detail = (r: DashboardRow) => (
+    <div className="flex flex-col gap-3 p-3" data-testid={`member-detail-${r.member_id}`}>
+      <PaidThisMonth row={r} money={money} />
+      <HowItAdds row={r} totals={totals} money={money} locale={locale} trackMeals={trackMeals} statementHref={stmtHref(r.member_id)} />
+    </div>
+  );
   const toCollect = members.reduce((sum, m) => sum + m.fixed_outstanding_paisa + m.deposit_outstanding_paisa, 0);
 
   // History is newest first, so the older month sits one step further along the list.
@@ -232,6 +249,8 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
                       </div>
                     ) : null}
                   </Link>
+                  <div className="px-3 pb-2">{toggle(r)}</div>
+                  {openId === r.member_id ? detail(r) : null}
                 </li>
               ))}
             </ul>
@@ -246,11 +265,13 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
                     <th scope="col" className="px-4 py-3 text-end font-medium">{splitBalances ? t("members.fixedBalance") : t("members.balance")}</th>
                     {splitBalances ? <th scope="col" className="px-4 py-3 text-end font-medium">{t("members.mealsBalance")}</th> : null}
                     <th scope="col" className="px-4 py-3 text-start font-medium">{t("members.overdueCol")}</th>
+                    <th scope="col" className="px-4 py-3"><span className="sr-only">{t("members.details", { name: "" })}</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {shown.map((r) => (
-                    <tr key={r.member_id} className="hover:bg-default/50" data-testid={`member-row-${r.member_id}`}>
+                    <Fragment key={r.member_id}>
+                    <tr className="hover:bg-default/50" data-testid={`member-row-${r.member_id}`}>
                       <th scope="row" className="px-4 py-3 text-start font-medium">
                         <Link href={stmtHref(r.member_id)} className="hover:underline">{r.display_name}</Link>
                         {r.is_archived ? <span className="ms-2 text-sm font-normal text-muted">{t("members.archived")}</span> : null}
@@ -265,7 +286,12 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
                           <OverdueBadge days={r.deposit_overdue_days} kind="deposit" />
                         </div>
                       </td>
+                      <td className="px-4 py-3 text-end">{toggle(r)}</td>
                     </tr>
+                    {openId === r.member_id ? (
+                      <tr><td colSpan={splitBalances ? 7 : 6} className="bg-default/30">{detail(r)}</td></tr>
+                    ) : null}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
