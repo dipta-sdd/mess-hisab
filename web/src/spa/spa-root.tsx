@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
+import { InstallProvider } from "@/components/pwa/install-context";
 import { IntlRoot } from "@/i18n/client";
 import { Routes } from "./routes";
 
@@ -16,10 +17,12 @@ function useServiceWorker() {
 export function SpaRoot() {
   useServiceWorker();
   return (
-    <IntlRoot>
-      <Suspense>
-        <Routes />
-      </Suspense>
-    </IntlRoot>
+    <InstallProvider>
+      <IntlRoot>
+        <Suspense>
+          <Routes />
+        </Suspense>
+      </IntlRoot>
+    </InstallProvider>
   );
 }

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { PhoneGate } from "@/components/auth/phone-gate";
-import { InstallProvider } from "@/components/pwa/install-context";
+import { InstallBanner } from "@/components/pwa/install-banner";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { OfflineSync } from "@/components/pwa/offline-sync";
 import { AppShell } from "@/components/shell/app-shell";
@@ -21,6 +21,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
             <ThemeToggle />
           </div>
         </div>
+        <InstallBanner />
         <main className="flex flex-1 flex-col justify-center">{children}</main>
       </div>
     </div>
@@ -49,12 +50,10 @@ export function OnboardingLayout({ children }: { children: ReactNode }) {
 export function MessLayout({ messId, children }: { messId: number; children: ReactNode }) {
   return (
     <MessProvider messId={messId}>
-      <InstallProvider>
-        <OfflineSync />
-        <PhoneGate>
-          <AppShell>{children}</AppShell>
-        </PhoneGate>
-      </InstallProvider>
+      <OfflineSync />
+      <PhoneGate>
+        <AppShell>{children}</AppShell>
+      </PhoneGate>
     </MessProvider>
   );
 }
