@@ -8,6 +8,7 @@
     "install": "Install",
     "later": "Not now",
     "menu": "Install app",
-    "iosSteps": "Tap the Share button in Safari, then choose “Add to Home Screen”."
+    "iosSteps": "Tap the Share button in Safari, then choose “Add to Home Screen”.",
+    "otherSteps": "Open your browser menu (⋮) and choose “Install app” or “Add to Home screen”."
   }
 }

@@ -20,11 +20,15 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+/** Chrome fires beforeinstallprompt once, early; keep it until the install provider mounts. */
+const installCaptureScript = `window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installEvent=e;});`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: installCaptureScript }} />
       </head>
       <body>
         <Providers>{children}</Providers>

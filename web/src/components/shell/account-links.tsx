@@ -122,7 +122,7 @@ export function AccountMenu({ messId }: { messId: number }) {
                 <NavIcon name="install" />
                 {ti("menu")}
               </Button>
-              {showSteps && !install.canPrompt ? <p className="px-3 pb-2 text-sm text-muted">{ti("iosSteps")}</p> : null}
+              {showSteps && !install.canPrompt ? <p className="px-3 pb-2 text-sm text-muted">{install.ios ? ti("iosSteps") : ti("otherSteps")}</p> : null}
             </>
           ) : null}
           <Button
