@@ -50,14 +50,16 @@ export function useMembers(messId: number, enabled = true) {
   return useQuery({
     queryKey: expensesKeys.members(messId),
     enabled,
-    queryFn: async () => (await apiClient.get<ListResponse<Member>>(`${base(messId)}/members`)).data,
+    networkMode: "always",
+    queryFn: () => withOfflineCopy(`members:${messId}`, async () => (await apiClient.get<ListResponse<Member>>(`${base(messId)}/members`)).data),
   });
 }
 
 export function useMonths(messId: number) {
   return useQuery({
     queryKey: expensesKeys.months(messId),
-    queryFn: async () => (await apiClient.get<ListResponse<Month>>(`${base(messId)}/months`)).data,
+    networkMode: "always",
+    queryFn: () => withOfflineCopy(`months:${messId}`, async () => (await apiClient.get<ListResponse<Month>>(`${base(messId)}/months`)).data),
   });
 }
 
@@ -81,12 +83,15 @@ export function useExpenses(messId: number, filters: ExpenseFilters) {
   return useQuery({
     queryKey: expensesKeys.list(messId, filters),
     enabled: filters.monthId !== null,
-    queryFn: async () =>
-      (
-        await apiClient.get<ListResponse<Expense>>(`${base(messId)}/expenses`, {
-          query: { month_id: filters.monthId, status: filters.status, payer_id: filters.payerId ?? undefined, category_id: filters.categoryId, paid_by: filters.paidBy ?? undefined },
-        })
-      ).data,
+    networkMode: "always",
+    queryFn: () =>
+      withOfflineCopy(`expenses:${messId}:${JSON.stringify(filters)}`, async () =>
+        (
+          await apiClient.get<ListResponse<Expense>>(`${base(messId)}/expenses`, {
+            query: { month_id: filters.monthId, status: filters.status, payer_id: filters.payerId ?? undefined, category_id: filters.categoryId, paid_by: filters.paidBy ?? undefined },
+          })
+        ).data,
+      ),
   });
 }
 
