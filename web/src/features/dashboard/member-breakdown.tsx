@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/lib/nav";
 import { useTranslations } from "next-intl";
 import type { AppLocale } from "@/i18n/config";
 import type { DashboardRow, DashboardTotals } from "@/lib/api/contract";

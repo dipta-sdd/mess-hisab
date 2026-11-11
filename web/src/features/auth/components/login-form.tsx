@@ -3,8 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Link } from "@/lib/nav";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { TextInputField } from "@/features/mess/ui/fields";

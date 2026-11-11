@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useChangeLocale } from "@/i18n/client";
 import { LOCALE_COOKIE, isLocale } from "@/i18n/config";
 import type { User } from "@/lib/api/contract";
 import { apiClient } from "@/lib/api-client/client";
@@ -13,14 +13,14 @@ import { writeLocaleCookie } from "@/lib/i18n/language-switcher";
  */
 export function useSyncLocaleAfterLogin() {
   const current = useLocale();
-  const router = useRouter();
+  const changeLocale = useChangeLocale();
 
   return (user: Pick<User, "locale">) => {
     if (!isLocale(user.locale) || user.locale === current) return;
     const hasChoice = document.cookie.split("; ").some((c) => c.startsWith(`${LOCALE_COOKIE}=`));
     if (!hasChoice) {
       writeLocaleCookie(user.locale);
-      router.refresh();
+      void changeLocale(user.locale);
     } else {
       apiClient.patch("/api/auth/me", { locale: current }, { skipUnauthorized: true }).catch(() => {});
     }

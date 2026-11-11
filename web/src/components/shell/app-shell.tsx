@@ -1,7 +1,8 @@
 "use client";
 
 import { Button, Drawer } from "@heroui/react";
-import Link from "next/link";
+import { Link } from "@/lib/nav";
+import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -175,6 +176,7 @@ export function AppShell({ children, items = navRegistry }: { children: React.Re
             <AccountMenu messId={messId} />
           </div>
         </header>
+        <OfflineBanner />
         <main id="main-content" className={`min-w-0 flex-1 p-4 md:p-6 ${barItems.length > 0 ? "pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6" : ""}`}>
           {children}
         </main>

@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
-import createNextIntlPlugin from "next-intl/plugin";
 
-// cacheComponents / partialPrefetching are off on purpose: the app is a client-driven SPA over the
-// Laravel API, and the locale comes from a cookie (PROJECT.md decisions, "web").
+// A pure client-side app over the Laravel API: no server rendering anywhere. `next build` writes
+// plain files to out/; the web server answers every path with out/index.html and the browser's
+// router (src/spa) draws the page. scripts/build-sw.mjs then adds the offline service worker.
 const nextConfig: NextConfig = {
-  // Self-contained server bundle for the VPS (run with `node .next/standalone/server.js`).
-  output: "standalone",
+  output: "export",
+  images: { unoptimized: true },
+  trailingSlash: false,
   turbopack: {
     rules: {
       "*.css": {
@@ -16,4 +17,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default createNextIntlPlugin("./src/i18n/request.ts")(nextConfig);
+export default nextConfig;

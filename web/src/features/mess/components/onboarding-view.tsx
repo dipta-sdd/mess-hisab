@@ -2,8 +2,8 @@
 
 import { Card, Chip, Spinner } from "@heroui/react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link } from "@/lib/nav";
+import { useRouter } from "@/lib/nav";
 import { useEffect } from "react";
 import { useSession } from "@/features/auth/api";
 import { messHomePath } from "../api";

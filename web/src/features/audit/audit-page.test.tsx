@@ -27,13 +27,15 @@ const nav = vi.hoisted(() => {
   };
 });
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/3/audit",
+vi.mock("@/lib/nav", async (orig) => ({
+  ...(await orig<object>()),
   useRouter: () => ({
     replace: (url: string) => nav.set(url.includes("?") ? url.slice(url.indexOf("?") + 1) : ""),
     push: vi.fn(),
-    refresh: vi.fn(),
   }),
+}));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/3/audit",
   useSearchParams: () => new URLSearchParams(useSyncExternalStore(nav.subscribe, nav.get, nav.get)),
 }));
 

@@ -15,6 +15,7 @@ import { ResetPasswordForm } from "./reset-password-form";
 const replace = vi.fn();
 const refresh = vi.fn();
 let search = new URLSearchParams();
+vi.mock("@/lib/nav", async (orig) => ({ ...(await orig<object>()), useRouter: () => ({ replace, refresh, push: vi.fn() }) }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace, refresh, push: vi.fn() }),
   useSearchParams: () => search,
@@ -110,7 +111,7 @@ describe("LoginForm", () => {
       }),
     );
     await signInAs("bn");
-    await waitFor(() => expect(refresh).toHaveBeenCalled());
+    await waitFor(() => expect(document.cookie).toContain("NEXT_LOCALE=bn"));
     expect(document.cookie).toContain("NEXT_LOCALE=bn");
     expect(patch).not.toHaveBeenCalled();
   });

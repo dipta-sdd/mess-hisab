@@ -7,18 +7,15 @@ import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/msw/server";
 import { LanguageSwitcher } from "./language-switcher";
 
-const refresh = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 
 beforeEach(() => {
-  refresh.mockClear();
   resetApiClientState();
   document.cookie = "NEXT_LOCALE=; max-age=0; path=/";
   document.cookie = "XSRF-TOKEN=t; path=/";
 });
 
 describe("LanguageSwitcher", () => {
-  it("sets the cookie, refreshes and PATCHes the profile", async () => {
+  it("sets the cookie and PATCHes the profile", async () => {
     const patched = vi.fn();
     server.use(
       http.patch(`${API_BASE_URL}/api/auth/me`, async ({ request }) => {
@@ -31,7 +28,6 @@ describe("LanguageSwitcher", () => {
     await userEvent.click(screen.getByRole("button", { name: "বাংলা" }));
 
     expect(document.cookie).toContain("NEXT_LOCALE=bn");
-    expect(refresh).toHaveBeenCalled();
     await waitFor(() => expect(patched).toHaveBeenCalledWith({ locale: "bn" }));
   });
 
@@ -40,6 +36,5 @@ describe("LanguageSwitcher", () => {
     renderWithProviders(<LanguageSwitcher />);
     await userEvent.click(screen.getByRole("button", { name: "বাংলা" }));
     expect(document.cookie).toContain("NEXT_LOCALE=bn");
-    expect(refresh).toHaveBeenCalled();
   });
 });

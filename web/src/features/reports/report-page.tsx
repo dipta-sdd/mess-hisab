@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/lib/nav";
 import { Button } from "@heroui/react";
 import { useState } from "react";
 import { MonthStepper } from "@/components/ui/month-stepper";

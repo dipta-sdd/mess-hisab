@@ -6,17 +6,11 @@ import { useMessInfo } from "@/features/expenses/api";
 import { useMess } from "@/lib/mess/mess-context";
 import { syncQueued } from "@/lib/offline/sync";
 
-/** Registers the service worker and sends queued expenses when the app opens or the connection returns. */
+/** Sends queued expenses when the app opens or the connection returns. */
 export function OfflineSync() {
   const { messId } = useMess();
   const client = useQueryClient();
   const meId = useMessInfo(messId).data?.me.id;
-
-  useEffect(() => {
-    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
-      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-    }
-  }, []);
 
   useEffect(() => {
     if (meId === undefined) return;

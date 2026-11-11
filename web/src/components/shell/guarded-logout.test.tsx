@@ -7,6 +7,7 @@ import { server } from "@/test/msw/server";
 import { renderWithProviders } from "@/test/render";
 import { useGuardedLogout } from "./guarded-logout";
 
+vi.mock("@/lib/nav", async (orig) => ({ ...(await orig<object>()), useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 const count = vi.fn<() => Promise<number>>();
 vi.mock("@/lib/offline/queue", () => ({ countQueued: () => count() }));

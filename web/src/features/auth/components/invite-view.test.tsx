@@ -10,6 +10,7 @@ import { InviteView } from "./invite-view";
 import { Landing } from "./landing";
 
 const replace = vi.fn();
+vi.mock("@/lib/nav", async (orig) => ({ ...(await orig<object>()), useRouter: () => ({ replace, refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace, refresh: vi.fn(), push: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Modal } from "@heroui/react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useLogout } from "@/features/auth";

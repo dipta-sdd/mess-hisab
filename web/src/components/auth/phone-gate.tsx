@@ -3,7 +3,7 @@
 import { Spinner } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useEffect, type ReactNode } from "react";
 import { isApiError } from "@/lib/api-client/errors";
 import { useMe } from "@/lib/api-client/auth";

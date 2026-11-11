@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Membership, User } from "@/lib/api/contract";
+import { withOfflineCopy } from "@/lib/offline/cached";
 import { apiClient } from "./client";
 
 export interface MeResponse {
@@ -11,8 +12,10 @@ export const meQueryKey = ["auth", "me"] as const;
 
 /** GET /api/auth/me. Accepts both `{user, memberships}` and a `{data: ...}` envelope. */
 export async function fetchMe(): Promise<MeResponse> {
-  const body = await apiClient.get<MeResponse | { data: MeResponse }>("/api/auth/me");
-  return body && "data" in body ? body.data : (body as MeResponse);
+  return withOfflineCopy("me", async () => {
+    const body = await apiClient.get<MeResponse | { data: MeResponse }>("/api/auth/me");
+    return body && "data" in body ? body.data : (body as MeResponse);
+  });
 }
 
 export function useMe() {

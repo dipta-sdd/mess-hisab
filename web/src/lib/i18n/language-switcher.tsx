@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useChangeLocale } from "@/i18n/client";
 import { isLocale, LOCALE_COOKIE, locales, type AppLocale } from "@/i18n/config";
 import { apiClient } from "@/lib/api-client/client";
 
@@ -13,16 +13,16 @@ export function writeLocaleCookie(locale: AppLocale) {
 }
 
 /**
- * Returns `setLocale(next)`: sets the cookie, refreshes server components, and (fire-and-forget)
+ * Returns `setLocale(next)`: sets the cookie, reloads the messages in place, and (fire-and-forget)
  * saves the choice on the user profile. A guest's 401 / any failure is ignored.
  */
 export function useSetLocale() {
-  const router = useRouter();
+  const changeLocale = useChangeLocale();
 
   return function setLocale(next: AppLocale) {
     if (!isLocale(next)) return;
     writeLocaleCookie(next);
-    router.refresh();
+    void changeLocale(next);
     apiClient.patch("/api/auth/me", { locale: next }, { skipUnauthorized: true }).catch(() => {});
   };
 }

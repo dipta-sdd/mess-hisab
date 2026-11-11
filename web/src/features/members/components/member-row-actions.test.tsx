@@ -10,6 +10,7 @@ import dashboardFixture from "../../../../../docs/contract-fixtures/Dashboard.js
 import settlementFixture from "../../../../../docs/contract-fixtures/SettlementResult.json";
 import { MemberRowActions } from "./member-row-actions";
 
+vi.mock("@/lib/nav", async (orig) => ({ ...(await orig<object>()), useRouter: () => ({ replace: vi.fn(), refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), refresh: vi.fn(), push: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),

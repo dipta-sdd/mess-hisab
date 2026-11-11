@@ -3,10 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Link } from "@/lib/nav";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useChangeLocale } from "@/i18n/client";
 import { isLocale, locales, type AppLocale } from "@/i18n/config";
 import { writeLocaleCookie } from "@/lib/i18n/language-switcher";
 import { ErrorAlert, useFormError } from "@/features/mess/ui/errors";
@@ -40,6 +42,7 @@ const LANGUAGE_NAMES: Record<AppLocale, string> = { en: "English", bn: "বা�
 export function RegisterForm() {
   const t = useTranslations("auth");
   const router = useRouter();
+  const changeLocale = useChangeLocale();
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
   const current = useLocale();
@@ -73,7 +76,7 @@ export function RegisterForm() {
       stashResendFromNow();
       if (values.locale !== current) {
         writeLocaleCookie(values.locale);
-        router.refresh();
+        void changeLocale(values.locale);
       }
       router.replace(`/verify-phone${nextQuery}`);
     } catch (error) {

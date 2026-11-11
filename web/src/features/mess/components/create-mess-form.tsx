@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { messHomePath, useCreateMess, type CreateMessPayload } from "../api";

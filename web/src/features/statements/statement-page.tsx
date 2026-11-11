@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/lib/nav";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Tabs } from "@heroui/react";

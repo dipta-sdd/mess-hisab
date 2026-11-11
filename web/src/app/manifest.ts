@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+export const dynamic = "force-static";
+
 // Installable. The service worker (public/sw.js) caches only the app shell, never API data, so balances are never served stale.
 export default function manifest(): MetadataRoute.Manifest {
   return {

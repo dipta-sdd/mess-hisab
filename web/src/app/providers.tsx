@@ -13,7 +13,7 @@ export function shouldRetry(failureCount: number, error: unknown): boolean {
 export function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
-      queries: { retry: shouldRetry, staleTime: 30_000, refetchOnWindowFocus: false },
+      queries: { networkMode: "always", retry: shouldRetry, staleTime: 30_000, refetchOnWindowFocus: false },
       mutations: { retry: false },
     },
   });

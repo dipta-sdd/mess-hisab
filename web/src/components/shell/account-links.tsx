@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Popover } from "@heroui/react";
-import Link from "next/link";
+import { Link } from "@/lib/nav";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

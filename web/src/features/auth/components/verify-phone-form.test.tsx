@@ -11,6 +11,7 @@ import { VerifyPhoneForm } from "./verify-phone-form";
 
 const replace = vi.fn();
 let search = new URLSearchParams();
+vi.mock("@/lib/nav", async (orig) => ({ ...(await orig<object>()), useRouter: () => ({ replace, refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace, refresh: vi.fn(), push: vi.fn() }),
   useSearchParams: () => search,

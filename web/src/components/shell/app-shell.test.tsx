@@ -10,6 +10,7 @@ import { renderWithProviders } from "@/test/render";
 import { AppShell } from "./app-shell";
 import { rolesOf, visibleNavItems } from "./nav-items";
 
+vi.mock("@/lib/nav", async (orig) => ({ ...(await orig<object>()), useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }), usePathname: () => "/7/expenses" }));
 
 const items: NavItem[] = [

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/lib/nav";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

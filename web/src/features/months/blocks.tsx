@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/lib/nav";
 import { useTranslations } from "next-intl";
 import type { CloseBlock, ReopenPreview } from "@/lib/api/contract";
 

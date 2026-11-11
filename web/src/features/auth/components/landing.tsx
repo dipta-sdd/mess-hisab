@@ -2,7 +2,7 @@
 
 import { Spinner } from "@heroui/react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useEffect } from "react";
 import { messHomePath } from "@/features/mess/api";
 import { ErrorAlert, useApiErrorText } from "@/features/mess/ui/errors";

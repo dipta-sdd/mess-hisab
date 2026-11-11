@@ -11,6 +11,7 @@ import { server } from "@/test/msw/server";
 import { renderWithProviders } from "@/test/render";
 
 let path = "/7";
+vi.mock("@/lib/nav", async (orig) => ({ ...(await orig<object>()), useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }), usePathname: () => path }));
 
 const BASE = `${API_BASE_URL}/api/messes/7`;

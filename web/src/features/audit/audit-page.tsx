@@ -2,7 +2,8 @@
 
 import { Button, Spinner } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useState } from "react";
 import type { AppLocale } from "@/i18n/config";
 import type { AuditLog } from "@/lib/api/contract";

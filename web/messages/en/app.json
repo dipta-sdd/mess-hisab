@@ -1,6 +1,7 @@
 {
   "name": "Mess Hisab",
   "description": "Shared-house accounts",
+  "offline": "You are offline. The app works from its saved copy; new expenses are kept on this device and sent when you are back online.",
   "install": {
     "title": "Install Mess Hisab",
     "body": "Add it to your home screen to open it like an app and save expenses offline.",

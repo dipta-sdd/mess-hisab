@@ -2,7 +2,8 @@
 
 import { Spinner } from "@heroui/react";
 import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/nav";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetchSession, sessionQueryKey } from "../api";

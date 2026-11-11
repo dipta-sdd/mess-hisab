@@ -15,8 +15,8 @@ echo "==> web: install and build"
 cd "$REPO_DIR/web"
 corepack pnpm install --frozen-lockfile
 NEXT_PUBLIC_API_URL="$PUBLIC_URL" corepack pnpm build
-cp -r .next/static .next/standalone/.next/
-cp -r public .next/standalone/
+# Static export: web/out is plain files (no Node server). nginx must serve index.html for every
+# unknown path (try_files $uri /index.html) and send sw.js with Cache-Control: no-cache.
 
 echo "==> api: sync code (keeps .env, vendor, storage)"
 rsync -a --delete \
@@ -32,8 +32,8 @@ php artisan view:cache
 pm2 restart mess-queue
 
 echo "==> web: release"
-rsync -a --delete "$REPO_DIR/web/.next/standalone/" "$WEB_DIR/"
-pm2 restart mess-web
+rsync -a --delete "$REPO_DIR/web/out/" "$WEB_DIR/"
+pm2 delete mess-web 2>/dev/null || true
 pm2 save
 
 echo "==> done"

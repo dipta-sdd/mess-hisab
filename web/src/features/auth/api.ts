@@ -1,3 +1,4 @@
+import { withOfflineCopy } from "@/lib/offline/cached";
 import { clearOfflineCopies } from "@/lib/offline/clear";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Locale, OtpSent, User } from "@/lib/api/contract";
@@ -14,9 +15,13 @@ export const sessionQueryKey = ["auth", "session"] as const;
  */
 export async function fetchSession(): Promise<MeResponse | null> {
   try {
-    return unwrap<MeResponse>(await apiClient.get("/api/auth/me", { skipUnauthorized: true }));
+    // Offline, the last signed-in copy is used so an installed app still opens.
+    return await withOfflineCopy("me", async () => unwrap<MeResponse>(await apiClient.get("/api/auth/me", { skipUnauthorized: true })));
   } catch (error) {
-    if (isApiError(error) && error.isUnauthorized) return null;
+    if (isApiError(error) && error.isUnauthorized) {
+      clearOfflineCopies();
+      return null;
+    }
     throw error;
   }
 }
