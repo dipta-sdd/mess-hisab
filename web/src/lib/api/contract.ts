@@ -111,7 +111,7 @@ export interface DashboardTotals {
 /** GET /messes/{mess}/dashboard. For a normal member `members` holds only their own row and manager_balance_paisa is null. cash_pool_paisa is the mess's current pool, whatever month is viewed. */
 export interface Dashboard {
   month: MonthInfo; today: DateString; totals: DashboardTotals;
-  cash_pool_paisa: number; manager_member_id: number | null; manager_balance_paisa: number | null;
+  cash_pool_paisa: number; cash_pool_fixed_paisa: number | null; cash_pool_meals_paisa: number | null; manager_member_id: number | null; manager_balance_paisa: number | null;
   members: DashboardRow[];
 }
 export type StatementLineKind =

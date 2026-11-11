@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import Link from "next/link";
+import { Link } from "@/lib/nav";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useState } from "react";
 import type { AppLocale } from "@/i18n/config";
@@ -164,6 +164,12 @@ export function StaffDashboard({ initialMonthId = null }: { initialMonthId?: num
         <div>
           <p id="cash-label" className="text-sm text-muted">{t("totals.cashPool")}</p>
           <p className={`text-4xl font-semibold tabular-nums ${data.cash_pool_paisa < 0 ? "text-danger" : "text-success"}`} data-testid="stat-cash-pool">{money(data.cash_pool_paisa)}</p>
+          {trackMeals && data.cash_pool_fixed_paisa != null && data.cash_pool_meals_paisa != null ? (
+            <p className="mt-1 text-sm text-muted" data-testid="cash-breakdown">
+              {t("totals.cashFixed")}: <span className="font-medium tabular-nums" data-testid="stat-cash-fixed">{money(data.cash_pool_fixed_paisa)}</span>
+              {" · "}{t("totals.cashMeals")}: <span className="font-medium tabular-nums" data-testid="stat-cash-meals">{money(data.cash_pool_meals_paisa)}</span>
+            </p>
+          ) : null}
           <p className="mt-1 text-sm text-muted">{t("totals.toCollect")}: <span className={`font-medium tabular-nums ${toCollect > 0 ? "text-danger" : "text-success"}`}>{money(toCollect)}</span></p>
         </div>
         {trackMeals ? (

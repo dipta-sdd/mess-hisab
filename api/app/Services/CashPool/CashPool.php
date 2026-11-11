@@ -20,19 +20,38 @@ class CashPool
 {
     public static function balance(Mess $mess): int
     {
+        $split = self::breakdown($mess);
+
+        return $split['fixed'] + $split['meals'];
+    }
+
+    /**
+     * The pool split by group: payments by their group, cash expenses by their category's group;
+     * repayments and final payouts are fixed-group. Sums to balance().
+     *
+     * @return array{fixed:int,meals:int}
+     */
+    public static function breakdown(Mess $mess): array
+    {
         $id = $mess->id;
+        $split = ['fixed' => 0, 'meals' => 0];
 
-        $in = (int) Payment::query()->forMess($id)->sum('amount_paisa')
-            + (int) RecoverableRepayment::query()->forMess($id)->sum('amount_paisa');
+        foreach (Payment::query()->forMess($id)->selectRaw('"group" as g, SUM(amount_paisa) as s')->groupBy('group')->get() as $row) {
+            $split[$row->g === 'meals' ? 'meals' : 'fixed'] += (int) $row->s;
+        }
+        $split['fixed'] += (int) RecoverableRepayment::query()->forMess($id)->sum('amount_paisa')
+            - abs((int) LedgerEntry::query()->forMess($id)->where('type', LedgerType::FinalPayout->value)->sum('amount_paisa'));
 
-        $out = (int) Expense::query()->forMess($id)
+        $expenses = Expense::query()->forMess($id)
             ->where('paid_by', PaidBy::Cash->value)
             ->where('status', ExpenseStatus::Approved->value)
-            ->sum('amount_paisa')
-            + abs((int) LedgerEntry::query()->forMess($id)
-                ->where('type', LedgerType::FinalPayout->value)
-                ->sum('amount_paisa'));
+            ->join('categories', 'categories.id', '=', 'expenses.category_id')
+            ->selectRaw('categories."group" as g, SUM(expenses.amount_paisa) as s')
+            ->groupBy('categories.group')->get();
+        foreach ($expenses as $row) {
+            $split[$row->g === 'meals' ? 'meals' : 'fixed'] -= (int) $row->s;
+        }
 
-        return $in - $out;
+        return $split;
     }
 }

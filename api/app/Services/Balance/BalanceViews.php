@@ -15,7 +15,7 @@ use App\Models\MessMember;
 final class BalanceViews
 {
     /** @return array<string,mixed> */
-    public static function dashboard(MonthSnapshot $s, int $cashPoolPaisa, ?int $managerMemberId, ?int $onlyMemberId = null): array
+    public static function dashboard(MonthSnapshot $s, int $cashPoolPaisa, ?int $managerMemberId, ?int $onlyMemberId = null, ?array $cashSplit = null): array
     {
         $rows = [];
         foreach ($s->memberIds as $id) {
@@ -52,6 +52,8 @@ final class BalanceViews
                 'paid_paisa' => (int) $s->payments->sum('amount_paisa'),
             ],
             'cash_pool_paisa' => $cashPoolPaisa,
+            'cash_pool_fixed_paisa' => $cashSplit['fixed'] ?? null,
+            'cash_pool_meals_paisa' => $cashSplit['meals'] ?? null,
             'manager_member_id' => $managerMemberId,
             'manager_balance_paisa' => $onlyMemberId !== null ? null : $managerBalance,
             'members' => $rows,

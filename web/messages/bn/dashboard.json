@@ -38,7 +38,9 @@
     "cashHint": "ম্যানেজারের কাছে মেসের যে টাকা আছে",
     "fixedGroup": "নির্ধারিত বিল",
     "mealsGroup": "মিল",
-    "toCollect": "আদায় বাকি"
+    "toCollect": "আদায় বাকি",
+    "cashFixed": "নির্ধারিত বিলের জন্য",
+    "cashMeals": "মিলের জন্য"
   },
   "overdue": {
     "fixed": "বিল {days} দিন বকেয়া",

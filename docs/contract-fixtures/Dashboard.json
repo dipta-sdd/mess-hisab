@@ -22,6 +22,8 @@
     "paid_paisa": 50000
   },
   "cash_pool_paisa": 0,
+  "cash_pool_fixed_paisa": 0,
+  "cash_pool_meals_paisa": 0,
   "manager_member_id": 1,
   "manager_balance_paisa": -160000,
   "members": [

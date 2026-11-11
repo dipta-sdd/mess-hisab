@@ -38,7 +38,9 @@
     "cashHint": "Money the manager is holding for the mess",
     "fixedGroup": "Fixed bills",
     "mealsGroup": "Meals",
-    "toCollect": "Still to collect"
+    "toCollect": "Still to collect",
+    "cashFixed": "For fixed bills",
+    "cashMeals": "For meals"
   },
   "overdue": {
     "fixed": "Bills {days} days overdue",
