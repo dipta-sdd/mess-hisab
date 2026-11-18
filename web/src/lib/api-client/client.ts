@@ -148,3 +148,11 @@ export const apiClient = {
     request<T>("PATCH", path, { ...options, body }),
   delete: <T = null>(path: string, options?: RequestOptions) => request<T>("DELETE", path, options),
 };
+
+/** POST a JSON body and get a file back (e.g. a PDF). Throws ApiError on any non-2xx response. */
+export async function postForFile(path: string, body: unknown, accept = "application/pdf"): Promise<{ blob: Blob; filename: string | null }> {
+  const res = await send("POST", path, { body, headers: { Accept: accept } });
+  if (!res.ok) throw buildApiError(res.status, await parseBody(res), res.statusText);
+  const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(res.headers.get("Content-Disposition") ?? "");
+  return { blob: await res.blob(), filename: match ? decodeURIComponent(match[1]) : null };
+}

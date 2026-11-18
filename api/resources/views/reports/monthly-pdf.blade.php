@@ -1,7 +1,7 @@
 @php
     $s = $r['summary'];
     $next = $r['next_month'];
-    $nextName = $monthName($next['month']['starts_on']);
+    $isPreview = isset($r['preview']);
     $meals = $r['meals'];
 @endphp
 <html>
@@ -19,16 +19,23 @@
     .due { color: #b42318; font-weight: bold; }
     .credit { color: #067647; font-weight: bold; }
     .note { margin-top: 6pt; font-size: 8pt; color: #6b7785; }
+    .preview { border: 1px solid #b54708; background: #fffaeb; color: #93370d; padding: 7pt 9pt; margin-bottom: 10pt; font-size: 9pt; }
     .foot { margin-top: 26pt; font-size: 8pt; color: #8a94a0; border-top: 1px solid #e3e8ed; padding-top: 6pt; }
 </style>
 </head>
 <body>
+@if ($isPreview)
+    <div class="preview">
+        <b>PREVIEW &ndash; this month is not closed.</b> Nothing has been saved; the figures are as they stand today and can still change.
+        @foreach ($warnings as $w) <br>&bull; {{ $w }} @endforeach
+    </div>
+@endif
 
 <table class="head">
     <tr>
         <td>
             <div class="muted">{{ $r['mess']['name'] }}</div>
-            <h1>{{ $monthName($r['month']['starts_on']) }} report</h1>
+            <h1>{{ $monthName($r['month']['starts_on']) }} report @if ($isPreview) <span style="color:#b54708;">(preview)</span>@endif</h1>
         </td>
         <td style="text-align: right;" class="muted">
             {{ $day($r['month']['starts_on']) }} – {{ $day($r['month']['ends_on']) }}<br>
@@ -85,6 +92,8 @@
     @endif
 </table>
 
+@if ($next)
+@php $nextName = $monthName($next['month']['starts_on']); @endphp
 <h2>To pay for {{ $nextName }}@if ($next['fixed_deadline']) <span class="muted" style="font-weight: normal;">· by {{ $day($next['fixed_deadline']) }}</span>@endif</h2>
 @php $w = round(78 / (count($nextColumns) + 2), 1); @endphp
 <table class="grid">
@@ -104,7 +113,8 @@
         </tr>
     @endforeach
 </table>
-<div class="note">A minus in "Last month due" is credit left over from {{ $monthName($r['month']['starts_on']) }}; it is taken off the total.</div>
+<div class="note">A minus in "Last month due" is credit left over from {{ $monthName($r['month']['starts_on']) }}; it is taken off the total. @if ($isPreview) Estimate: based on today's figures and the bills entered for the preview.@endif</div>
+@endif
 
 <div class="foot">Mess Hisab · generated {{ now()->format('j M Y, g:i A') }}</div>
 </body>

@@ -47,6 +47,17 @@ class MonthlyReport
             throw new ReportException(__('Set up next month\'s Fixed bills first.'), 'next_month_bills_missing', ['next_month_id' => $next->id]);
         }
 
+        return $this->assemble($mess, $month, $next, $billViews);
+    }
+
+    /**
+     * The report body from a month's current figures: stored ones for a closed month, live ones for an open month
+     * (the preview). Next month's block is null when it has no Fixed bills (only the preview gets there).
+     *
+     * @param  list<array>  $billViews  next month's Fixed bills (BillSetup views) with an amount
+     */
+    public function assemble(Mess $mess, Month $month, Month $next, array $billViews): array
+    {
         $snap = $this->balances->snapshot($month);
         $dash = BalanceViews::dashboard($snap, 0, $mess->manager_member_id);
         $history = BalanceViews::historyRow($snap);
@@ -104,7 +115,7 @@ class MonthlyReport
             'members' => $members,
             'expenses' => $expenses,
             'meals' => $this->meals($mess, $dash, $active),
-            'next_month' => $this->nextMonthBlock($next, $billViews),
+            'next_month' => $billViews === [] ? null : $this->nextMonthBlock($next, $billViews),
         ];
     }
 

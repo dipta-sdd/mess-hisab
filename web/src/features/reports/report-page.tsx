@@ -128,13 +128,13 @@ function Stat({ label, value, hint, tone, testId }: { label: string; value: stri
 /** Cells of a stat strip share one card, divided by hairlines. */
 const strip = "grid divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface sm:divide-y-0 sm:divide-x rtl:sm:divide-x-reverse";
 
-function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLocale }) {
+export function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLocale }) {
   const t = useTranslations("reports");
   const mode: RoundingMode = report.mess.rounding_mode;
   const money = (p: number) => formatMoney(p, locale, mode);
   const { summary: s, month, members, expenses, meals, next_month: next } = report;
   const common = { showTableLabel: t("charts.showTable"), hideTableLabel: t("charts.hideTable") };
-  const nextName = formatMonthLabel(next.month.starts_on, locale);
+  const nextName = next ? formatMonthLabel(next.month.starts_on, locale) : "";
 
   const shareSeries: Series[] = [
     { key: "share", label: t("people.share"), className: "bg-accent" },
@@ -146,7 +146,7 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
     { key: "due", label: t("next.lastDue"), className: "bg-danger" },
   ];
 
-  const nextRows = next.rows.map((r) => ({ row: r, ...splitRow(r) }));
+  const nextRows = (next?.rows ?? []).map((r) => ({ row: r, ...splitRow(r) }));
 
   return (
     <>
@@ -248,6 +248,7 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
       </div>
 
       {/* 3. To pay for next month */}
+      {next ? (
       <section aria-labelledby="rep-next" className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4" data-testid="section-next">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
@@ -313,6 +314,7 @@ function ReportBody({ report, locale }: { report: MonthlyReport; locale: AppLoca
           </>
         )}
       </section>
+      ) : null}
 
       {/* 4. Expenses */}
       <section aria-labelledby="rep-exp" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4" data-testid="section-expenses">

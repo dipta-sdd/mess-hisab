@@ -1,4 +1,4 @@
-import type { DateString, Group, Mess, Month, PaidBy, SplitType } from "@/lib/api/contract";
+import type { CloseBlock, DateString, Group, Mess, Month, PaidBy, SplitType } from "@/lib/api/contract";
 
 /**
  * GET /api/messes/{mess}/reports/monthly/{month} (admin, manager). Response is wrapped as `{data: MonthlyReport}`.
@@ -15,7 +15,10 @@ export interface MonthlyReport {
   expenses: ReportExpense[];
   /** Null when the mess does not track meals. */
   meals: ReportMeals | null;
-  next_month: ReportNextMonth;
+  /** Null in a preview when next month's bills were not sent. */
+  next_month: ReportNextMonth | null;
+  /** Only on a preview of an unclosed month: what would stop a real close. */
+  preview?: { blocks: CloseBlock[] };
 }
 
 export interface ReportSummary {

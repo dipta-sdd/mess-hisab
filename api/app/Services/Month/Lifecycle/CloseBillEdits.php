@@ -21,7 +21,7 @@ class CloseBillEdits
     public function __construct(private readonly BillSetup $bills) {}
 
     /** @param  list<array<string,mixed>>  $edits */
-    public function apply(Mess $mess, Month $month, array $edits): void
+    public function apply(Mess $mess, Month $month, array $edits, bool $reuseByName = false): void
     {
         if ($edits === []) {
             return;
@@ -30,7 +30,7 @@ class CloseBillEdits
         $members = $this->bills->activeMemberIds($month);
         $seen = [];
         foreach ($edits as $edit) {
-            $category = isset($edit['category_id']) ? $this->existing($mess, (int) $edit['category_id']) : $this->create($mess, $edit);
+            $category = isset($edit['category_id']) ? $this->existing($mess, (int) $edit['category_id']) : ($reuseByName ? $this->byName($mess, $edit) : null) ?? $this->create($mess, $edit);
             if (isset($seen[$category->id])) {
                 throw new SetupException(__('A bill appears twice in the changes.'), 'duplicate_bill');
             }
@@ -56,6 +56,13 @@ class CloseBillEdits
                 $this->bills->save($month, $category, $amount, $overrides);
             }
         }
+    }
+
+    /** The report preview's next-month list names a bill the first step just created: use it instead of making a twin. */
+    private function byName(Mess $mess, array $edit): ?Category
+    {
+        return Category::query()->forMess($mess->id)->where('group', Group::Fixed->value)->whereNull('archived_at')
+            ->whereRaw('lower(name) = ?', [mb_strtolower(trim((string) $edit['name']))])->first();
     }
 
     private function existing(Mess $mess, int $id): Category

@@ -17,7 +17,18 @@ class MonthlyReportPdf
     /** @return array{0: string, 1: string} [pdf bytes, file name] */
     public function render(Mess $mess, Month $month): array
     {
-        $data = $this->report->build($mess, $month);
+        return $this->renderData($mess, $this->report->build($mess, $month));
+    }
+
+    /**
+     * The same PDF for report data that is already built; a preview (`preview` key) gets a banner and a PREVIEW watermark.
+     *
+     * @param  array<string,mixed>  $data
+     * @return array{0: string, 1: string} [pdf bytes, file name]
+     */
+    public function renderData(Mess $mess, array $data): array
+    {
+        $preview = isset($data['preview']);
 
         $html = view('reports.monthly-pdf', [
             'r' => $data,
@@ -26,7 +37,8 @@ class MonthlyReportPdf
             'monthName' => fn (string $date) => CarbonImmutable::parse($date)->format('F Y'),
             'day' => fn (?string $date) => $date ? CarbonImmutable::parse($date)->format('j M Y') : null,
             'categories' => $this->spendingByCategory($data['expenses']),
-            'nextColumns' => $this->nextColumns($data['next_month']['rows']),
+            'nextColumns' => $this->nextColumns($data['next_month']['rows'] ?? []),
+            'warnings' => $preview ? $this->warnings($data['preview']['blocks']) : [],
         ])->render();
 
         $pdf = new Mpdf([
@@ -34,12 +46,35 @@ class MonthlyReportPdf
             'margin_left' => 12, 'margin_right' => 12, 'margin_top' => 12, 'margin_bottom' => 12,
             'shrink_tables_to_fit' => 1,
         ]);
-        $pdf->SetTitle($mess->name.' - '.CarbonImmutable::parse($data['month']['starts_on'])->format('F Y').' report');
+        $pdf->SetTitle($mess->name.' - '.CarbonImmutable::parse($data['month']['starts_on'])->format('F Y').($preview ? ' report (preview)' : ' report'));
+        if ($preview) {
+            $pdf->SetWatermarkText('PREVIEW', 0.1);
+            $pdf->showWatermarkText = true;
+        }
         $pdf->WriteHTML($html);
 
-        $file = Str::slug($mess->name).'-'.substr($data['month']['starts_on'], 0, 7).'-report.pdf';
+        $file = Str::slug($mess->name).'-'.substr($data['month']['starts_on'], 0, 7).($preview ? '-preview.pdf' : '-report.pdf');
 
         return [$pdf->Output('', 'S'), $file];
+    }
+
+    /**
+     * What would stop a real close, in plain English (the PDF is English only).
+     *
+     * @param  list<array{code: string, data: array<string,mixed>}>  $blocks
+     * @return list<string>
+     */
+    private function warnings(array $blocks): array
+    {
+        return array_map(fn (array $b) => match ($b['code']) {
+            'previous_month_open' => 'An earlier month is still open.',
+            'pending_expenses' => $b['data']['count'].' expense(s) are still pending approval and are not counted.',
+            'zero_meals_unresolved' => 'Nobody has meals this month: choose what happens to the food cost.',
+            'unallocated' => 'Some bill amounts are not fully shared out yet.',
+            'doesnt_pay_mismatch' => 'A "doesn\'t pay" split does not add up.',
+            'cash_mismatch' => 'The cash in hand does not match the books.',
+            default => 'Something would stop this month from closing.',
+        }, $blocks);
     }
 
     /** @return list<array{name: string, amount: int, count: int}> biggest first */

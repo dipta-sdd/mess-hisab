@@ -148,3 +148,92 @@ it('formats PDF money in English taka', function () {
         ->and(Money::tk(350000))->toBe('Tk 3,500')
         ->and(Money::tk(-351100))->toBe('-Tk 3,511');
 });
+
+// ---- Preview of a month that is not closed
+
+function pvUrl($mess, $month, string $tail = ''): string
+{
+    return rUrl($mess, $month).'/preview'.$tail;
+}
+
+function pvRent($mess): Category
+{
+    return Category::query()->where('mess_id', $mess->id)->where('name', 'Rent')->firstOrFail();
+}
+
+it('previews an open month, saving nothing and creating no next month', function () {
+    [$mess, , $month] = kScenario('admin_manager');
+    $months = Month::query()->where('mess_id', $mess->id)->count();
+    $rent = pvRent($mess);
+
+    $data = $this->postJson(pvUrl($mess, $month), ['next_bills' => [['category_id' => $rent->id, 'amount_paisa' => 600000, 'overrides' => []]]])
+        ->assertOk()->json('data');
+
+    expect($data['month']['status'])->toBe('open');
+    expect($data['preview'])->toHaveKey('blocks');
+    expect($data['members'])->toHaveCount(3);
+    expect($data['next_month']['rows'])->toHaveCount(3);
+    expect($data['next_month']['rows'][0]['by_category'][0]['amount_paisa'])->toBe(200000);
+
+    expect(Month::query()->where('mess_id', $mess->id)->count())->toBe($months);
+    expect($month->fresh()->status->value)->toBe('open');
+    $this->getJson(rUrl($mess, $month))->assertStatus(409)->assertJsonPath('code', 'month_not_closed');
+});
+
+it('applies the typed-in bill edits for the preview only', function () {
+    [$mess, , $month] = kScenario('admin_manager');
+    $rent = pvRent($mess);
+
+    $data = $this->postJson(pvUrl($mess, $month), [
+        'bills' => [['category_id' => $rent->id, 'amount_paisa' => 900000]],
+        'next_bills' => [['category_id' => $rent->id, 'amount_paisa' => 300000]],
+    ])->assertOk()->json('data');
+
+    expect($data['summary']['fixed_bills_paisa'])->toBe(900000);
+    expect($data['next_month']['rows'][0]['by_category'][0]['amount_paisa'])->toBe(100000);
+    expect($this->getJson("/api/messes/{$mess->id}/months/{$month->id}/setup")->json('data.bills'))->not->toContain(900000);
+    expect(\App\Models\MonthBill::query()->where('month_id', $month->id)->where('amount_paisa', 900000)->exists())->toBeFalse();
+});
+
+it('has no next-month table when no next bills are given', function () {
+    [$mess, , $month] = kScenario('admin_manager');
+
+    $this->postJson(pvUrl($mess, $month), [])->assertOk()->assertJsonPath('data.next_month', null);
+});
+
+it('reports what would block a real close as warnings', function () {
+    [$mess, , $month] = kScenario('admin_manager');
+
+    $blocks = $this->postJson(pvUrl($mess, $month), [])->assertOk()->json('data.preview.blocks');
+
+    expect($blocks)->toBeArray();
+});
+
+it('offers next month bills to start from, this month\'s when none are saved', function () {
+    [$mess, , $month] = kScenario('admin_manager');
+
+    $res = $this->getJson(pvUrl($mess, $month, '/next-bills'))->assertOk()->json('data');
+
+    expect($res['next_month_exists'])->toBeFalse();
+    expect(collect($res['bills'])->pluck('category_id'))->toContain(pvRent($mess)->id);
+});
+
+it('refuses a preview of a closed month and for anyone but the manager', function () {
+    [$mess, $month] = rClosed();
+    $this->postJson(pvUrl($mess, $month), [])->assertStatus(409)->assertJsonPath('code', 'month_closed');
+
+    [$mess2, , $month2] = kScenario('admin');
+    $this->postJson(pvUrl($mess2, $month2), [])->assertForbidden();
+    [$mess3, , $month3] = kScenario('member');
+    $this->postJson(pvUrl($mess3, $month3), [])->assertForbidden();
+});
+
+it('downloads the preview as a PDF named preview', function () {
+    [$mess, , $month] = kScenario('admin_manager');
+
+    $res = $this->post(pvUrl($mess, $month, '/pdf'), ['next_bills' => [['category_id' => pvRent($mess)->id, 'amount_paisa' => 600000]]], ['Accept' => 'application/pdf'])
+        ->assertOk()->assertHeader('Content-Type', 'application/pdf');
+
+    expect($res->headers->get('Content-Disposition'))->toEndWith('-preview.pdf"');
+    expect(substr($res->getContent(), 0, 5))->toBe('%PDF-');
+});

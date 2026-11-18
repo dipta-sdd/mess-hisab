@@ -56,3 +56,20 @@ export function buildEdits(drafts: BillDrafts, bills: Bill[], memberIds: number[
   }
   return { edits, invalid };
 }
+
+/** The WHOLE list of bills as typed (every bill, changed or not): what a preview of next month needs. */
+export function buildFullBills(drafts: BillDrafts, bills: Bill[], memberIds: number[]): { bills: CloseBillEdit[]; invalid: boolean } {
+  const out: CloseBillEdit[] = [];
+  let invalid = false;
+  for (const bill of bills.filter((b) => b.group === "fixed")) {
+    const { invalid: bad, ...input } = toInput(drafts.existing[bill.category_id] ?? draftOf(bill), memberIds);
+    invalid ||= bad;
+    out.push({ category_id: bill.category_id, ...input });
+  }
+  for (const bill of drafts.created) {
+    const { invalid: bad, ...input } = toInput(bill, memberIds);
+    invalid ||= bad;
+    out.push({ name: bill.name, split_type: bill.split_type, ...input });
+  }
+  return { bills: out, invalid };
+}

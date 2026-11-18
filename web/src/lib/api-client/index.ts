@@ -2,6 +2,7 @@ export {
   apiClient,
   API_BASE_URL,
   ensureCsrfCookie,
+  postForFile,
   setUnauthorizedHandler,
   resetApiClientState,
   type RequestOptions,

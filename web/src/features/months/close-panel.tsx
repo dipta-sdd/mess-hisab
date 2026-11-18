@@ -10,6 +10,7 @@ import { useCloseCheck, useCloseMonth, useClosePreview } from "./api";
 import { buildEdits, noDrafts, type BillDrafts } from "./close-bills";
 import { CloseBillsEditor } from "./close-bills-editor";
 import { CloseBlocks, type BlockContext } from "./blocks";
+import { ReportPreview } from "./report-preview";
 import { Banner, useErrorText } from "./ui";
 
 /** Manager-only close flow for an open month: check, resolve blockers, confirm, close. */
@@ -24,6 +25,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
 
   const [drafts, setDrafts] = useState<BillDrafts>(noDrafts);
   const [editing, setEditing] = useState(false);
+  const [previewNeedsChoice, setPreviewNeedsChoice] = useState(false);
 
   const setupQ = useSetup(messId, month.id);
   const membersQ = useMembers(messId);
@@ -43,7 +45,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
   const result = active.data;
   const stale = active.isPlaceholderData || active.isFetching || invalid;
   const hasZeroBlock = Boolean(result?.blocks.some((b) => b.code === "zero_meals_unresolved"));
-  const showChoice = hasZeroBlock || resolution !== null;
+  const showChoice = hasZeroBlock || resolution !== null || previewNeedsChoice;
   const blocks = serverBlocks ?? result?.blocks ?? [];
   const canClose = Boolean(result?.can_close) && !stale && serverBlocks === null;
 
@@ -114,6 +116,18 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
           </Modal.Container>
         </Modal.Backdrop>
       </Modal>
+
+      <ReportPreview
+        messId={messId}
+        month={month}
+        resolution={resolution}
+        edits={edits}
+        editsInvalid={invalid}
+        names={names}
+        members={activeMembers}
+        ctx={ctx}
+        onZeroMeals={() => setPreviewNeedsChoice(true)}
+      />
 
       {error ? <Banner>{error}</Banner> : null}
       {active.isError ? <Banner>{errorText(active.error)}</Banner> : null}

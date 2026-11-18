@@ -26,6 +26,8 @@ export function CloseBillsEditor({
   ctx,
   onDone,
   onDiscard,
+  heading,
+  hint,
 }: {
   bills: Bill[];
   names: Record<number, string>;
@@ -38,6 +40,9 @@ export function CloseBillsEditor({
   ctx: BlockContext;
   onDone: () => void;
   onDiscard: () => void;
+  /** Replaces the default title / hint (used for next month's bills in the report preview). */
+  heading?: string;
+  hint?: string;
 }) {
   const t = useTranslations("months.close.edit");
   const tf = useTranslations("fixed");
@@ -74,8 +79,8 @@ export function CloseBillsEditor({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
-        <p className="text-sm text-muted">{t("hint")}</p>
+        <h2 className="text-lg font-semibold">{heading ?? t("title")}</h2>
+        <p className="text-sm text-muted">{hint ?? t("hint")}</p>
       </div>
 
       <Accordion allowsMultipleExpanded className="overflow-hidden rounded-2xl border border-border bg-surface">
@@ -147,6 +152,7 @@ export function CloseBillsEditor({
 
       {invalid ? <p role="alert" className="rounded-lg border border-danger bg-danger/10 p-2 text-sm text-danger">{t("badAmount")}</p> : null}
 
+      {heading === undefined ? (
       <section aria-labelledby="cb-preview" className="flex flex-col gap-2">
         <div>
           <h3 id="cb-preview" className="font-semibold">{t("preview")}</h3>
@@ -165,6 +171,7 @@ export function CloseBillsEditor({
           </ul>
         ) : null}
       </section>
+      ) : null}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button variant="ghost" className="w-full sm:w-auto" onPress={onDiscard}>{t("discard")}</Button>

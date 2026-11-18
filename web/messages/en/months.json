@@ -277,5 +277,22 @@
     "next": "Next month",
     "open": "Open",
     "closed": "Closed"
+  },
+  "preview": {
+    "editNext": "Next month's bills ({month})",
+    "action": "Preview report",
+    "building": "Building the preview…",
+    "hint": "See the report as if this month were closed now. Nothing is saved and the month stays open.",
+    "nextTitle": "Fixed bills for {month}",
+    "nextHintSaved": "These are the bills already saved for the next month. Change them to see the effect in the preview only.",
+    "nextHintCopied": "The next month has no bills yet, so this month's bills are used. Change them to see the effect in the preview only.",
+    "pageTitle": "Report preview",
+    "banner": "Preview – not a real report",
+    "bannerBody": "This month is not closed. Nothing here is saved and the numbers can still change.",
+    "warnings": "A real close would be stopped by:",
+    "close": "Close preview",
+    "download": "Download preview PDF",
+    "downloading": "Preparing the PDF…",
+    "nextUnavailable": "Next month's bills could not be loaded, so the preview leaves out the next-month section."
   }
 }

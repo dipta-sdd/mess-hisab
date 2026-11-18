@@ -42,6 +42,19 @@ class Calendar
     }
 
     /**
+     * The month right after $month, created (open) if missing, even when it starts in the future.
+     * Only for callers that roll their work back (the report preview); real flows go through monthFor().
+     *
+     * @throws CalendarException
+     */
+    public function monthAfter(Mess $mess, Month $month): Month
+    {
+        $start = $month->ends_on->copy()->startOfDay()->addDay();
+
+        return $this->find($mess->id, $start) ?? $this->createThrough($mess->id, $start, allowFuture: true);
+    }
+
+    /**
      * Where a record dated $date belongs. A date inside a closed month goes to the current open
      * month and is flagged late.
      *
