@@ -27,22 +27,24 @@ class CashPool
 
     /**
      * The pool split by group: payments by their group, cash expenses by their category's group;
-     * repayments and final payouts are fixed-group. Sums to balance().
+     * repayments and final payouts are fixed-group. Sums to balance(). With `$monthIds`, only those months' rows (cash as of a month's end).
+     *
+     * @param  list<int>|null  $monthIds
      *
      * @return array{fixed:int,meals:int}
      */
-    public static function breakdown(Mess $mess): array
+    public static function breakdown(Mess $mess, ?array $monthIds = null): array
     {
         $id = $mess->id;
         $split = ['fixed' => 0, 'meals' => 0];
 
-        foreach (Payment::query()->forMess($id)->selectRaw('"group" as g, SUM(amount_paisa) as s')->groupBy('group')->get() as $row) {
+        foreach (Payment::query()->forMess($id)->when($monthIds !== null, fn ($q) => $q->whereIn('month_id', $monthIds))->selectRaw('"group" as g, SUM(amount_paisa) as s')->groupBy('group')->get() as $row) {
             $split[$row->g === 'meals' ? 'meals' : 'fixed'] += (int) $row->s;
         }
-        $split['fixed'] += (int) RecoverableRepayment::query()->forMess($id)->sum('amount_paisa')
-            - abs((int) LedgerEntry::query()->forMess($id)->where('type', LedgerType::FinalPayout->value)->sum('amount_paisa'));
+        $split['fixed'] += (int) RecoverableRepayment::query()->forMess($id)->when($monthIds !== null, fn ($q) => $q->whereIn('month_id', $monthIds))->sum('amount_paisa')
+            - abs((int) LedgerEntry::query()->forMess($id)->when($monthIds !== null, fn ($q) => $q->whereIn('month_id', $monthIds))->where('type', LedgerType::FinalPayout->value)->sum('amount_paisa'));
 
-        $expenses = Expense::query()->forMess($id)
+        $expenses = Expense::query()->forMess($id)->when($monthIds !== null, fn ($q) => $q->whereIn('expenses.month_id', $monthIds))
             ->where('paid_by', PaidBy::Cash->value)
             ->where('status', ExpenseStatus::Approved->value)
             ->join('categories', 'categories.id', '=', 'expenses.category_id')

@@ -24,6 +24,7 @@ class CloseMonthRequest extends FormRequest
     {
         return [
             'zero_meal_resolution' => ['sometimes', 'nullable', Rule::in(ZeroMealResolution::values())],
+            'surplus_paisa' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:9000000000000'],
             'bills' => ['sometimes', 'array', 'max:100'],
             'bills.*' => ['array'],
             'bills.*.category_id' => ['nullable', 'integer'],
@@ -41,6 +42,12 @@ class CloseMonthRequest extends FormRequest
     public function billEdits(): array
     {
         return array_values($this->validated('bills') ?? []);
+    }
+
+    /** Spare cash the manager chose to share equally (0 = none). */
+    public function surplus(): int
+    {
+        return (int) ($this->validated('surplus_paisa') ?? 0);
     }
 
     public function resolution(): ?ZeroMealResolution

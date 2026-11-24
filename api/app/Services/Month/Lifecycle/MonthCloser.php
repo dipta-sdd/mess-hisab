@@ -33,11 +33,12 @@ class MonthCloser
         private readonly MonthBalanceService $balances,
         private readonly Calendar $calendar,
         private readonly AuditLogger $audit,
+        private readonly SurplusCredit $surplus,
     ) {}
 
-    public function close(Mess $mess, Month $requested, ?ZeroMealResolution $choice, MessMember $by): Month
+    public function close(Mess $mess, Month $requested, ?ZeroMealResolution $choice, MessMember $by, int $surplusPaisa = 0): Month
     {
-        return DB::transaction(function () use ($mess, $requested, $choice, $by) {
+        return DB::transaction(function () use ($mess, $requested, $choice, $by, $surplusPaisa) {
             // Same lock order as Calendar / expenses: the mess row first, then the month.
             Mess::query()->whereKey($mess->id)->lockForUpdate()->firstOrFail();
             $month = Month::query()->forMess($mess->id)->whereKey($requested->id)->lockForUpdate()->firstOrFail();
@@ -127,7 +128,11 @@ class MonthCloser
                 throw new LogicException('Closing the month changed member balances.');
             }
 
+            // After the "closing moves no money" check on purpose: sharing spare cash is the one thing a close may add.
+            $shared = $this->surplus->write($mess, $month, $snap, $surplusPaisa, $by);
+
             $this->audit->log('month.closed', $month, [], ['status' => 'closed'], [
+                'spare_cash_shared' => $shared,
                 'rows_written' => count($rows),
                 'zero_meal_resolution' => $ev->resolution?->value,
                 'next_month_id' => $next->id,

@@ -17,12 +17,14 @@ const ctx: BlockContext = { messId: 7, money: (p) => `৳${p / 100}`, balance: (
 const report = {
   month,
   mess: { id: 7, name: "Green House", rounding_mode: "two_decimals" } as Mess,
-  summary: { member_count: 1, expense_count: 0, expenses_paisa: 0, fixed_expenses_paisa: 0, meals_expenses_paisa: 0, fixed_bills_paisa: 0, fixed_charged_paisa: 0, meals_charged_paisa: 0, charged_paisa: 0, paid_paisa: 0, spent_paisa: 0, total_due_paisa: 0, total_credit_paisa: 0, rounding_extra_paisa: 0 },
+  summary: { member_count: 1, expense_count: 0, expenses_paisa: 0, fixed_expenses_paisa: 0, meals_expenses_paisa: 0, fixed_bills_paisa: 0, fixed_charged_paisa: 0, meals_charged_paisa: 0, charged_paisa: 0, paid_paisa: 0, spent_paisa: 0, total_due_paisa: 0, total_credit_paisa: 0, rounding_extra_paisa: 0, cash_spent_paisa: 0, shared_extra_paisa: 0 },
   members: [{ member_id: 1, display_name: "Rahim", carry_in_paisa: 0, fixed_bill_paisa: 0, meals_bill_paisa: 0, share_paisa: 0, paid_paisa: 0, spent_paisa: 0, balance_paisa: 0 }],
+  payments: [],
+  cash: { in_hand_paisa: 0, in_hand_fixed_paisa: 0, in_hand_meals_paisa: 0, owed_to_members_paisa: 0, owed_by_members_paisa: 0, unpaid_fixed_bills_paisa: 0, other_paisa: 0, extra_paisa: 0 },
   expenses: [],
   meals: null,
   next_month: null,
-  preview: { blocks: [{ code: "pending_expenses", data: { count: 2 } }] },
+  preview: { blocks: [{ code: "pending_expenses", data: { count: 2 } }], surplus_available_paisa: 0 },
 } as unknown as MonthlyReport;
 
 describe("ReportPreview", () => {
@@ -37,14 +39,14 @@ describe("ReportPreview", () => {
       }),
     );
     renderWithProviders(
-      <ReportPreview messId={7} month={month} resolution="carry" edits={[]} editsInvalid={false} names={{}} members={[]} ctx={ctx} onZeroMeals={() => {}} />,
+      <ReportPreview messId={7} month={month} resolution="carry" surplusPaisa={0} edits={[]} editsInvalid={false} names={{}} members={[]} ctx={ctx} onZeroMeals={() => {}} />,
     );
     const button = screen.getByTestId("preview-report");
     await userEvent.click(button);
     expect(await screen.findByTestId("preview-banner")).toBeInTheDocument();
     expect(screen.getByTestId("block-pending_expenses")).toBeInTheDocument();
     expect(screen.getByTestId("preview-download")).toBeInTheDocument();
-    expect(screen.getByText("Rahim", { selector: "th" })).toBeInTheDocument();
+    expect(screen.getAllByText("Rahim", { selector: "th" }).length).toBeGreaterThan(0);
     expect(body).toMatchObject({ zero_meal_resolution: "carry", next_bills: [] });
   });
 });

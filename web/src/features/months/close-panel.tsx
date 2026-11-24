@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useCategories, useMembers, useSetup } from "@/features/fixed/api";
 import type { CloseBlock, Month, ZeroMealResolution } from "@/lib/api/contract";
 import { isApiError } from "@/lib/api-client";
+import { paisaToTakaInput, parseTakaToPaisa } from "@/lib/format/money-input";
 import { useCloseCheck, useCloseMonth, useClosePreview } from "./api";
 import { buildEdits, noDrafts, type BillDrafts } from "./close-bills";
 import { CloseBillsEditor } from "./close-bills-editor";
@@ -26,6 +27,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
   const [drafts, setDrafts] = useState<BillDrafts>(noDrafts);
   const [editing, setEditing] = useState(false);
   const [previewNeedsChoice, setPreviewNeedsChoice] = useState(false);
+  const [surplusText, setSurplusText] = useState("");
 
   const setupQ = useSetup(messId, month.id);
   const membersQ = useMembers(messId);
@@ -47,7 +49,13 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
   const hasZeroBlock = Boolean(result?.blocks.some((b) => b.code === "zero_meals_unresolved"));
   const showChoice = hasZeroBlock || resolution !== null || previewNeedsChoice;
   const blocks = serverBlocks ?? result?.blocks ?? [];
-  const canClose = Boolean(result?.can_close) && !stale && serverBlocks === null;
+  // Spare cash no balance covers: the manager may share it equally as extra credit for next month.
+  const available = result?.surplus_available_paisa ?? 0;
+  const parsedSurplus = surplusText.trim() === "" ? { ok: true as const, paisa: 0 } : parseTakaToPaisa(surplusText, { allowZero: true });
+  const surplusPaisa = parsedSurplus.ok ? parsedSurplus.paisa : 0;
+  const surplusInvalid = !parsedSurplus.ok || surplusPaisa > available;
+  const eachShare = activeMembers.length > 0 ? Math.floor(surplusPaisa / activeMembers.length) : 0;
+  const canClose = Boolean(result?.can_close) && !stale && serverBlocks === null && !surplusInvalid;
 
   async function runCheck() {
     setError(null);
@@ -66,7 +74,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
   async function doClose() {
     setError(null);
     try {
-      await close.mutateAsync({ resolution, bills: edits });
+      await close.mutateAsync({ resolution, bills: edits, surplusPaisa: surplusInvalid ? 0 : surplusPaisa });
       onClosed();
     } catch (e) {
       setConfirming(false);
@@ -121,6 +129,7 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
         messId={messId}
         month={month}
         resolution={resolution}
+        surplusPaisa={surplusInvalid ? 0 : surplusPaisa}
         edits={edits}
         editsInvalid={invalid}
         names={names}
@@ -154,6 +163,28 @@ export function ClosePanel({ messId, month, ctx, onClosed }: { messId: number; m
               </span>
             </label>
           ))}
+        </fieldset>
+      ) : null}
+
+      {result && available > 0 ? (
+        <fieldset className="flex flex-col gap-2 rounded-xl border border-border p-3" data-testid="close-surplus">
+          <legend className="px-1 text-sm font-medium">{t("surplus.legend")}</legend>
+          <p className="text-sm text-muted">{t("surplus.hint", { amount: ctx.money(available) })}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <label htmlFor="close-surplus-amount" className="text-sm font-medium">{t("surplus.label")}</label>
+            <input
+              id="close-surplus-amount"
+              className="w-32 rounded-lg border border-border bg-surface px-2 py-2 text-end"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="0"
+              value={surplusText}
+              onChange={(e) => { setSurplusText(e.target.value); setServerBlocks(null); setConfirming(false); }}
+            />
+            <Button size="sm" variant="secondary" onPress={() => { setSurplusText(paisaToTakaInput(available)); setConfirming(false); }}>{t("surplus.all")}</Button>
+          </div>
+          {surplusInvalid ? <p role="alert" className="text-sm text-danger">{t("surplus.tooMuch", { amount: ctx.money(available) })}</p> : null}
+          {!surplusInvalid && surplusPaisa > 0 ? <p className="text-sm" data-testid="close-surplus-each">{t("surplus.each", { amount: ctx.money(eachShare), count: activeMembers.length })}</p> : null}
         </fieldset>
       ) : null}
 

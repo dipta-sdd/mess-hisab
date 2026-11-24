@@ -22,6 +22,7 @@ export function ReportPreview({
   messId,
   month,
   resolution,
+  surplusPaisa,
   edits,
   editsInvalid,
   names,
@@ -32,6 +33,7 @@ export function ReportPreview({
   messId: number;
   month: Month;
   resolution: ZeroMealResolution | null;
+  surplusPaisa: number;
   edits: CloseBillEdit[];
   editsInvalid: boolean;
   names: Record<number, string>;
@@ -58,7 +60,7 @@ export function ReportPreview({
 
   async function show() {
     setError(null);
-    const asked: PreviewAnswers = { resolution, bills: edits, nextBills: full ? full.bills : null };
+    const asked: PreviewAnswers = { resolution, bills: edits, nextBills: full ? full.bills : null, surplusPaisa };
     try {
       const data = await run.mutateAsync(asked);
       if (data.preview?.blocks.some((b) => b.code === "zero_meals_unresolved")) onZeroMeals();

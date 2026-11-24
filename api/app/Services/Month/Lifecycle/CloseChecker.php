@@ -18,6 +18,7 @@ use App\Models\Month;
 use App\Models\MonthBill;
 use App\Services\Balance\MonthBalanceService;
 use App\Services\CashPool\CashPool;
+use App\Services\Report\CashReconciliation;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -29,12 +30,12 @@ use Illuminate\Support\Facades\DB;
  */
 class CloseChecker
 {
-    public function __construct(private readonly MonthBalanceService $balances) {}
+    public function __construct(private readonly MonthBalanceService $balances, private readonly CashReconciliation $cash) {}
 
     /**
      * The close-check endpoint: never changes anything.
      *
-     * @return array{can_close: bool, blocks: list<array{code: string, data: array<string,mixed>}>}
+     * @return array{can_close: bool, blocks: list<array{code: string, data: array<string,mixed>}>, surplus_available_paisa?: int}
      */
     public function check(Mess $mess, Month $month, ?ZeroMealResolution $choice): array
     {
@@ -44,12 +45,14 @@ class CloseChecker
 
         DB::beginTransaction();
         try {
-            $ev = $this->evaluate($mess, Month::query()->forMess($mess->id)->findOrFail($month->id), $choice);
+            $fresh = Month::query()->forMess($mess->id)->findOrFail($month->id);
+            $ev = $this->evaluate($mess, $fresh, $choice);
+            $spare = $this->cash->forMonth($mess, $fresh, $ev->snapshot)['extra_paisa'];
         } finally {
             DB::rollBack();
         }
 
-        return ['can_close' => $ev->canClose(), 'blocks' => $ev->blocks];
+        return ['can_close' => $ev->canClose(), 'blocks' => $ev->blocks, 'surplus_available_paisa' => $spare];
     }
 
     /**
@@ -67,12 +70,17 @@ class CloseChecker
         DB::beginTransaction();
         try {
             $apply();
-            $ev = $this->evaluate($mess, Month::query()->forMess($mess->id)->findOrFail($month->id), $choice);
+            $fresh = Month::query()->forMess($mess->id)->findOrFail($month->id);
+            $ev = $this->evaluate($mess, $fresh, $choice);
+            $cash = $this->cash->forMonth($mess, $fresh, $ev->snapshot);
         } finally {
             DB::rollBack();
         }
 
-        return ['can_close' => $ev->canClose(), 'blocks' => $ev->blocks, 'balances' => $this->balanceRows($ev->totalsBefore)];
+        return [
+            'can_close' => $ev->canClose(), 'blocks' => $ev->blocks, 'balances' => $this->balanceRows($ev->totalsBefore),
+            'surplus_available_paisa' => $cash['extra_paisa'], 'cash' => $cash,
+        ];
     }
 
     /**

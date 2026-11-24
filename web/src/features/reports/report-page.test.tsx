@@ -24,13 +24,18 @@ const report: MonthlyReport = {
   mess,
   summary: {
     member_count: 2, expense_count: 2, expenses_paisa: 500000, fixed_expenses_paisa: 300000, meals_expenses_paisa: 200000,
-    fixed_bills_paisa: 300000, fixed_charged_paisa: 300000, meals_charged_paisa: 200000, charged_paisa: 500000, paid_paisa: 400000, spent_paisa: 50000,
+    fixed_bills_paisa: 300000, fixed_charged_paisa: 300000, meals_charged_paisa: 200000, charged_paisa: 500000, paid_paisa: 400000, spent_paisa: 50000, cash_spent_paisa: 300000, shared_extra_paisa: 0,
     total_due_paisa: 80000, total_credit_paisa: 30000, rounding_extra_paisa: 0,
   },
   members: [
     { member_id: 1, display_name: "Rahim", carry_in_paisa: 0, fixed_bill_paisa: 150000, meals_bill_paisa: 100000, share_paisa: 250000, paid_paisa: 120000, spent_paisa: 50000, balance_paisa: -80000 },
     { member_id: 2, display_name: "Karim", carry_in_paisa: 0, fixed_bill_paisa: 150000, meals_bill_paisa: 100000, share_paisa: 250000, paid_paisa: 280000, spent_paisa: 0, balance_paisa: 30000 },
   ],
+  payments: [
+    { id: 1, member_id: 1, display_name: "Rahim", paid_on: "2026-10-03", group: "fixed", amount_paisa: 120000, note: null },
+    { id: 2, member_id: 2, display_name: "Karim", paid_on: "2026-10-04", group: "meals", amount_paisa: 280000, note: null },
+  ],
+  cash: { in_hand_paisa: 50000, in_hand_fixed_paisa: 30000, in_hand_meals_paisa: 20000, owed_to_members_paisa: 30000, owed_by_members_paisa: 80000, unpaid_fixed_bills_paisa: 100000, other_paisa: 0, extra_paisa: 0 },
   expenses: [
     { id: 11, spent_on: "2026-10-03", category_id: 1, category: "Rent", group: "fixed", amount_paisa: 300000, paid_by: "cash", paid_by_member_id: null, payer_name: null, note: "November rent" },
     { id: 12, spent_on: "2026-10-05", category_id: 2, category: "Fish", group: "meals", amount_paisa: 200000, paid_by: "member", paid_by_member_id: 2, payer_name: "Karim", note: "Rohu fish" },
@@ -79,6 +84,13 @@ describe("ReportsPage", () => {
     expect(screen.getByTestId("tile-due")).toHaveTextContent("৳800.00");
     expect(screen.getByTestId("tile-credit")).toHaveTextContent("৳300.00");
     expect(screen.getByTestId("tile-meal-rate")).toHaveTextContent("৳33.33");
+
+    expect(screen.getByTestId("pay-row-2")).toHaveTextContent("Karim");
+    expect(screen.getByTestId("pay-row-2")).toHaveTextContent("৳2,800.00");
+    expect(screen.getByTestId("pay-total-all")).toHaveTextContent("৳4,500.00");
+    expect(screen.getByTestId("from-cash-total")).toHaveTextContent("৳3,000.00");
+    expect(screen.getByTestId("cash-in-hand")).toHaveTextContent("৳500.00");
+    expect(screen.getByTestId("cash-owe")).toHaveTextContent("-৳800.00");
 
     expect(screen.getByTestId("chart-share-paid")).toBeInTheDocument();
     expect(screen.getByTestId("chart-balances")).toBeInTheDocument();

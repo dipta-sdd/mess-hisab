@@ -151,7 +151,7 @@ export type CloseBlockCode =
  * cash_mismatch {actual_paisa, expected_paisa, difference_paisa}. */
 export interface CloseBlock { code: CloseBlockCode; data: Record<string, unknown> }
 /** GET /months/{month}/close-check → {data: CloseCheck}. POST close → 409 `close_blocked` with `blocks`. */
-export interface CloseCheck { can_close: boolean; blocks: CloseBlock[] }
+export interface CloseCheck { can_close: boolean; blocks: CloseBlock[]; surplus_available_paisa?: number }
 export type ReopenBlockCode = "month_not_closed" | "not_latest_closed" | "payout_after_close" | "archive_after_close" | "recoverable_repaid";
 export interface ReopenPreview {
   month_id: number; can_reopen: boolean;
@@ -218,4 +218,4 @@ export interface CloseBillEdit {
   category_id?: number; name?: string; split_type?: "equal" | "fixed_per_person";
   amount_paisa?: number; overrides?: { member_id: number; amount_paisa: number }[];
 }
-export interface ClosePreview { can_close: boolean; blocks: CloseBlock[]; balances: { member_id: number; balance_paisa: number }[] }
+export interface ClosePreview { can_close: boolean; blocks: CloseBlock[]; balances: { member_id: number; balance_paisa: number }[]; surplus_available_paisa?: number }

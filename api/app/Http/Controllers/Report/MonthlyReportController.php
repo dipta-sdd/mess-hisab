@@ -62,7 +62,7 @@ class MonthlyReportController extends Controller
         $month = Month::query()->forMess($mess->id)->findOrFail($month);
 
         try {
-            return response()->json(['data' => $preview->build($mess, $month, $request->resolution(), $request->billEdits(), $request->nextBills())]);
+            return response()->json(['data' => $preview->build($mess, $month, $request->resolution(), $request->billEdits(), $request->nextBills(), $request->surplus(), currentMember())]);
         } catch (ReportException $e) {
             return $this->refused($e);
         }
@@ -74,7 +74,7 @@ class MonthlyReportController extends Controller
         $month = Month::query()->forMess($mess->id)->findOrFail($month);
 
         try {
-            $data = $preview->build($mess, $month, $request->resolution(), $request->billEdits(), $request->nextBills());
+            $data = $preview->build($mess, $month, $request->resolution(), $request->billEdits(), $request->nextBills(), $request->surplus(), currentMember());
         } catch (ReportException $e) {
             return $this->refused($e);
         }

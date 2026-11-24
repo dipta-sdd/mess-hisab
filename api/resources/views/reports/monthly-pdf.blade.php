@@ -76,6 +76,21 @@
     @endforeach
 </table>
 
+@php $c = $r['cash']; @endphp
+<h2>Cash in the manager's hand <span class="muted" style="font-weight: normal;">· paid from mess cash this month {{ $tk($s['cash_spent_paisa']) }}</span></h2>
+<table class="grid">
+    <tr><td class="l">Members are owed</td><td>{{ $tk($c['owed_to_members_paisa']) }}</td></tr>
+    <tr><td class="l">Members owe</td><td>&minus;{{ $tk($c['owed_by_members_paisa']) }}</td></tr>
+    <tr><td class="l">Bills charged but not yet paid out</td><td>{{ $tk($c['unpaid_fixed_bills_paisa']) }}</td></tr>
+    @if ($c['other_paisa'] !== 0)<tr><td class="l">Other (rounding, carried food)</td><td>{{ $tk($c['other_paisa']) }}</td></tr>@endif
+    <tr><td class="l"><b>Cash in hand</b></td><td><b>{{ $tk($c['in_hand_paisa']) }}</b></td></tr>
+</table>
+@if ($s['shared_extra_paisa'] > 0)
+    <div class="note">Spare cash of {{ $tk($s['shared_extra_paisa']) }} was shared equally as extra credit for next month.</div>
+@elseif ($c['extra_paisa'] > 0)
+    <div class="note">{{ $tk($c['extra_paisa']) }} of the cash is not covered by any balance and can be shared equally when the month is closed.</div>
+@endif
+
 <h2>Where the money went</h2>
 <table class="grid">
     <tr><th class="l">Category</th><th>Entries</th><th>Amount</th><th>Share of total</th></tr>

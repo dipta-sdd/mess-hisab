@@ -38,7 +38,7 @@ class MonthLifecycleController extends Controller
         $closed = DB::transaction(function () use ($request, $mess, $month, $closer, $edits) {
             $edits->apply($mess, $month, $request->billEdits());
 
-            return $closer->close($mess, $month, $request->resolution(), currentMember());
+            return $closer->close($mess, $month, $request->resolution(), currentMember(), $request->surplus());
         });
         $notifier->monthClosed($month->refresh());
 

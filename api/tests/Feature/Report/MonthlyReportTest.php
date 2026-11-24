@@ -32,7 +32,7 @@ it('builds the report with per-person next-month totals matching the Fixed page'
 
     $data = $this->getJson(rUrl($mess, $month))->assertOk()->json('data');
 
-    expect(array_keys($data))->toBe(['month', 'mess', 'summary', 'members', 'expenses', 'meals', 'next_month']);
+    expect(array_keys($data))->toBe(['month', 'mess', 'summary', 'members', 'payments', 'cash', 'expenses', 'meals', 'next_month']);
     expect($data['month']['id'])->toBe($month->id);
     expect($data['summary']['member_count'])->toBe(3);
     expect($data['summary']['expense_count'])->toBe(1);

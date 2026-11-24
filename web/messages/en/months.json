@@ -101,6 +101,14 @@
       "discard": "Discard changes",
       "badAmount": "Check the amounts: taka like 1,000 or 521.50.",
       "note": "Saved with the close"
+    },
+    "surplus": {
+      "legend": "Spare cash",
+      "hint": "{amount} of the cash is not covered by any balance. You can share some or all of it equally as extra credit for next month.",
+      "label": "Share equally (৳)",
+      "all": "Share all",
+      "tooMuch": "That is more than the spare cash ({amount}).",
+      "each": "About {amount} extra credit for each of {count} members. Any leftover paisa goes to the manager."
     }
   },
   "reopen": {

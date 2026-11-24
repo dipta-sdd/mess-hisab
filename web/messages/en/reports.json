@@ -92,5 +92,33 @@
     "next": "Next month",
     "open": "Open",
     "closed": "Closed"
+  },
+  "cash": {
+    "title": "Cash in the manager's hand",
+    "subtitle": "What is left of the deposits after paying from the mess cash, and why.",
+    "inHand": "Cash in hand",
+    "owed": "Members are owed",
+    "owe": "Members owe",
+    "unpaid": "Bills charged but not yet paid out",
+    "other": "Other (rounding, carried food)",
+    "spentFromCash": "Paid from the mess cash this month",
+    "shared": "Spare cash of {amount} was shared equally as extra credit for next month.",
+    "spare": "{amount} of the cash is not covered by any balance. It can be shared equally when the month is closed."
+  },
+  "payments": {
+    "title": "Money in and out, by person",
+    "subtitle": "Each person's payments, what they spent from their own pocket, and their total.",
+    "member": "Member",
+    "payments": "Payments",
+    "none": "No payments",
+    "spentOwn": "Spent from own pocket",
+    "total": "Total put in",
+    "grand": "Everyone"
+  },
+  "fromCash": {
+    "title": "Paid from the mess cash",
+    "subtitle": "Bills and shopping paid out of the manager's hand.",
+    "empty": "Nothing was paid from the mess cash this month.",
+    "total": "Total from cash"
   }
 }

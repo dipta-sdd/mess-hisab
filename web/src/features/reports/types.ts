@@ -11,6 +11,10 @@ export interface MonthlyReport {
   summary: ReportSummary;
   /** Members active in the month, id ascending. */
   members: ReportMember[];
+  /** Every payment (deposit) of the month, by date then id. */
+  payments: ReportPayment[];
+  /** Cash in the manager's hand at the end of the month, and why. */
+  cash: ReportCash;
   /** Approved expenses of the month, by date then id. */
   expenses: ReportExpense[];
   /** Null when the mess does not track meals. */
@@ -18,7 +22,7 @@ export interface MonthlyReport {
   /** Null in a preview when next month's bills were not sent. */
   next_month: ReportNextMonth | null;
   /** Only on a preview of an unclosed month: what would stop a real close. */
-  preview?: { blocks: CloseBlock[] };
+  preview?: { blocks: CloseBlock[]; surplus_available_paisa: number };
 }
 
 export interface ReportSummary {
@@ -37,6 +41,10 @@ export interface ReportSummary {
   paid_paisa: number;
   /** Approved expenses members paid from their own pocket. */
   spent_paisa: number;
+  /** Approved expenses paid from the mess cash. */
+  cash_spent_paisa: number;
+  /** Spare cash the close shared out equally as extra credit. */
+  shared_extra_paisa: number;
   /** Sum of everyone's negative balance, as a positive number. */
   total_due_paisa: number;
   /** Sum of everyone's positive balance. */
@@ -99,4 +107,26 @@ export interface ReportNextRow {
   last_month_credit_paisa: number;
   /** max(0, Σ by_category + due - credit). */
   total_paisa: number;
+}
+
+export interface ReportPayment {
+  id: number;
+  member_id: number;
+  display_name: string;
+  paid_on: DateString;
+  group: Group;
+  amount_paisa: number;
+  note: string | null;
+}
+
+/** cash = owed_to_members - owed_by_members + unpaid_fixed_bills + other. `extra` = cash no balance covers. */
+export interface ReportCash {
+  in_hand_paisa: number;
+  in_hand_fixed_paisa: number;
+  in_hand_meals_paisa: number;
+  owed_to_members_paisa: number;
+  owed_by_members_paisa: number;
+  unpaid_fixed_bills_paisa: number;
+  other_paisa: number;
+  extra_paisa: number;
 }

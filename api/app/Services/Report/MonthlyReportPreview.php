@@ -10,7 +10,9 @@ use App\Models\Month;
 use App\Services\Month\Calendar;
 use App\Services\Month\CalendarException;
 use App\Services\Month\Lifecycle\CloseBillEdits;
+use App\Models\MessMember;
 use App\Services\Month\Lifecycle\CloseChecker;
+use App\Services\Month\Lifecycle\SurplusCredit;
 use App\Services\Setup\BillSetup;
 use Illuminate\Support\Facades\DB;
 
@@ -27,6 +29,7 @@ class MonthlyReportPreview
         private readonly CloseBillEdits $edits,
         private readonly BillSetup $bills,
         private readonly Calendar $calendar,
+        private readonly SurplusCredit $surplus,
     ) {}
 
     /**
@@ -58,7 +61,7 @@ class MonthlyReportPreview
      * @param  list<array<string,mixed>>  $nextBills  next month's Fixed bills, the whole list: {category_id|name, amount_paisa?, overrides?}
      * @return array<string,mixed> the report data, plus `preview` => {blocks}
      */
-    public function build(Mess $mess, Month $month, ?ZeroMealResolution $choice, array $thisEdits, array $nextBills): array
+    public function build(Mess $mess, Month $month, ?ZeroMealResolution $choice, array $thisEdits, array $nextBills, int $surplusPaisa = 0, ?MessMember $by = null): array
     {
         $this->assertOpen($month);
 
@@ -67,6 +70,10 @@ class MonthlyReportPreview
             $fresh = Month::query()->forMess($mess->id)->findOrFail($month->id);
             $this->edits->apply($mess, $fresh, $thisEdits);
             $ev = $this->checker->evaluate($mess, $fresh, $choice);
+            $available = $this->surplus->available($mess, $fresh, $ev->snapshot);
+            if ($surplusPaisa > 0 && $by !== null) {
+                $this->surplus->write($mess, $fresh, $ev->snapshot, $surplusPaisa, $by);
+            }
 
             $next = $this->nextMonth($mess, $fresh);
             $this->edits->apply($mess, $next, $nextBills, reuseByName: true);
@@ -80,7 +87,7 @@ class MonthlyReportPreview
             DB::rollBack();
         }
 
-        $data['preview'] = ['blocks' => $ev->blocks];
+        $data['preview'] = ['blocks' => $ev->blocks, 'surplus_available_paisa' => $available];
 
         return $data;
     }

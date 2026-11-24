@@ -99,9 +99,14 @@ class MonthReopener
 
             $before = $this->totals($mess);
             $rows = $this->closeRows($mess, $month)->count();
+            // Spare cash the close shared out goes away with it, so those credits come off the balances.
+            $expected = $before;
+            foreach ($this->closeRows($mess, $month)->where('type', LedgerType::Adjustment->value)->get() as $credit) {
+                $expected[$credit->member_id] = ($expected[$credit->member_id] ?? 0) - $credit->amount_paisa;
+            }
             $this->apply($mess, $month, $by);
             $after = $this->totals($mess);
-            if ($after !== $before) {
+            if ($after !== $expected) {
                 throw new LifecycleException(__('Reopening would change balances; the stored month no longer matches its raw data.'), 'balances_changed');
             }
 

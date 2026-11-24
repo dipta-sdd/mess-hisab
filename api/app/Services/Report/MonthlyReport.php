@@ -8,7 +8,11 @@ use App\Enums\MealTracking;
 use App\Enums\MonthStatus;
 use App\Http\Resources\MessResource;
 use App\Http\Resources\MonthResource;
+use App\Enums\LedgerType;
 use App\Models\Expense;
+use App\Models\LedgerEntry;
+use App\Models\Payment;
+use App\Services\Month\Lifecycle\MonthCloser;
 use App\Models\Mess;
 use App\Models\Month;
 use App\Services\Balance\BalanceViews;
@@ -29,6 +33,7 @@ class MonthlyReport
         private readonly MonthBalanceService $balances,
         private readonly BillSetup $bills,
         private readonly Calendar $calendar,
+        private readonly CashReconciliation $cash,
     ) {}
 
     /** @throws ReportException */
@@ -93,6 +98,21 @@ class MonthlyReport
                 'note' => $e->note,
             ])->all();
 
+        $names = collect($dash['members'])->pluck('display_name', 'member_id');
+        $payments = Payment::query()->forMess($mess->id)->where('month_id', $month->id)->orderBy('paid_on')->orderBy('id')->get()
+            ->map(fn (Payment $p) => [
+                'id' => $p->id,
+                'member_id' => $p->member_id,
+                'display_name' => $names[$p->member_id] ?? '',
+                'paid_on' => $p->paid_on->toDateString(),
+                'group' => $p->group instanceof \BackedEnum ? $p->group->value : (string) $p->group,
+                'amount_paisa' => $p->amount_paisa,
+                'note' => $p->note,
+            ])->all();
+        // What the close shared out as equal extra credit (it sits in this month's ledger as adjustment rows).
+        $sharedOut = LedgerEntry::query()->forMess($mess->id)->where('month_id', $month->id)
+            ->where('source_type', MonthCloser::SOURCE)->where('type', LedgerType::Adjustment->value)->sum('amount_paisa');
+
         return [
             'month' => (new MonthResource($month))->resolve(),
             'mess' => (new MessResource($mess))->resolve(),
@@ -108,11 +128,15 @@ class MonthlyReport
                 'charged_paisa' => $totals['charged_paisa'],
                 'paid_paisa' => $totals['paid_paisa'],
                 'spent_paisa' => (int) $snap->ownPocket->sum('amount_paisa'),
+                'cash_spent_paisa' => (int) array_sum(array_map(fn (array $e) => $e['paid_by'] === 'cash' ? $e['amount_paisa'] : 0, $expenses)),
+                'shared_extra_paisa' => (int) $sharedOut,
                 'total_due_paisa' => $history['total_due_paisa'],
                 'total_credit_paisa' => $history['total_credit_paisa'],
                 'rounding_extra_paisa' => $totals['rounding_extra_paisa'],
             ],
             'members' => $members,
+            'payments' => $payments,
+            'cash' => $this->cash->forMonth($mess, $month, $snap),
             'expenses' => $expenses,
             'meals' => $this->meals($mess, $dash, $active),
             'next_month' => $billViews === [] ? null : $this->nextMonthBlock($next, $billViews),

@@ -45,13 +45,16 @@ export interface PreviewAnswers {
   resolution: ZeroMealResolution | null;
   bills: CloseBillEdit[];
   nextBills: CloseBillEdit[] | null;
+  /** Spare cash to share equally (paisa); 0 = none. */
+  surplusPaisa?: number;
 }
 
-function previewBody({ resolution, bills, nextBills }: PreviewAnswers) {
+function previewBody({ resolution, bills, nextBills, surplusPaisa = 0 }: PreviewAnswers) {
   return {
     ...(resolution ? { zero_meal_resolution: resolution } : {}),
     ...(bills.length > 0 ? { bills } : {}),
     ...(nextBills ? { next_bills: nextBills } : {}),
+    ...(surplusPaisa > 0 ? { surplus_paisa: surplusPaisa } : {}),
   };
 }
 

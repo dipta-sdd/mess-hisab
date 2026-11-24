@@ -230,6 +230,27 @@ describe("MonthsPage: close flow", () => {
     expect(closed).toBe(false);
   });
 
+  it("offers spare cash to share equally and sends the chosen amount with the close", async () => {
+    let body: Record<string, unknown> | null = null;
+    mockApi();
+    server.use(
+      http.get(`${BASE}/months/11/close-check`, () => HttpResponse.json({ data: { can_close: true, blocks: [], surplus_available_paisa: 30000 } })),
+      http.post(`${BASE}/months/11/close`, async ({ request }) => { body = (await request.json()) as Record<string, unknown>; return HttpResponse.json({ data: { ...nov, status: "closed" } }); }),
+    );
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole("button", { name: "Check if the month can be closed" }));
+    const box = await screen.findByRole("textbox", { name: /Share equally/ });
+    await user.type(box, "999");
+    expect(await screen.findByRole("alert")).toHaveTextContent("more than the spare cash");
+    expect(screen.queryByRole("button", { name: "Close month" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Share all" }));
+    await user.click(await screen.findByRole("button", { name: "Close month" }));
+    await user.click(screen.getByRole("button", { name: "Yes, close the month" }));
+    await waitFor(() => expect(body).not.toBeNull());
+    expect(body).toMatchObject({ surplus_paisa: 30000 });
+  });
+
   it("shows the blocks returned by a 409 close_blocked", async () => {
     mockApi();
     server.use(

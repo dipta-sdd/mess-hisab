@@ -132,7 +132,8 @@ export function ReportBody({ report, locale }: { report: MonthlyReport; locale: 
   const t = useTranslations("reports");
   const mode: RoundingMode = report.mess.rounding_mode;
   const money = (p: number) => formatMoney(p, locale, mode);
-  const { summary: s, month, members, expenses, meals, next_month: next } = report;
+  const { summary: s, month, members, expenses, meals, next_month: next, payments, cash } = report;
+  const cashExpenses = expenses.filter((e) => e.paid_by === "cash");
   const common = { showTableLabel: t("charts.showTable"), hideTableLabel: t("charts.hideTable") };
   const nextName = next ? formatMonthLabel(next.month.starts_on, locale) : "";
 
@@ -201,6 +202,103 @@ export function ReportBody({ report, locale }: { report: MonthlyReport; locale: 
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* 2a. Money in and out, by person */}
+      <section aria-labelledby="rep-pay" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4" data-testid="section-payments">
+        <div>
+          <h2 id="rep-pay" className="text-lg font-semibold">{t("payments.title")}</h2>
+          <p className="text-sm text-muted">{t("payments.subtitle")}</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm tabular-nums">
+            <thead>
+              <tr className="border-b border-border text-muted">
+                <th scope="col" className="p-2 text-start">{t("payments.member")}</th>
+                <th scope="col" className="p-2 text-start">{t("payments.payments")}</th>
+                <th scope="col" className="p-2 text-end">{t("people.deposited")}</th>
+                <th scope="col" className="p-2 text-end">{t("payments.spentOwn")}</th>
+                <th scope="col" className="p-2 text-end">{t("payments.total")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {members.map((m) => {
+                const mine = payments.filter((p) => p.member_id === m.member_id);
+                return (
+                  <tr key={m.member_id} className="border-b border-border align-top" data-testid={`pay-row-${m.member_id}`}>
+                    <th scope="row" className="p-2 text-start font-medium">{m.display_name}</th>
+                    <td className="p-2 text-start text-muted">
+                      {mine.length === 0 ? t("payments.none") : mine.map((p) => `${formatDate(p.paid_on, locale)} · ${money(p.amount_paisa)}`).join(", ")}
+                    </td>
+                    <td className="p-2 text-end">{money(m.paid_paisa)}</td>
+                    <td className="p-2 text-end">{money(m.spent_paisa)}</td>
+                    <td className="p-2 text-end font-semibold">{money(m.paid_paisa + m.spent_paisa)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="font-semibold">
+                <th scope="row" colSpan={2} className="p-2 text-start">{t("payments.grand")}</th>
+                <td className="p-2 text-end" data-testid="pay-total-paid">{money(s.paid_paisa)}</td>
+                <td className="p-2 text-end" data-testid="pay-total-spent">{money(s.spent_paisa)}</td>
+                <td className="p-2 text-end" data-testid="pay-total-all">{money(s.paid_paisa + s.spent_paisa)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      {/* 2b. Paid from the mess cash */}
+      <section aria-labelledby="rep-fromcash" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4" data-testid="section-from-cash">
+        <div>
+          <h2 id="rep-fromcash" className="text-lg font-semibold">{t("fromCash.title")}</h2>
+          <p className="text-sm text-muted">{t("fromCash.subtitle")}</p>
+        </div>
+        {cashExpenses.length === 0 ? (
+          <p className="text-muted">{t("fromCash.empty")}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm tabular-nums">
+              <tbody>
+                {cashExpenses.map((e) => (
+                  <tr key={e.id} className="border-b border-border">
+                    <td className="p-2">{formatDate(e.spent_on, locale)}</td>
+                    <td className="p-2">{e.category ?? ""}</td>
+                    <td className="p-2 text-muted">{e.note ?? ""}</td>
+                    <td className="p-2 text-end">{money(e.amount_paisa)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="font-semibold">
+                  <th scope="row" colSpan={3} className="p-2 text-start">{t("fromCash.total")}</th>
+                  <td className="p-2 text-end" data-testid="from-cash-total">{money(s.cash_spent_paisa)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* 2c. Cash in the manager's hand */}
+      <section aria-labelledby="rep-cash" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4" data-testid="section-cash">
+        <div>
+          <h2 id="rep-cash" className="text-lg font-semibold">{t("cash.title")}</h2>
+          <p className="text-sm text-muted">{t("cash.subtitle")}</p>
+        </div>
+        <dl className="divide-y divide-border text-sm tabular-nums">
+          <div className="flex justify-between gap-3 py-2"><dt>{t("cash.owed")}</dt><dd data-testid="cash-owed">{money(cash.owed_to_members_paisa)}</dd></div>
+          <div className="flex justify-between gap-3 py-2"><dt>{t("cash.owe")}</dt><dd data-testid="cash-owe">{money(-cash.owed_by_members_paisa)}</dd></div>
+          <div className="flex justify-between gap-3 py-2"><dt>{t("cash.unpaid")}</dt><dd data-testid="cash-unpaid">{money(cash.unpaid_fixed_bills_paisa)}</dd></div>
+          {cash.other_paisa !== 0 ? <div className="flex justify-between gap-3 py-2"><dt>{t("cash.other")}</dt><dd>{money(cash.other_paisa)}</dd></div> : null}
+          <div className="flex justify-between gap-3 py-2 text-base font-semibold"><dt>{t("cash.inHand")}</dt><dd data-testid="cash-in-hand">{money(cash.in_hand_paisa)}</dd></div>
+        </dl>
+        {s.shared_extra_paisa > 0 ? (
+          <p className="text-sm" data-testid="cash-shared">{t("cash.shared", { amount: money(s.shared_extra_paisa) })}</p>
+        ) : cash.extra_paisa > 0 ? (
+          <p className="text-sm text-muted" data-testid="cash-spare">{t("cash.spare", { amount: money(cash.extra_paisa) })}</p>
+        ) : null}
       </section>
 
       <div className="grid gap-4 md:grid-cols-2" data-testid="section-people">

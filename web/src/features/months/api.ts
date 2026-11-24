@@ -99,15 +99,19 @@ export function useClosePreview(messId: number, monthId: number, resolution: Zer
   });
 }
 
-function closeBody(resolution: ZeroMealResolution | null, bills: CloseBillEdit[]) {
-  return { ...(resolution ? { zero_meal_resolution: resolution } : {}), ...(bills.length > 0 ? { bills } : {}) };
+function closeBody(resolution: ZeroMealResolution | null, bills: CloseBillEdit[], surplusPaisa = 0) {
+  return {
+    ...(resolution ? { zero_meal_resolution: resolution } : {}),
+    ...(bills.length > 0 ? { bills } : {}),
+    ...(surplusPaisa > 0 ? { surplus_paisa: surplusPaisa } : {}),
+  };
 }
 
 export function useCloseMonth(messId: number, monthId: number) {
   const refresh = useRefreshAfterWrite(messId);
   return useMutation({
-    mutationFn: async ({ resolution, bills = [] }: { resolution: ZeroMealResolution | null; bills?: CloseBillEdit[] }) =>
-      (await apiClient.post<ItemResponse<Month>>(`${base(messId)}/months/${monthId}/close`, closeBody(resolution, bills))).data,
+    mutationFn: async ({ resolution, bills = [], surplusPaisa = 0 }: { resolution: ZeroMealResolution | null; bills?: CloseBillEdit[]; surplusPaisa?: number }) =>
+      (await apiClient.post<ItemResponse<Month>>(`${base(messId)}/months/${monthId}/close`, closeBody(resolution, bills, surplusPaisa))).data,
     onSuccess: refresh,
   });
 }
